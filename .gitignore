@@ -1,0 +1,10 @@
+app/build/
+app/.dart_tool/
+app/coverage/
+*.iml
+.env
+app/android/key.properties
+*.jks
+*.keystore
+web/node_modules/
+web/.next/
