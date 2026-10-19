@@ -6,6 +6,15 @@ library;
 import '../../core/result.dart';
 import '../entities/entities.dart';
 
+/// An already available location; reading this must never start or await GPS.
+abstract interface class CachedLocationService {
+  LocationFix? get cachedFix;
+}
+
+abstract interface class EvidenceExportService {
+  Future<Result<void>> share(String encryptedPath);
+}
+
 abstract interface class LocationService {
   /// Best-effort current fix. Must complete within [timeout]; falls back to the
   /// last known fix, else returns [Err].

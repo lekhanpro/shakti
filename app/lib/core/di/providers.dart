@@ -29,6 +29,7 @@ final hapticsServiceProvider = Provider<HapticsService>((_) => _missing('Haptics
 final sirenServiceProvider = Provider<SirenService>((_) => _missing('SirenService'));
 final strobeServiceProvider = Provider<StrobeService>((_) => _missing('StrobeService'));
 final audioEvidenceServiceProvider = Provider<AudioEvidenceService>((_) => _missing('AudioEvidenceService'));
+final evidenceExportServiceProvider = Provider<EvidenceExportService>((_) => _missing('EvidenceExportService'));
 final geocodingServiceProvider = Provider<GeocodingService>((_) => _missing('GeocodingService'));
 final cloudDispatchServiceProvider = Provider<CloudDispatchService>((_) => _missing('CloudDispatchService'));
 final syncServiceProvider = Provider<SyncService>((_) => _missing('SyncService'));

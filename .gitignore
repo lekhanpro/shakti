@@ -8,3 +8,35 @@ app/android/key.properties
 *.keystore
 web/node_modules/
 web/.next/
+app/android/build/
+app/build_debug.txt
+tmp/
+output/*.zip
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+*.p12
+*.pem
+*.key
+
+# Build outputs and crash dumps
+app/android/build/
+app/build_debug.txt
+**/hs_err_pid*.log
+**/replay_pid*.log
+*.log
+
+# Generated artefacts and scratch space
+tmp/
+output/
+media/out/
+media/remotion-promo/video/out/
+**/node_modules/
+
+# Local tool state
+.playwright-mcp/
+**/.claude/
+web/tsconfig.tsbuildinfo
+
+# Generated design-review screenshots
+web/.impeccable/review/

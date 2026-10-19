@@ -13,8 +13,9 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    // Scrolls so large text (up to 200%) never clips on short screens.
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(ShaktiSpace.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
