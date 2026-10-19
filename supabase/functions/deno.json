@@ -1,0 +1,18 @@
+{
+  "tasks": {
+    "test": "deno test --allow-env --allow-net=none",
+    "check": "deno check _shared/*.ts ai-guard/*.ts emergency-dispatch/*.ts guardian-invite/*.ts track/*.ts"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "compilerOptions": {
+    "strict": true
+  },
+  "fmt": {
+    "lineWidth": 110
+  },
+  "lint": {
+    "rules": { "tags": ["recommended"] }
+  }
+}
