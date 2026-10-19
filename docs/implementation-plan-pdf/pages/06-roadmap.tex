@@ -1,0 +1,36 @@
+\section{Sixty-day build roadmap and ownership}
+
+This is a proposed 60-day delivery sequence adapted from the master plan. Later phases build on stable contracts and tested foundations; work may overlap after those interfaces are agreed. A phase closes only when its evidence is demonstrated and recorded.
+
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{18mm} L{37mm} Y@{}}
+\toprule\textbf{Phase / days} & \textbf{Deliverable} & \textbf{Completion gate}\\\midrule
+0 / 1--2 & Foundation and contracts & Resolve pinned dependencies; define ports/entities; configure themes, routing and environment separation. App opens; domain code has no plugin imports.\\
+\zebra 1 / 3--7 & Panic engine and Android & State machine, countdown/cancel, SOS UI, native guard and optional volume trigger. Fake-clock tests and a device trigger demonstration pass.\\
+2 / 8--14 & Offline data and SMS & Drift, contact CRUD, permissions, real service adapters, onboarding and locks. A real SIM receives an offline SOS; no network call gates SMS.\\
+\zebra 3 / 15--21 & Map, location and escort & Live/cached location, havens, walking routes, breadcrumbs and persisted escort deadline. Missing GPS, timeout and arrival/check-in cases pass.\\
+4 / 22--28 & Cloud and guardian web & RLS, invitations, sync, authenticated dispatch, Telegram and tracker. Prove real SQL-to-web compatibility and reconnect recovery.\\
+\zebra 5 / 29--35 & Evidence and de-escalation & Encrypted recorder, vault, fake call, siren, strobe and decoy. Verify encryption, export cleanup and silent-mode isolation on hardware.\\
+6 / 36--42 & AI guidance and reporting & Validated Groq proxy, rate limits, crisis actions, offline tips and editable FIR PDF. Reject hostile input; handle provider failure safely.\\
+\zebra 7 / 43--49 & Reliability and field QA & Calibrate sensors; test locked screen, reboot, process death, SMS timing and 24 h battery. Record device/OS results and resolve critical defects.\\
+8 / 50--60 & Release and community demo & Accessibility/performance polish, full regression, signed APK/AAB, privacy materials, pilot, presentation and handover. Release checklist approved.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Team responsibilities and handovers}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{25mm} Y@{}}
+\toprule\textbf{Member} & \textbf{Ownership and required handover}\\\midrule
+Lekhan & Architecture, panic pipeline, native integration and release. Integrate real adapters, review contracts and publish the tested build.\\
+\zebra Manas & Flutter screens, reusable controls, accessible stress-mode interaction and companion-web presentation. Hand over screens with explicit state/events and widget checks.\\
+Vikat & Drift, Supabase schema/RLS, sync, external data and edge functions. Hand over migration, interface and retry tests plus setup notes.\\
+\zebra Hemanth & Device QA, sensor/battery calibration, regression evidence and community demonstration. Hand over the device matrix, defect log and demo/presentation assets.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Principal risks and mitigations}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{38mm} Y@{}}
+\toprule\textbf{Risk} & \textbf{Mitigation / release condition}\\\midrule
+Device restrictions / false triggers & Test native hooks, lock screen and permitted services across devices; provide the explicit SOS button and tune thresholds.\\
+\zebra GPS, SMS or cloud unavailable & Cached/absent-location SMS, isolated channels, durable queue and honest status; never assume delivery.\\
+Adapter or contract gaps & Wire and exercise every production port; test the real database response against the web parser.\\
+\zebra Exposed location / scope growth & Restrict sharing and retention, redact logs, and freeze the core scope before adding integrations.\\
+\bottomrule\end{tabularx}\end{center}
+
+\pagenote{Future scope: iOS, wearables, offline mesh, community heatmaps and optional FCM push. They need separate feasibility, privacy and device validation; none is a dependency of the core SOS release.}

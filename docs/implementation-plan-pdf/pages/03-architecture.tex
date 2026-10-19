@@ -1,0 +1,35 @@
+\section{Architecture, interfaces and data}
+
+Use \term{clean architecture with feature-first modules}. Keep domain logic independent of Flutter; place plugins and network adapters in the data layer. Features obtain dependencies through Riverpod providers, and \code{bootstrap()} must wire real adapters before an integrated release. Fake services are for tests and labelled demonstrations only.
+
+\begin{keyfact}[title=Chosen technology stack]
+\begin{tabularx}{\linewidth}{@{}L{30mm} Y@{}}
+Android app & Flutter 3.47 / Dart 3.13; Riverpod 3, go\_router, Drift/SQLite and Kotlin platform channels. Use repository lockfiles for exact versions.\\
+Backend & Supabase Auth/PostgreSQL, row-level security (RLS), and Deno edge functions; remote operations use typed, validated adapters.\\
+Companion web & Next.js 16 / React 19, TypeScript, Tailwind and Leaflet; landing page and \code{/track/[token]}.\\
+External services & Telegram Bot API; Groq through an edge proxy; OpenStreetMap/Overpass, Nominatim and a walking-capable routing endpoint.\\
+\end{tabularx}\end{keyfact}
+
+\begin{center}\begin{minipage}{\linewidth}\centering
+\input{diagrams/architecture}
+\figcaption{The local emergency path operates independently of cloud availability.}
+\end{minipage}\end{center}
+
+\subsection{Component and interface contracts}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{34mm} Y@{}}
+\toprule\textbf{Boundary} & \textbf{Contract and implementation rule}\\\midrule
+App / device & Ports for SMS, location, audio, secure storage and sensors return explicit success/failure. Kotlin uses \code{shakti/guard} plus its event channel for native triggers.\\
+\zebra App / backend & \code{emergency-dispatch} accepts an authenticated, owned incident and returns a channel result; \code{guardian-invite} creates/accepts access invitations.\\
+App / AI & \code{ai-guard}: JWT validation; chat/FIR modes; bounded input; 20 requests per minute per user. Keep provider credentials server-side.\\
+\zebra Web / database & \code{track\_incident(p\_token)} returns only the shared incident and breadcrumbs. Match the SQL response exactly; reject malformed, unknown and expired links. Poll every 10 s.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Persistence and synchronization}
+\begin{itemize}
+\item \textbf{Local records:} contacts, incidents, breadcrumbs, cached havens/safe places, chat, settings and a durable sync queue. Store encrypted evidence files separately; keep their incident references locally.
+\item \textbf{Cloud records:} profiles, emergency contacts, incident reports, live breadcrumbs, safe zones, guardian invitations and rate limits. The schema also reserves push tokens for a future optional integration.
+\item \textbf{Integrity:} UUIDs identify incidents; a random share token identifies a restricted tracker view. Preserve owner, creation time and token identity. Guard incident ownership on every write; accepted invitations govern authenticated guardian access.
+\item \textbf{Queue:} persist work before attempting uploads; retry with exponential backoff on reconnect. Upsert by stable ID and use update timestamps for conflicts, while preserving resolved state against stale active updates. Record channel attempts so retries do not silently duplicate alerts.
+\end{itemize}
+
+\pagenote{Completion gate: one integration test creates a local incident, reconnects, uploads it once and proves that the real tracker can read the SQL response. Cloud authentication must never block local SOS.}

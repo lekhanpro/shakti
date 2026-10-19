@@ -1,0 +1,13 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+\node[start=36mm,minimum height=13mm] (app) at (0,0) {Flutter UI + Riverpod\\Pure Dart domain};
+\node[box=41mm,minimum height=13mm] (local) at (56,0) {Drift + device adapters\\SMS, GPS, encrypted audio};
+\node[alt=36mm,minimum height=13mm] (cloud) at (116,0) {Supabase + Deno\\Auth, RLS, dispatch};
+\node[box=36mm] (guard) at (0,-23) {Kotlin guard\\power / volume events};
+\node[fin=41mm] (contacts) at (56,-23) {Trusted contacts\\carrier SMS};
+\node[fin=36mm] (web) at (116,-23) {Guardian browser\\tracker + Telegram};
+\draw[arr] (app) -- node[lbl,above]{ports} (local);
+\draw[arr] (local) -- node[lbl,above]{sync queue} (cloud);
+\draw[arr] (guard) -- (app);
+\draw[arr] (local) -- (contacts);
+\draw[arr] (cloud) -- (web);
+\end{tikzpicture}

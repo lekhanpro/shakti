@@ -1,0 +1,30 @@
+\section{Testing, security and operating resources}\label{sec:verification}
+
+\subsection{Verification matrix and measurable gates}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{28mm} Y@{}}
+\toprule\textbf{Layer} & \textbf{Required checks / acceptance evidence}\\\midrule
+Domain and data & State transitions, debounce/false-trigger traces, escort time, PIN hashing and SMS composition; repository, queue and conflict tests. At least 80\% line coverage across domain/data.\\
+\zebra Screens and web & Countdown cancellation, contact validation, onboarding, wrong PIN, duress, fake call and scaled text. Web parser tests use the real SQL response; test unknown/expired token and stale-location UI.\\
+Backend / security & Deno validation, JWT/ownership rejection, rate limits and Telegram escaping; SQL tests prove owner/guardian isolation. Reject forged incident writes and cross-user reads.\\
+\zebra End to end & Test with real production adapters: offline SOS, reconnect sync, tracker updates and safe resolution; repeated triggers, app restart, permissions denied and one failed channel.\\
+Physical Android & Android 12, 13 and 14 device matrix: screen off/locked, reboot, process death, optional accessibility and microphone restrictions. Measure five SMS-handoff runs and five cold starts.\\
+\zebra Performance targets & SMS handoff $<1.2$ s after countdown; cold start $<1.5$ s; idle guard battery drain $<2.5\%$ over 24 h; release APK $<24$ MB per ABI. Targets require measured evidence, not estimates.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Privacy and distribution controls}
+\begin{itemize}
+\item \textbf{Least privilege.} Explain SMS, location, notifications and microphone permissions individually. Request background location only for the enabled journey. Start microphone/location services only in permitted states; surface unavailable features.
+\item \textbf{Device protection.} Keep the PIN local; encrypt evidence with AES-GCM; protect keys, block screenshots by default and disable Android backup. Export is explicit and decrypted temporary files are removed.
+\item \textbf{Server protection.} RLS on every exposed table; validate JWTs and ownership; restrict tracker RPC fields. Never ship Groq, Telegram or service-role credentials to app/web clients. Redact token, phone, GPS and evidence data from logs.
+\item \textbf{Sharing and retention.} Treat the tracker URL as a bearer secret: HTTPS, no indexing or referrer leakage, and no evidence in the response. The current SQL expires resolved links after 24 h; acceptance must also cover stale active incidents and user-initiated revocation before wider rollout.
+\item \textbf{Release policy.} Google Play restricts SMS permissions. Physical-safety alerts are an exception category subject to declaration and review, not automatic approval. Validate accessibility/background permissions and current target-API requirements before submission. \source{3}{https://support.google.com/googleplay/android-developer/answer/10208820}
+\end{itemize}
+
+\subsection{Budget assumptions (checked 17 October 2026)}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{31mm} Y@{}}
+\toprule\textbf{Resource} & \textbf{Planning basis}\\\midrule
+Supabase & Free tier for development within quotas; inactivity pausing applies. Pro starts at USD 25/month, with usage/add-ons extra. Budget backups and avoid a dormant free project for a live pilot. \source{1}{https://supabase.com/pricing}\\
+\zebra Web hosting & Propose Vercel Pro for the public tracker: USD 20/month platform fee includes one deploying seat; extra seats and usage add cost. \source{2}{https://vercel.com/docs/plans/pro-plan}\\
+SMS / AI / operations & SIM/SMS charges depend on carrier and message segments. Groq quotas/usage, domain, monitoring, backup storage and testing devices are additional; use actual consumption to set caps. \source{4}{https://console.groq.com/docs/rate-limits}\\
+\bottomrule\end{tabularx}\end{center}
+\pagenote{A hosted-pilot baseline is therefore about USD 45/month before taxes, exchange conversion and variable costs, assuming one database project and one deploying web seat. This is a planning estimate, not a zero-cost or availability guarantee.}

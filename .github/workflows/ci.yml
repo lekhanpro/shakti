@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Flutter analyze + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter analyze
+      - run: flutter test --coverage
+      - name: Coverage gate (domain + data >= 80%)
+        run: |
+          sudo apt-get install -y lcov >/dev/null
+          lcov --extract coverage/lcov.info '*/lib/domain/*' '*/lib/data/*' -o coverage/core.info --ignore-errors unused
+          lcov --remove coverage/core.info '*.g.dart' -o coverage/core.info --ignore-errors unused
+          pct=$(lcov --summary coverage/core.info 2>&1 | grep -Po 'lines\.*: \K[0-9.]+')
+          echo "domain+data line coverage: ${pct}%"
+          awk -v p="$pct" 'BEGIN { exit (p >= 80) ? 0 : 1 }'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: app/coverage/lcov.info
+
+  functions:
+    name: Edge functions check + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno task check
+      - run: deno task test
+
+  web:
+    name: Web typecheck + test + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

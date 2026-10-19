@@ -1,0 +1,31 @@
+\section{Supporting features and user journeys}
+
+Deliver each feature behind the same service interfaces as the emergency pipeline. Give every screen a useful offline or permission-denied state and a clear return path to SOS.
+
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{29mm} Y@{}}
+\toprule\textbf{Module} & \textbf{Implementation and acceptance requirement}\\\midrule
+Onboarding / identity & Four steps: introduction, explained permissions, at least one emergency contact, and PIN. Local safety tools remain usable without a cloud sign-in; enable Supabase identity when cloud sharing is configured.\\
+\zebra Contacts & Add, edit, enable/disable and remove contacts; normalize E.164 numbers and test all enabled recipients. Explain guardian consent, reachable numbers and Telegram chat setup.\\
+Lock / biometrics & PBKDF2-SHA256, 100,000 iterations and a unique 16-byte salt; secure storage. Lock after 60 s in background. Five failed PINs cause a 30 s lockout; biometrics never bypass duress handling.\\
+\zebra Walk With Me & Choose a duration and optional destination. Persist the deadline; PIN check-in ends the escort, expiry triggers SOS. During the active escort, a 150 m arrival check prompts PIN confirmation before any configured arrival message.\\
+Map / route & Show police, hospitals, tagged 24/7 pharmacies and shelters within 5 km; timestamp cached results and provide one-tap contact actions. Score walking alternatives by haven proximity; show them as suggestions, without safety guarantees.\\
+\zebra AI / FIR draft & Server-proxied chat, short responses, offline tips and crisis-call actions (112/181/1091/1098). \source{6}{https://www.india.gov.in/directory/helpline} Generate an editable report from user facts; export/share PDF. An FIR draft is for user review, not automatic filing or verified legal advice.\\
+Fake call / deterrence & Caller presets and 0/10/30/60 s delay; local ringtone, vibration and call-style UI. Siren and torch require real adapters, device checks and explicit user control; make no fixed loudness claim.\\
+\zebra Evidence / settings & Record up to 60 s AAC, encrypt using AES-GCM and keep the key in secure storage. Permit playback, explicit export and deletion; clean decrypted temporary files. Settings control triggers, stealth, contacts, cloud and retention.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Escort and guardian workflows}
+\begin{center}\begin{minipage}{\linewidth}\centering
+\input{diagrams/escort}
+\figcaption{A check-in requires the user's PIN; an expired timer enters the SOS controller.}
+\end{minipage}\end{center}
+
+\begin{center}\begin{minipage}{\linewidth}\centering
+\input{diagrams/guardian}
+\figcaption{The shared browser view exposes one incident, with clear freshness and end state.}
+\end{minipage}\end{center}
+
+\subsection{Accessible, calm interaction}
+Use the app's dark surfaces, indigo actions, emerald safe states, amber countdown and rose for emergency meaning. Bundle Poppins/Nunito for the app; retain the web's local Bricolage Grotesque/Instrument Sans. These product fonts are separate from this report's typography.
+
+All controls need semantic labels and at least \textbf{48 dp} targets; the primary SOS target is \textbf{220 dp}. Verify \textbf{200\% text scaling}, \textbf{4.5:1 text contrast}, reduced motion and labels in addition to colour. The countdown/active screen focuses on cancellation or verified resolution and a readable channel checklist. The landing page labels demonstrations and links to the current approved download.

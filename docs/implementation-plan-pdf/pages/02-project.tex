@@ -1,0 +1,38 @@
+\section{Project purpose and delivery scope}
+
+Shakti is an \term{offline-first Android personal-safety network} for women, students and staff travelling alone. A user can raise an emergency without navigating several screens; trusted family, friends or campus security receive an actionable alert. The project combines a phone app, a cloud coordination layer and a browser tracker, so guardians do not have to install another app.
+
+\begin{keyfact}[title=Community outcome]
+Reduce the steps between recognising danger and requesting help. Provide a location when available, make the result of each alert channel visible, and preserve an incident record. Shakti supports human response; it does not promise rescue, continuous connectivity or a certified safe route.
+\end{keyfact}
+
+\subsection{Users and responsibilities}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{31mm} L{39mm} Y@{}}
+\toprule\textbf{Actor} & \textbf{Surface} & \textbf{Responsibility / access}\\\midrule
+Primary user & Flutter Android app & Set contacts and permissions; trigger/cancel SOS; check in; resolve using a PIN; control evidence and sharing.\\
+\zebra Guardian & SMS, Telegram, web link & Receive the alert, inspect the shared incident and contact the user or emergency services. No app installation required.\\
+Project team & Repository and service consoles & Maintain releases, access policies, backups, incident support and the demonstration environment. No routine reading of private evidence.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Feature groups to deliver}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{30mm} Y L{24mm}@{}}
+\toprule\textbf{Group} & \textbf{Required capability} & \textbf{Build phase}\\\midrule
+Emergency & SOS button; power x3; optional volume x3; shake; foreground/escort voice; countdown and cancellation; duress PIN. & 1--2, 7\\
+\zebra Alert and track & Carrier SMS, local incident history, queued cloud dispatch, Telegram, ten-second breadcrumbs and guardian tracker. & 2--4\\
+Companion and map & Walk With Me, PIN check-in, destination proximity; nearby havens, cached results and walking-route suggestions. & 3--4\\
+\zebra Safety tools & Fake call, siren/strobe, 60-second encrypted audio evidence and a user-controlled vault. & 5\\
+Guidance & AI chat, crisis handoff, editable FIR draft/PDF and offline template/tips. & 6\\
+\zebra Protection and access & Onboarding, contacts, app lock, biometrics, secure storage, accessible stress-mode UI and settings. & 0--2, 5--8\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{What works with each connection state}
+\begin{itemize}
+\item \textbf{No internet, cellular service available:} local incident storage, carrier SMS, PIN, fake call and permitted device tools remain usable. SMS requires a SIM, signal, permission and carrier allowance; it is not an internet service.
+\item \textbf{Internet available:} upload queued incidents and breadcrumbs; send Telegram alerts; load the guardian tracker, remote map/routing data and AI responses.
+\item \textbf{No cellular service and no internet:} keep the local record and available device tools. Show that messages have not been sent; retry cloud work after reconnecting. Offline maps require previously cached data.
+\end{itemize}
+
+\subsection{Definition of success}
+All core features must pass integration tests on real devices. Targets are \textbf{under 1.2 s from countdown end to SMS handoff}, \textbf{under 1.5 s cold start}, and \textbf{at least 80\% line coverage of domain/data code}. Measure these separately from carrier delivery time. Battery use and lock-screen behaviour require hardware evidence before release (section~\ref{sec:verification}).
+
+\pagenote{Planning basis: the current Shakti specification and repository take precedence over older Aegis concepts. This document defines the complete build; it is not a claim that every service is already integrated.}

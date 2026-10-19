@@ -1,0 +1,43 @@
+\section{Deployment, maintenance and handover}
+
+\subsection{Release in a controlled sequence}
+\begin{enumerate}
+\item \textbf{Prepare environments.} Separate development, staging and pilot projects. Configure app \code{SUPABASE\_URL}, \code{SUPABASE\_ANON\_KEY} and \code{TRACK\_BASE\_URL}; set matching public web values. Keep provider secrets and signing material in restricted secret stores, never source control.
+\item \textbf{Deploy the backend.} Take a backup; test migrations on staging, apply the versioned schema and run SQL/RLS tests. Deploy \code{ai-guard}, \code{emergency-dispatch} and \code{guardian-invite}; configure secrets, authentication redirects and Telegram chat access. Prove that unauthorised requests fail. \source{5}{https://supabase.com/docs/guides/functions/deploy}
+\item \textbf{Publish the HTTPS website.} Deploy the pinned Next.js build to the approved host, configure DNS/TLS and the app's matching tracker origin. Test a real incident token, expiration, polling and unavailable-backend states; publish the correct release download link.
+\item \textbf{Build and sign Android.} CI runs analysis, coverage, Deno/SQL checks and web tests/build. Wire all production providers, then build a signed release APK and AAB using protected keys. Preserve the signing identity; attach version, checksum, change notes and known device limits to the release.
+\item \textbf{Run a staged pilot.} Install on designated phones with consented test contacts. Demonstrate SMS with internet off, failure states, cloud recovery, guardian tracking, encrypted evidence and PIN resolution. Test alerts must be clearly identified; record results before inviting broader use.
+\item \textbf{Approve and distribute.} Begin with the signed pilot APK through a controlled HTTPS download. Submit the AAB to Google Play only after permission declarations, privacy/data-safety materials and current store requirements are satisfied. Tag approved releases \code{vX.Y.Z}; expand the pilot only after critical failures are resolved.
+\end{enumerate}
+
+\begin{cautionbox}[title=Rollback and outage response]
+Keep the last known-good app and web/edge release available. For Android, rebuild the previous stable code with a higher version code and the same signing key. Roll back web/edge versions independently; prefer forward-compatible database fixes. Restore a tested database backup only through a documented recovery procedure. During a cloud outage, explain the degraded state and preserve the local SOS path.
+\end{cautionbox}
+
+\subsection{Maintenance schedule and accountable owners}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{26mm} L{24mm} Y@{}}
+\toprule\textbf{Cadence} & \textbf{Owner} & \textbf{Action / retained evidence}\\\midrule
+Each pilot day & Lekhan / Vikat & Review uptime, dispatch/queue failures, rate limits and quota alerts using redacted diagnostics. Triage faults; never test emergency messages against uninformed recipients.\\
+\zebra Weekly & Vikat & Check encrypted backup success, service access and dependency advisories. Patch staging first and document migration/rollback compatibility.\\
+Monthly & Hemanth / team & Restore a backup in isolation; repeat critical hardware/SIM checks; review costs, retention/deletion, stale links and lessons from the pilot.\\
+\zebra Every release & All four & Regression and accessibility evidence; privacy review; signed artifacts, change notes and reproducible setup/runbooks. Re-test changed Android behaviour.\\
+\bottomrule\end{tabularx}\end{center}
+
+\subsection{Handover package and references}
+Deliver the source/lockfiles, migration history, redacted configuration examples, service-adapter map, access-ownership register, device QA results, signed build/checksum, user guide, backup/restore instructions and community presentation. Keep secrets and private test data outside the package.
+
+{\small
+\textbf{Project basis:} Shakti design specification and implementation plan (29 September 2026); hardware QA checklist; app/web manifests, service contracts and Supabase schema reviewed 17 October 2026. The older Aegis master plan supplies the 60-day outline and team roles; current Shakti sources resolve conflicts.
+
+\begin{minipage}[t]{0.48\linewidth}\RaggedRight
+\reflink{1}{Supabase pricing and plan limits}{https://supabase.com/pricing}\\
+\reflink{2}{Vercel Pro plan and billing}{https://vercel.com/docs/plans/pro-plan}\\
+\reflink{3}{Google Play: SMS permission policy}{https://support.google.com/googleplay/android-developer/answer/10208820}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\linewidth}\RaggedRight
+\reflink{4}{Groq request limits}{https://console.groq.com/docs/rate-limits}\\
+\reflink{5}{Supabase function deployment}{https://supabase.com/docs/guides/functions/deploy}\\
+\reflink{6}{Government of India helpline directory}{https://www.india.gov.in/directory/helpline}\\
+Official web references checked 17 October 2026; verify again at release.
+\end{minipage}
+}

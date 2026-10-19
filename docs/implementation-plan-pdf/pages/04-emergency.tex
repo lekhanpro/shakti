@@ -1,0 +1,30 @@
+\section{Emergency activation and response}
+
+The \term{panic controller} owns one incident lifecycle: idle, countdown, active, then resolved or false alarm. Multiple triggers during one active incident must not create duplicate emergencies. Each dispatch channel has its own timeout, result and retry policy.
+
+\subsection{Trigger inputs}
+\begin{center}\begin{tabularx}{\linewidth}{@{}L{31mm} Y@{}}
+\toprule\textbf{Source} & \textbf{Required behaviour}\\\midrule
+SOS button / power & A large SOS target starts a default 5 s countdown. Kotlin detects three screen toggles within 1.2 s; verify reliability on each supported device.\\
+\zebra Volume / shake & Volume-down x3 is opt-in through accessibility. Shake uses a 2.8 g threshold, three zero-crossings in 750 ms and a 3 s debounce; reject ordinary movement traces.\\
+Voice / escort & Match the configured phrase while the app is open or during a permitted escort session. Escort expiry enters the same SOS pipeline.\\
+\zebra Duress PIN & Open the neutral Notes decoy and enter silent SOS directly. Bypass the countdown and suppress siren, strobe and haptics.\\
+\bottomrule\end{tabularx}\end{center}
+
+\begin{center}\begin{minipage}{\linewidth}\centering
+\input{diagrams/emergency}
+\figcaption{One lifecycle, a local record first, then isolated alert and evidence channels.}
+\end{minipage}\end{center}
+
+\subsection{Dispatch sequence and recovery}
+\begin{enumerate}
+\item \textbf{Persist.} Write the incident locally before remote work. Load active contacts and a cached location. If storage fails, report the error and still attempt SMS; do not let a failed log suppress a help request.
+\item \textbf{Send.} Hand carrier SMS to every active contact without waiting for internet, reverse geocoding or a fresh GPS fix. Use the last known fix with its age, otherwise say location unavailable; include the tracker link. A fresh fix can follow later. This ordering is necessary to meet the latency target.
+\item \textbf{Run isolated channels.} In parallel, start permitted 60 s audio recording, audible deterrence when enabled, and cloud dispatch/Telegram when online. An error in one channel must not stop the others. Show pending, handed off, failed or queued truthfully.
+\item \textbf{Track.} Save breadcrumbs every 10 s while active; upload through the queue. Display last-update age and location accuracy. After process restart, restore the open incident and resume tracking without re-sending every initial alert.
+\item \textbf{Resolve.} Verify the real PIN, stop sensors/recording/deterrence, persist the final status and queue synchronization. For ordinary incidents, send an ``I'm safe'' update; a covert incident must avoid an unexpected revealing notification. A wrong PIN cannot dismiss the SOS.
+\end{enumerate}
+
+\begin{cautionbox}[title=Failure cases must be visible]
+No SIM, permission denial, missing contacts or no signal must produce a clear channel result. A missing GPS fix must not block SMS. During an outage, retain local evidence and queue cloud work. Do not label carrier handoff as confirmed delivery or automatically resend an ambiguous SMS result.
+\end{cautionbox}

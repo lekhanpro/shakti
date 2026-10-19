@@ -1,0 +1,22 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+\node[start=26mm] (idle) at (0,0) {Idle};
+\node[box=29mm] (count) at (42,0) {Countdown (5 s)};
+\node[box=31mm] (save) at (88,0) {Active: local save};
+\node[fin=28mm] (end) at (134,0) {Resolved / false alarm};
+\draw[arr] (idle) -- node[lbl,above]{trigger} (count);
+\draw[arr] (count) -- node[lbl,above]{timeout} (save);
+\draw[arr] (save) -- node[lbl,above]{real PIN} (end);
+\draw[arr] (count.north) -- ++(0,6) -| node[lbl,pos=0.25,above]{swipe cancel} (idle.north);
+\node[alt=29mm] (covert) at (42,-16) {Duress: silent};
+\draw[arr] (covert.east) -| (save.south);
+\coordinate (hub) at (88,-28);
+\draw[arr] (save.south) -- (hub);
+\node[box=28mm,minimum height=12mm] (sms) at (0,-42) {Carrier SMS\\cached / no fix};
+\node[box=28mm,minimum height=12mm] (audio) at (44,-42) {Encrypted audio\\60 s maximum};
+\node[box=28mm,minimum height=12mm] (siren) at (88,-42) {Siren / strobe\\unless silent};
+\node[box=28mm,minimum height=12mm] (net) at (132,-42) {Cloud / Telegram\\online or queue};
+\draw[arr] (hub) -| (sms.north);
+\draw[arr] (hub) -| (audio.north);
+\draw[arr] (hub) -- (siren.north);
+\draw[arr] (hub) -| (net.north);
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+\begin{tikzpicture}[x=1mm,y=1mm]
+\node[start=29mm] (start) at (0,0) {Set timer + destination};
+\node[box=30mm] (walk) at (46,0) {Persist / monitor escort};
+\node[fin=31mm] (pin) at (93,7) {Check in with PIN};
+\node[alt=31mm] (sos) at (93,-7) {Expired: start SOS};
+\node[box=24mm] (done) at (138,7) {End escort};
+\draw[arr] (start)--(walk);
+\draw[arr] (walk.east) -- ++(5,0) |- (pin.west);
+\draw[arr] (walk.east) -- ++(5,0) |- (sos.west);
+\draw[arr] (pin)--(done);
+\end{tikzpicture}

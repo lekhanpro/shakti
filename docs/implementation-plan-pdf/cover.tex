@@ -1,0 +1,44 @@
+% Composition adapted from the supplied reference; all content is Shakti.
+\definecolor{cvbg}{HTML}{3B1424}
+\definecolor{cvpanel}{HTML}{4F1D30}
+\definecolor{cvline}{HTML}{C9A574}
+\definecolor{cvsoft}{HTML}{EEDDE2}
+\newfontfamily\pfair{ShaktiCoverSerif}[Path=fonts/,Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic,FontFace={k}{n}{*-Black},FontFace={k}{it}{*-BlackItalic}]
+\newcommand{\coverpage}{%
+\begin{titlepage}\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay,x=1mm,y=1mm]
+\begin{scope}[shift={(current page.south west)}]
+ \fill[cvbg] (0,0) rectangle (210,297);
+ \fill[cvpanel] (147,0) rectangle (210,297);
+ \draw[cvline,line width=0.5pt] (8,8) rectangle (202,289);
+ \node[anchor=west,text=cvsoft,font=\gsans\gsm\fontsize{8.2}{10}\selectfont] at (20,272) {\addfontfeature{LetterSpace=18}DBIT / COMMUNITY PROJECT \textperiodcentered\ VTU};
+ \node[anchor=north west,text=white,font=\pfair\fontseries{k}\itshape\fontsize{66}{66}\selectfont] at (18.5,260) {Shakti};
+ \node[anchor=north west,text=white,text width=124mm,align=flush left,font=\gsans\bfseries\fontsize{25}{29}\selectfont] at (19.5,233) {Personal Safety\\Network};
+ \node[anchor=north west,text=amber,font=\gsans\gsb\fontsize{11}{13}\selectfont] at (20,199) {\addfontfeature{LetterSpace=8}IMPLEMENTATION PLAN \textperiodcentered\ v1.0};
+ \fill[amber] (20.5,190) rectangle (40.5,190.8);
+ \node[anchor=north west,text=cvsoft,text width=118mm,align=flush left,font=\gsans\fontsize{10.5}{14}\selectfont] at (20,186) {Raise an SOS, reach trusted contacts, share location, and record evidence. Designed for moments that matter.};
+ \foreach \y/\n/\ttl/\la/\lb in {%
+  165/01/{HOW SHAKTI WORKS}/{Offline-first alerts, guardian tracking and safety tools.}/{Android app, Supabase backend and companion web.},
+  140/02/{BUILD IN 60 DAYS}/{Dependency-led phases and clear team ownership.}/{Deliverables, interfaces and completion gates.},
+  115/03/{VERIFY AND RELEASE}/{Device testing, privacy and realistic running costs.}/{Deployment, rollback and long-term maintenance.}}{
+  \node[anchor=north west,text=amber,font=\gsans\bfseries\fontsize{20}{20}\selectfont] at (19.5,\y) {\n};
+  \node[anchor=north west,text=white,font=\gsans\gsb\fontsize{11}{13}\selectfont] at (36,\y-0.6) {\addfontfeature{LetterSpace=5}\ttl};
+  \node[anchor=north west,text=cvsoft,text width=100mm,align=flush left,font=\gsans\fontsize{9.2}{12.5}\selectfont] at (36,\y-7.2) {\la\\\lb};
+  \fill[cvline!40!cvbg] (20,\y-21) rectangle (138,\y-20.8);}
+ \node[anchor=north west,text=cvsoft,text width=116mm,align=flush left,font=\gsans\fontsize{8.6}{12}\selectfont] at (20,82) {A complete build blueprint for VTU 1BCP308, Topic \#25: Project Shakti. Capabilities and performance figures are implementation requirements, subject to integration and field validation.};
+ \begin{scope}[shift={(154,178)}]
+  \draw[cvline,line width=0.6pt,rounded corners=2pt] (0,0) rectangle (42,46);
+  \node[anchor=north west,text=cvsoft,font=\gsans\gsm\fontsize{6}{7}\selectfont] at (3,43.5) {\addfontfeature{LetterSpace=12}ILLUSTRATIVE SOS};
+  \node[anchor=north west,text=white,font=\gsans\bfseries\fontsize{8.6}{10}\selectfont] at (3,38.5) {5-second countdown};
+  \draw[cvline!60!cvpanel,line width=0.4pt] (3,31.5) -- (39,31.5);
+  \node[anchor=north west,text=cvsoft,font=\gsans\fontsize{7.6}{9}\selectfont] at (3,29.5) {SMS to contacts};
+  \node[anchor=north west,text=cvsoft,font=\gsans\fontsize{7.6}{9}\selectfont] at (3,23.5) {Location + evidence};
+  \node[anchor=north west,fill=amber,text=cvbg,rounded corners=1.5pt,inner xsep=3pt,inner ysep=1.6pt,font=\gsans\bfseries\fontsize{7.6}{9}\selectfont] at (3,14) {Local first};
+  \node[anchor=north west,text=cvsoft,font=\gsans\fontsize{6.4}{8}\selectfont] at (3,6.5) {Cloud sync when connected};
+ \end{scope}
+ \node[anchor=north west,text=cvsoft,text width=42mm,align=flush left,font=\gsans\fontsize{7}{9}\selectfont] at (154,173) {SMS needs cellular service. Cloud alerts and the tracker need internet.};
+ \node[anchor=south west,text=white,font=\gsans\gsb\fontsize{11}{13}\selectfont] at (20,34) {Prepared by the Shakti project team};
+ \node[anchor=south west,text=cvsoft,font=\gsans\fontsize{9}{11}\selectfont] at (20,27) {Lekhan \textperiodcentered\ Manas \textperiodcentered\ Vikat \textperiodcentered\ Hemanth};
+ \node[anchor=south west,text=cvsoft,font=\gsans\fontsize{8.2}{10}\selectfont] at (20,20.5) {17 October 2026 \textperiodcentered\ Don Bosco Institute of Technology};
+ \node[anchor=south west,text=cvsoft,font=\gsans\fontsize{7}{9}\selectfont] at (20,14.5) {\copyright\ 2026 Shakti project team. All rights reserved.};
+\end{scope}\end{tikzpicture}\end{titlepage}}

@@ -1,0 +1,157 @@
+% ============================================================
+%  Shakti - Implementation Plan - preamble
+%  Engine: Tectonic / XeTeX. Burgundy + gold theme.
+% ============================================================
+\usepackage[a4paper,top=20mm,bottom=18mm,left=18mm,right=18mm,
+            headsep=5mm,footskip=9mm]{geometry}
+\usepackage{fontspec}
+\setmainfont{lmroman10-regular.otf}[Path=fonts/,
+ UprightFeatures={SizeFeatures={{Size=-7.5,Font=lmroman7-regular.otf},{Size=7.5-8.5,Font=lmroman8-regular.otf},{Size=8.5-9.5,Font=lmroman9-regular.otf},{Size=9.5-11,Font=lmroman10-regular.otf},{Size=11-,Font=lmroman12-regular.otf}}},
+ BoldFont=lmroman10-bold.otf,
+ BoldFeatures={SizeFeatures={{Size=-7.5,Font=lmroman7-bold.otf},{Size=7.5-8.5,Font=lmroman8-bold.otf},{Size=8.5-9.5,Font=lmroman9-bold.otf},{Size=9.5-11,Font=lmroman10-bold.otf},{Size=11-,Font=lmroman12-bold.otf}}},
+ ItalicFont=lmroman10-italic.otf,
+ ItalicFeatures={SizeFeatures={{Size=-7.5,Font=lmroman7-italic.otf},{Size=7.5-8.5,Font=lmroman8-italic.otf},{Size=8.5-9.5,Font=lmroman9-italic.otf},{Size=9.5-11,Font=lmroman10-italic.otf},{Size=11-,Font=lmroman12-italic.otf}}},
+ BoldItalicFont=lmroman10-bolditalic.otf]
+\setsansfont{lmsans10-regular.otf}[Path=fonts/,BoldFont=lmsans10-bold.otf,ItalicFont=lmsans10-oblique.otf]
+\setmonofont{lmmono9-regular.otf}[Path=fonts/,Scale=MatchLowercase]
+% Google Sans: cover only
+\newfontfamily\gsans{GoogleSans-Regular}[Path=fonts/, Extension=.ttf,
+  UprightFont=*, BoldFont=GoogleSans-Bold,
+  FontFace={sb}{n}{GoogleSans-SemiBold}, FontFace={m}{n}{GoogleSans-Medium}]
+\newcommand{\gsb}{\fontseries{sb}\selectfont}
+\newcommand{\gsm}{\fontseries{m}\selectfont}
+\usepackage{microtype}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,calc,fit,backgrounds}
+\usepackage{booktabs,tabularx,xltabular,array}
+\usepackage{etoolbox,enumitem,titlesec,fancyhdr,pifont,ragged2e,needspace}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+
+% ---------- palette ----------
+\definecolor{forest}{HTML}{6B1E33}  % primary
+\definecolor{leaf}  {HTML}{8A2B44}  % secondary
+\definecolor{amber} {HTML}{B07F34}  % accent
+\definecolor{tint}  {HTML}{FBF1F3}  % light tint
+\definecolor{paper} {HTML}{FAF6F7}
+\definecolor{rule}  {HTML}{DCCDD1}
+\definecolor{slate} {HTML}{334155}
+\definecolor{mute}  {HTML}{6B5F63}
+\definecolor{amberlt}{HTML}{FBF4E6}
+\definecolor{bad}   {HTML}{B91C1C}
+\definecolor{badlt} {HTML}{FDECEC}
+
+\hypersetup{colorlinks=true,linkcolor=leaf,urlcolor=leaf,citecolor=leaf,
+  pdftitle={Shakti - Personal Safety Network Implementation Plan},
+  pdfauthor={Lekhan, Manas, Vikat and Hemanth},
+  pdfsubject={VTU 1BCP308 Community Project - Topic 25 - v1.0}}
+
+% ---------- headings ----------
+\titleformat{\section}[block]
+  {\large\bfseries\color{forest}}{\thesection}{0.6em}{}
+  [{\vspace{-3pt}\color{amber}\rule{\linewidth}{1.1pt}}]
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries\color{leaf}}{\thesubsection}{0.55em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+% ---------- callout boxes ----------
+\newcommand{\mkbox}[3]{%
+\newtcolorbox{#1}[1][]{enhanced,breakable,colback=#3,colframe=#2,boxrule=0.6pt,
+  arc=1.5pt,left=7pt,right=7pt,top=5pt,bottom=4pt,before skip=5pt,after skip=5pt,
+  fonttitle=\bfseries\small,coltitle=white,colbacktitle=#2,
+  attach boxed title to top left={xshift=7pt,yshift=-2mm},
+  boxed title style={arc=1pt,boxrule=0pt},##1}}
+\mkbox{keyfact}{forest}{tint}
+\mkbox{cautionbox}{amber}{amberlt}
+\mkbox{stopbox}{bad}{badlt}
+
+% ---------- inline helpers ----------
+\newcommand{\brkunder}{\def\_{\symbol{"005F}\discretionary{}{}{}}}
+\DeclareRobustCommand{\code}[1]{{\brkunder\ttfamily\small #1}}
+\newcommand{\term}[1]{\textbf{\color{leaf}#1}}
+\newcommand{\st}[1]{\textsf{\small #1}}
+\newcommand{\src}[1]{{\scriptsize\color{mute}[#1]}}
+\newcommand{\flag}[1]{\tikz[baseline=(p.base)]{\node[rounded corners=2pt,
+  fill=amber!14,draw=amber,line width=0.4pt,text=amber!70!black,font=\bfseries\scriptsize,
+  inner xsep=3pt,inner ysep=1.2pt](p){#1};}}
+
+% ---------- lists ----------
+\setlist[itemize]{leftmargin=12pt,topsep=2pt,itemsep=1pt,parsep=0pt,
+  label=\textcolor{amber}{\scriptsize\ding{110}}}
+\setlist[enumerate]{leftmargin=15pt,topsep=2pt,itemsep=1pt,parsep=0pt}
+
+% ---------- tables ----------
+\AtBeginEnvironment{tabularx}{\RaggedRight\small}
+\AtBeginEnvironment{xltabular}{\RaggedRight\small}
+\renewcommand{\arraystretch}{1.2}
+\arrayrulecolor{rule}
+\newcommand{\thead}[1]{{\bfseries\color{white}#1}}
+\newcommand{\headrow}{\rowcolor{forest}}
+\newcommand{\zebra}{\rowcolor{paper}}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\Centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{R}[1]{>{\RaggedLeft\arraybackslash}p{#1}}
+\setlength{\tabcolsep}{4.5pt}
+\setlength{\LTpre}{3pt}\setlength{\LTpost}{3pt}
+
+% ---------- figures ----------
+\captionsetup[figure]{hypcap=false,font={small,color=slate},labelfont={bf,color=leaf},
+  skip=3pt,labelsep=period}
+\captionsetup[table]{font={small,color=slate},labelfont={bf,color=leaf},
+  skip=3pt,labelsep=period}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+
+\tikzset{
+  box/.style={draw=leaf,fill=tint,line width=0.55pt,rounded corners=1.8pt,
+    align=center,font=\footnotesize,inner sep=2.5pt,text width=#1,minimum height=8mm},
+  box/.default=26mm,
+  start/.style={box=#1,draw=forest,fill=forest,text=white},
+  start/.default=26mm,
+  fin/.style={box=#1,draw=forest,fill=forest!15},
+  fin/.default=26mm,
+  alt/.style={box=#1,draw=amber,fill=amberlt},
+  alt/.default=26mm,
+  ask/.style={diamond,aspect=2.3,draw=amber,fill=amberlt,line width=0.55pt,
+    align=center,font=\footnotesize,inner sep=0.5pt,text width=#1},
+  ask/.default=17mm,
+  arr/.style={-{Stealth[length=3.6pt,width=3pt]},draw=slate,line width=0.5pt},
+  lbl/.style={font=\scriptsize\itshape,text=mute,inner sep=1.2pt,fill=white},
+}
+
+% ---------- header / footer ----------
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\footnotesize\color{mute}DBIT \textperiodcentered\ Shakti}
+\fancyhead[R]{\footnotesize\color{mute}Implementation plan \textperiodcentered\ v1.0}
+\fancyfoot[L]{\footnotesize\color{mute}Shakti project team \textperiodcentered\ VTU 1BCP308}
+\fancyfoot[R]{\footnotesize\color{forest}\bfseries\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\headrule}{\color{rule}\hrule height\headrulewidth}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---------- spacing ----------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3.5pt plus 1pt}
+\widowpenalty=10000 \clubpenalty=10000
+\raggedbottom
+
+% ---------- compatibility shims ----------
+% This MiKTeX ships colortbl 2024 alongside array 2023. colortbl calls
+% \insert@pcolumn, which only newer array defines; alias it to the older macro.
+\makeatletter\providecommand\insert@pcolumn{\insert@column}\makeatother
+% xltabular expects the 2024 kernel's tagging hooks; define them as no-ops.
+\providecommand\SuspendTagging[1]{}
+\providecommand\ResumeTagging[1]{}
+
+\pretocmd{\section}{\needspace{34mm}}{}{}
+\pretocmd{\subsection}{\needspace{20mm}}{}{}
+
+% Local helpers: style inherits the supplied reference.
+\setlength{\headheight}{12pt}
+\newcommand{\figcaption}[1]{\captionof{figure}{#1}}
+\newcommand{\source}[2]{\href{#2}{\textcolor{leaf}{[#1]}}}
+\newcommand{\reflink}[3]{\textbf{[#1]} \href{#3}{#2}}
+\newcommand{\pagenote}[1]{{\small\color{mute}#1}\par}
