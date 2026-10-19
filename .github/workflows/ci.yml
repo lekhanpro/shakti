@@ -28,13 +28,8 @@ jobs:
       - run: flutter analyze
       - run: flutter test --coverage
       - name: Coverage gate (domain + data >= 80%)
-        run: |
-          sudo apt-get install -y lcov >/dev/null
-          lcov --extract coverage/lcov.info '*/lib/domain/*' '*/lib/data/*' -o coverage/core.info --ignore-errors unused
-          lcov --remove coverage/core.info '*.g.dart' -o coverage/core.info --ignore-errors unused
-          pct=$(lcov --summary coverage/core.info 2>&1 | grep -Po 'lines\.*: \K[0-9.]+')
-          echo "domain+data line coverage: ${pct}%"
-          awk -v p="$pct" 'BEGIN { exit (p >= 80) ? 0 : 1 }'
+        # lcov.info uses relative SF: paths, which lcov --extract globs miss.
+        run: awk -v min=80 -f ../.github/scripts/coverage_gate.awk coverage/lcov.info
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
