@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T00:00:00Z",
+  "title": "Design System: Shakti / Pulse Motion",
+  "extensions": {
+    "colorMeta": {
+      "black": { "role": "neutral", "displayName": "Motion Black", "canonical": "#0c0c0e", "tonalRamp": ["#0c0c0e", "#141419", "#1c1c23", "#30303b", "#51515f", "#81818e", "#c5c1b9", "#f3f0e8"] },
+      "bone": { "role": "neutral", "displayName": "Bone Field", "canonical": "#f3f0e8", "tonalRamp": ["#1e1d1a", "#3b3934", "#5e5a51", "#858076", "#aaa49a", "#c5c1b9", "#e0dcd4", "#f3f0e8"] },
+      "violet": { "role": "primary", "displayName": "Electric Violet", "canonical": "#635bff", "tonalRamp": ["#17144d", "#272178", "#3a32ae", "#4d44d5", "#635bff", "#817aff", "#a49dff", "#e9e7ff"] },
+      "acid": { "role": "secondary", "displayName": "Acid Lime", "canonical": "#d8ff45", "tonalRamp": ["#1e2900", "#3c5100", "#5d7800", "#83a600", "#a8d11b", "#d8ff45", "#e5ff7d", "#f5ffc4"] },
+      "coral": { "role": "destructive", "displayName": "Emergency Coral", "canonical": "#ff5a4f", "tonalRamp": ["#4c100c", "#7c211b", "#a93229", "#d34339", "#ff5a4f", "#ff8379", "#ffaaa1", "#ffd1c9"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Bricolage Grotesque", "purpose": "Oversized kinetic chapter headlines." },
+      "body": { "displayName": "Instrument Sans", "purpose": "Calm explanatory copy inside high-energy compositions." }
+    },
+    "motion": [
+      { "name": "ease-out-soft", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Entrance, exit, and tactile control motion." },
+      { "name": "chapter-cut", "value": "color field + scale + clip", "purpose": "Moves between visual acts without repeating card UI." },
+      { "name": "network-loop", "value": "3.4s ease-in-out", "purpose": "Carries a signal through the hero and guardian network." },
+      { "name": "reduced-motion", "value": "static ordered content", "purpose": "Removes loops and pinning while preserving the story." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    { "name": "Acid Action", "kind": "button", "refersTo": "button-acid", "description": "Primary motion-world action.", "html": "<button class=\"ds-acid\">TRY THE TRIGGER</button>", "css": ".ds-acid { display:inline-flex; min-height:52px; align-items:center; gap:9px; border:0; border-radius:999px; padding:0 22px; background:#d8ff45; color:#0c0c0e; font:700 14px/1.2 'Instrument Sans',sans-serif; transition:transform .18s cubic-bezier(.22,1,.36,1),background .18s cubic-bezier(.22,1,.36,1); } .ds-acid:hover { background:#e6ff7b; transform:translateY(-2px); } .ds-acid:focus-visible { outline:3px solid #a49dff; outline-offset:3px; }" },
+    { "name": "Outline Action", "kind": "button", "refersTo": "button-outline", "description": "Quiet action across black chapters.", "html": "<button class=\"ds-outline\">OPEN THE DEMO TRACKER</button>", "css": ".ds-outline { display:inline-flex; min-height:52px; align-items:center; gap:9px; border:1px solid #f3f0e833; border-radius:999px; padding:0 22px; background:transparent; color:#f3f0e8; font:700 14px/1.2 'Instrument Sans',sans-serif; } .ds-outline:hover { border-color:#d8ff45; color:#d8ff45; } .ds-outline:focus-visible { outline:3px solid #a49dff; outline-offset:3px; }" },
+    { "name": "Earth Signal Globe", "kind": "custom", "refersTo": "earth-field", "description": "Three.js Earth scene with real surface texture, atmosphere, cloud cover, city lights, orbit rings, and guardian arcs.", "html": "<div class=\"ds-earth\"><strong>SHAKTI</strong><span>GLOBAL SIGNAL / 01</span></div>", "css": ".ds-earth { min-height:240px; display:grid; place-items:center; border:1px solid #f3f0e833; background:radial-gradient(circle at 52% 50%,#635bff24,transparent 50%),#07142f; color:#f3f0e8; } .ds-earth strong { font:800 24px/.9 'Bricolage Grotesque',sans-serif; } .ds-earth span { margin-top:8px; color:#d8ff45; font:600 10px/1.3 ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase; }" }
+  ],
+  "narrative": {
+    "northStar": "Pulse Motion",
+    "overview": "This is a motion-graphic experience before it is a conventional marketing page. It borrows the discipline of motion design studies: oversized type, hard cuts between color fields, visible timing markers, offset layers, negative space, and objects that move with a reason. The opening is a black field with a luminous signal object; the story then moves through bone, violet, acid-lime, black, and coral chapters.",
+    "keyCharacteristics": ["Black and bone base contrast.", "Electric violet product signal.", "Acid-lime ready/confirmed states.", "Coral reserved for urgent help.", "Full-viewport chapters instead of repeated cards."],
+    "rules": [
+      { "name": "The Chapter Color Rule", "body": "A color owns a scene. Violet belongs to the trigger, acid-lime belongs to connection, bone belongs to editorial clarity, and coral belongs to urgent help.", "section": "colors" }
+    ],
+    "dos": ["Do make the first viewport memorable through scale, object, and timing.", "Do use real product interactions inside the composed art direction.", "Do keep content readable without canvas, WebGL, or motion."],
+    "donts": ["Don't use a generic dark dashboard as the visual language.", "Don't turn every feature into an identical rounded card.", "Don't let the motion hide the action, the helplines, or the fact that a demo is scripted."]
+  }
+}
