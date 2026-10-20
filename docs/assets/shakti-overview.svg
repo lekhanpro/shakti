@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+<title id="title">Shakti — Your people. One signal away.</title><desc id="desc">Product illustration of an Android safety app linked to a trusted circle. Not a live incident or delivery confirmation.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#151822"/><stop offset="1" stop-color="#0c0e14"/></linearGradient><radialGradient id="halo"><stop stop-color="#635bff" stop-opacity=".22"/><stop offset="1" stop-color="#635bff" stop-opacity="0"/></radialGradient></defs>
+<rect width="1200" height="520" rx="24" fill="url(#bg)"/><rect x=".5" y=".5" width="1199" height="519" rx="24" fill="none" stroke="#303443"/>
+<circle cx="930" cy="250" r="260" fill="url(#halo)"/>
+<g fill="none" stroke="#303545"><circle cx="930" cy="250" r="184"/><circle cx="930" cy="250" r="144"/><path d="M700 250h460M930 38v426" stroke-dasharray="3 9"/></g>
+<g font-family="Arial,Helvetica,sans-serif"><text x="64" y="72" fill="#b7a8ee" font-size="12" font-weight="700" letter-spacing="3">SHAKTI / PERSONAL SAFETY NETWORK</text>
+<text x="60" y="181" fill="#f2f0ea" font-size="69" font-weight="700" letter-spacing="-3">Your people.</text><text x="60" y="258" fill="#c0ecdb" font-size="62" font-weight="700" letter-spacing="-3">One signal away.</text>
+<text x="64" y="310" fill="#b2b6c5" font-size="19">A local-first Android safety app.</text><text x="64" y="341" fill="#b2b6c5" font-size="19">A clearer way to reach your trusted circle.</text>
+<rect x="64" y="389" width="130" height="34" rx="17" fill="#252b37"/><circle cx="82" cy="406" r="4" fill="#c0ecdb"/><text x="95" y="411" fill="#f2f0ea" font-size="12" font-weight="700">ANDROID 7.0+</text>
+<rect x="207" y="389" width="138" height="34" rx="17" fill="#252b37"/><text x="227" y="411" fill="#b7a8ee" font-size="12" font-weight="700">ALPHA DEVELOPMENT</text>
+<text x="64" y="474" fill="#727b90" font-size="11" letter-spacing="1.7">PRODUCT ILLUSTRATION · NO LIVE ALERT OR LOCATION DATA</text></g>
+<g stroke="#635bff" fill="none" stroke-width="2"><path d="M903 220Q815 124 762 148"/><path d="M961 220Q1051 103 1101 150"/><path d="M960 291Q1081 357 1082 398"/><path d="M900 290Q804 355 777 379"/></g>
+<g fill="#151923" stroke="#4e487b" stroke-width="2"><circle cx="762" cy="148" r="23"/><circle cx="1101" cy="150" r="23"/><circle cx="1082" cy="398" r="23"/><circle cx="777" cy="379" r="23"/></g>
+<g fill="#c0ecdb"><circle cx="762" cy="148" r="6"/><circle cx="1101" cy="150" r="6"/><circle cx="1082" cy="398" r="6"/><circle cx="777" cy="379" r="6"/></g>
+<rect x="860" y="96" width="140" height="298" rx="28" fill="#222633" stroke="#6b688b" stroke-width="2"/><rect x="868" y="104" width="124" height="282" rx="22" fill="#101218"/><rect x="909" y="112" width="42" height="10" rx="5" fill="#303442"/>
+<g font-family="Arial,Helvetica,sans-serif" text-anchor="middle"><text x="930" y="155" fill="#eae8f2" font-size="15" font-weight="700">shakti</text><text x="930" y="179" fill="#8d94a9" font-size="9" letter-spacing="1">YOUR TRUSTED CIRCLE</text></g>
+<circle cx="930" cy="244" r="42" fill="#1c1b35" stroke="#635bff"/><circle cx="930" cy="244" r="30" fill="#635bff"/><text x="930" y="250" fill="white" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700">SOS</text>
+<rect x="883" y="312" width="94" height="23" rx="11" fill="#1e3230"/><text x="930" y="327" fill="#c0ecdb" text-anchor="middle" font-family="Arial,sans-serif" font-size="9">LOCAL-FIRST BY DESIGN</text><rect x="905" y="372" width="50" height="3" rx="1.5" fill="#8990a4"/>
+</svg>

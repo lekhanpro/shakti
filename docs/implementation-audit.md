@@ -55,7 +55,7 @@ test coverage intentions; only a successful run at the PR SHA establishes a pass
 | Database security | Core migration, RLS and token RPC assertions | Run migrations plus SQL assertions in disposable CI database; notification function adds no anonymous table grants | CI SQL result, then deployment check |
 | Android builds | Signed release workflow exists but CI did not compile APK/native tests | Always compile debug APK and execute Kotlin tests in verification; release APK/AAB only after shared verification | Debug build CI; production keystore/configuration for signed release |
 | Release | No GitHub releases were present at audit time | Private development-testing prerelease after every automated gate passes; SHA-256 checksum and clear configuration limitations | Actual successful publication, not merely workflow presence |
-| Brand | Existing inline mark | Refined standalone logo and supporting README motion assets remain outstanding | Visual review; do not label current placeholder as finalized branding |
+| Brand | Existing inline mark | Standalone symbol, product banner and motion diagram added for visual review; launcher icons unchanged | Visual review; do not label current placeholder as finalized branding |
 
 ## Known specification differences
 
@@ -65,7 +65,7 @@ test coverage intentions; only a successful run at the PR SHA establishes a pass
 4. Native power detection observes screen toggles. It does not directly intercept a power key.
 5. Physical-device behavior, hosted service access, release signing, published Play alpha,
    community surveys and weekly review dates remain evidence gates.
-6. Existing brand refinement is unfinished. The testing APK is a development build, not
+6. The new brand proposal still needs visual acceptance. The testing APK is a development build, not
    a claim that design, hardware validation or production readiness is complete.
 
 ## Verification and build matrix

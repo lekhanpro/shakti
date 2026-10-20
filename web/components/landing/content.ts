@@ -193,7 +193,7 @@ export const FAQS: readonly Faq[] = [
   {
     question: 'Is my location stored on your servers?',
     answer:
-      'During an incident your position and trail are stored so guardians can follow them. Tracking links have expiry rules in the backend. Share a link only with trusted people. Your PIN remains local; review the deployment's data behavior before use.',
+      "During an incident your position and trail are stored so guardians can follow them. Tracking links have expiry rules in the backend. Share a link only with trusted people. Your PIN remains local; review the deployment's data behavior before use.",
   },
   {
     question: 'Is there an iPhone version?',
