@@ -19,6 +19,7 @@ export function CityScenePreview() {
     let raf = 0;
     let visible = !document.hidden;
     let inView = true;
+    let pagePaused = document.querySelector<HTMLElement>('.shakti-site')?.dataset.motion === 'paused';
 
     import('../story/cityScene')
       .then(({ startCityScene }) => startCityScene({ canvas, holder, progress, staticAt: reduced ? 0.78 : undefined }))
@@ -36,9 +37,11 @@ export function CityScenePreview() {
       intersection.observe(holder);
       const onVisibility = () => { visible = !document.hidden; };
       document.addEventListener('visibilitychange', onVisibility);
+      const onPageMotion = (event: Event) => { pagePaused = Boolean((event as CustomEvent<{ paused: boolean }>).detail.paused); };
+      document.addEventListener('shakti:motion', onPageMotion);
       const tick = (now: number) => {
         raf = requestAnimationFrame(tick);
-        if (!visible || !inView) return;
+        if (!visible || !inView || pagePaused) return;
         progress.current = ((now - started) / 16000) % 1;
       };
       raf = requestAnimationFrame(tick);
@@ -47,6 +50,7 @@ export function CityScenePreview() {
         cancelAnimationFrame(raf);
         intersection.disconnect();
         document.removeEventListener('visibilitychange', onVisibility);
+        document.removeEventListener('shakti:motion', onPageMotion);
         stopScene?.();
       };
     }

@@ -24,3 +24,7 @@ The principles above are design interpretations, not claims that the references 
 ## Validation expectations
 
 Use desktop, narrow mobile, keyboard-only, reduced-motion, and WebGL-unavailable checks. The browser smoke script captures screenshots and checks interaction/overflow; passing a production build alone does not establish visual quality.
+
+## Retained original experience
+
+The hero retains EarthField with locally served day, normal, specular, cloud, and night textures. The original city story, guardian mesh, safety radar, trigger simulation, scripted AI demonstration, full feature groups, privacy points, FAQs, and helpline links remain on the page. The new phone sculpture is a supporting section, not a replacement for the globe. The intro and section layout polish surround these existing elements.

@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import { ArrowDown, ArrowRight, ArrowUpRight, AudioLines, Check, Fingerprint, LockKeyhole, MapPin, MessageCircle, Phone, Plus, Radio, ShieldCheck, Timer, WifiOff } from 'lucide-react';
 import { Header, LogoMark } from '@/components/landing/Header';
+import { EarthField } from '@/components/landing/EarthField';
+import { StoryChoreography } from '@/components/landing/StoryChoreography';
+import { GuardianMesh } from '@/components/landing/GuardianMesh';
+import { SafetyRadar } from '@/components/landing/SafetyRadar';
+import { StatusTag } from '@/components/landing/StatusTag';
 import { GuardianSculpture } from '@/components/landing/GuardianSculpture';
 import { ResponseLab } from '@/components/landing/ResponseLab';
 import { AiDemo } from '@/components/landing/AiDemo';
 import { TriggerDemoStage } from '@/components/landing/TriggerDemoStage';
-import { FAQS } from '@/components/landing/content';
+import { FAQS, FEATURE_GROUPS, PRIVACY, TRIGGERS } from '@/components/landing/content';
 import { HELPLINES } from '@/lib/helplines';
 import { ExperienceMotion } from '@/components/landing/ExperienceMotion';
 import { ArrivalIntro } from '@/components/landing/ArrivalIntro';
@@ -21,11 +26,7 @@ const FEATURES = [
   { icon: MessageCircle, title: 'Find the words afterwards.', body: 'AI assistance and an FIR draft help organize details. An offline template is available; you review the final text.', tag: 'AFTER THE MOMENT' },
 ] as const;
 
-const PRIVACY_POINTS = [
-  { icon: LockKeyhole, title: 'Your PIN stays on the phone.', body: 'Salted PIN hashing and secure-storage integration protect access to the app.' },
-  { icon: ShieldCheck, title: 'Only a limited view is shared.', body: 'Guardians use a random token to read a restricted incident view. Treat that link as private.' },
-  { icon: WifiOff, title: 'Local first. Connected when available.', body: 'Incidents and location points can wait in a local queue until the backend is reachable.' },
-] as const;
+const PRIVACY_POINTS = PRIVACY;
 
 export default function Home() {
   return (
@@ -42,7 +43,7 @@ export default function Home() {
             <div className="s-actions"><a className="s-button s-button-primary" href="#story">Explore the response <ArrowRight size={17} aria-hidden="true" /></a><Link className="s-text-link" href="/track/demo">Try the guardian demo <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
             <div className="s-hero-facts"><span><Check size={15} aria-hidden="true" /> Android app</span><span><Check size={15} aria-hidden="true" /> No guardian install</span><span>Alpha preparation</span></div>
           </div>
-          <div className="s-hero-art"><GuardianSculpture /><div className="s-floating-note"><span className="s-note-symbol"><ShieldCheck size={19} aria-hidden="true" /></span><span><strong>Built around your circle.</strong><small>Contacts. Context. A way to check in.</small></span></div></div>
+          <div className="s-hero-art"><EarthField /><div className="s-floating-note"><span className="s-note-symbol"><ShieldCheck size={19} aria-hidden="true" /></span><span><strong>Built around your circle.</strong><small>Contacts. Context. A way to check in.</small></span></div></div>
           <div className="s-hero-foot"><span>DBIT COMMUNITY PROJECT / SHAKTI</span><a href="#story">A closer look <ArrowDown size={14} aria-hidden="true" /></a></div>
         </section>
 
@@ -53,11 +54,19 @@ export default function Home() {
           <ResponseLab />
         </section>
 
+        <StoryChoreography />
+
         <section className="s-trigger-section" id="trigger" aria-labelledby="trigger-title"><div className="s-wrap s-trigger-layout"><div className="s-trigger-copy"><p className="s-eyebrow">02 / MAKE THE FIRST MOVE</p><h2 id="trigger-title">A pattern you<br /><em>can remember.</em></h2><p>Three quick power-button presses can start the ordinary SOS countdown. Try the phone's side key in this browser demonstration.</p><ol className="s-step-list"><li><span>01</span><div><h3>Trigger an alert.</h3><p>Use the SOS button or a configured alternative trigger.</p></div></li><li><span>02</span><div><h3>Keep a cancellation window.</h3><p>Five seconds by default. Cancel before the alert channels begin.</p></div></li><li><span>03</span><div><h3>See what each channel did.</h3><p>Local save, SMS, evidence, and cloud status remain distinct.</p></div></li></ol><p className="s-small-note">Hardware power/volume behavior varies by Android device. This demonstration does not test your phone's physical buttons.</p></div><div className="s-trigger-demo"><span className="s-micro">BROWSER DEMO / NO ALERTS SENT</span><TriggerDemoStage /></div></div></section>
 
-        <section className="s-section s-wrap" id="network" aria-labelledby="network-title"><div className="s-section-heading"><div><p className="s-eyebrow">03 / YOUR TRUSTED CIRCLE</p><h2 id="network-title">They don't need<br /><em>another app.</em></h2></div><p>Guardians can open the shared tracker in a browser. When the app has synced, it shows the incident, location trail, battery, and latest update.</p></div><div className="s-guardian-panel"><div className="s-map-illustration" aria-hidden="true"><div className="s-map-street s-map-street-one" /><div className="s-map-street s-map-street-two" /><div className="s-map-street s-map-street-three" /><svg viewBox="0 0 600 300"><path d="M85 245 L190 245 L190 170 Q190 145 215 145 L335 145 L335 70 L460 70" /><circle cx="85" cy="245" r="8" /><circle cx="460" cy="70" r="10" /></svg><div className="s-map-pin"><span /><strong>Illustrative route</strong><small>No live location is used</small></div><span className="s-map-caption">LOCATION SHARED DURING AN INCIDENT</span></div><div className="s-guardian-copy"><span className="s-pill">GUARDIAN VIEW</span><h3>Enough context.<br />Less guesswork.</h3><p>The tracker checks for updates every ten seconds while visible. Location freshness depends on the phone, connectivity, and uploaded data.</p><ul className="s-check-list"><li><Check size={15} />Incident status and last update</li><li><Check size={15} />Available trail and battery information</li><li><Check size={15} />Token-based link, no guardian installation</li></ul><Link className="s-button s-button-light" href="/track/demo">Explore a simulated walk <ArrowUpRight size={16} /></Link><small>The demo uses synthetic data.</small></div></div></section>
+        <section className="s-section s-wrap" id="network" aria-labelledby="network-title"><div className="s-section-heading"><div><p className="s-eyebrow">03 / YOUR TRUSTED CIRCLE</p><h2 id="network-title">They don't need<br /><em>another app.</em></h2></div><p>Guardians can open the shared tracker in a browser. When the app has synced, it shows the incident, location trail, battery, and latest update.</p></div><div className="s-guardian-panel"><div className="s-mesh-illustration"><span className="s-micro">GUARDIAN MESH / ORIGINAL DEMO</span><GuardianMesh /><p>One illustrated alert. Your trusted circle.</p></div><div className="s-guardian-copy"><span className="s-pill">GUARDIAN VIEW</span><h3>Enough context.<br />Less guesswork.</h3><p>The tracker checks for updates every ten seconds while visible. Location freshness depends on the phone, connectivity, and uploaded data.</p><ul className="s-check-list"><li><Check size={15} />Incident status and last update</li><li><Check size={15} />Available trail and battery information</li><li><Check size={15} />Token-based link, no guardian installation</li></ul><Link className="s-button s-button-light" href="/track/demo">Explore a simulated walk <ArrowUpRight size={16} /></Link><small>The demo uses synthetic data.</small></div></div></section>
 
-        <section className="s-section s-feature-section" id="map" aria-labelledby="features-title"><div className="s-wrap"><div className="s-section-heading"><div><p className="s-eyebrow">04 / BEFORE, DURING, AFTER</p><h2 id="features-title">One thoughtful system.<br /><em>More ways to help.</em></h2></div><p>From the first alert to a record of what happened, each feature has a role—and clear requirements.</p></div><div className="s-feature-grid">{FEATURES.map((feature, index) => { const Icon = feature.icon; return <article key={feature.title} className="s-feature"><div className="s-feature-top"><span className="s-feature-icon"><Icon size={22} aria-hidden="true" /></span><span className="s-micro">0{index + 1}</span></div><span className="s-feature-tag">{feature.tag}</span><h3>{feature.title}</h3><p>{feature.body}</p></article>; })}</div></div></section>
+        <section className="s-section s-feature-section" id="features" aria-labelledby="features-title"><div className="s-wrap"><div className="s-section-heading"><div><p className="s-eyebrow">04 / BEFORE, DURING, AFTER</p><h2 id="features-title">One thoughtful system.<br /><em>More ways to help.</em></h2></div><p>From the first alert to a record of what happened, each feature has a role—and clear requirements.</p></div><div className="s-feature-grid">{FEATURES.map((feature, index) => { const Icon = feature.icon; return <article key={feature.title} className="s-feature"><div className="s-feature-top"><span className="s-feature-icon"><Icon size={22} aria-hidden="true" /></span><span className="s-micro">0{index + 1}</span></div><span className="s-feature-tag">{feature.tag}</span><h3>{feature.title}</h3><p>{feature.body}</p></article>; })}</div></div></section>
+
+        <section className="s-section s-wrap s-retained-map" id="map" aria-labelledby="map-title"><div><p className="s-eyebrow">THE ORIGINAL SAFETY RADAR</p><h2 id="map-title">Look around.<br /><em>Move toward help.</em></h2><p>Explore nearby police stations, hospitals, pharmacies, and shelters from OpenStreetMap. Place availability and opening hours need verification. A suggested route is not a guarantee of safety.</p><ul className="s-radar-legend"><li>● Police</li><li>■ Hospital</li><li>▲ Pharmacy</li><li>◆ Shelter</li></ul><small>Illustration only. Fresh map, place, and route requests need internet.</small></div><div><SafetyRadar /></div></section>
+
+        <section className="s-section s-wrap s-toolkit" aria-labelledby="toolkit-title"><div className="s-section-heading"><div><p className="s-eyebrow">THE COMPLETE TOOLKIT</p><h2 id="toolkit-title">Every original feature.<br /><em>A clearer place in the story.</em></h2></div><p>Explore the existing triggers and supporting tools. The implementation is available; hardware reliability and delivery still need real-device checks.</p></div><details className="s-toolkit-details"><summary>Explore all triggers and features <Plus size={19} aria-hidden="true" /></summary><div className="s-toolkit-grid">{[{ title: 'Ways to trigger', items: TRIGGERS }, ...FEATURE_GROUPS].map((group) => <div key={group.title}><h3>{group.title}</h3>{group.items.map((item) => { const Icon = item.icon; return <article key={item.title}><Icon size={19} aria-hidden="true" /><div><h4>{item.title}</h4><p>{item.body}</p>{item.status ? <StatusTag status={item.status} /> : null}</div></article>; })}</div>)}</div></details></section>
+
+        <section className="s-section s-wrap s-product-object" aria-labelledby="object-title"><div><p className="s-eyebrow">FROM YOUR PHONE TO YOUR CIRCLE</p><h2 id="object-title">The signal has<br /><em>a starting point.</em></h2><p>The globe tells the wider story. This new 3D product study puts your phone at the center, with independently controllable motion and guardian paths.</p></div><GuardianSculpture /></section>
 
         <section className="s-section s-wrap s-ai-layout" id="ai" aria-labelledby="ai-title"><div><p className="s-eyebrow">05 / WHEN WORDS ARE HARD</p><h2 id="ai-title">Talk it through.<br /><em>Make a record.</em></h2><p className="s-lead">Organize what happened, consider practical next steps, and prepare a draft you can review. AI assistance needs internet and a configured backend; the FIR template can work offline.</p><div className="s-inline-note"><MessageCircle size={20} aria-hidden="true" /><p>This is a scripted product demonstration. An AI draft is not an official complaint submission.</p></div></div><div className="s-ai-demo"><span className="s-micro">AI GUARDIAN / SCRIPTED DEMO</span><AiDemo /></div></section>
 
