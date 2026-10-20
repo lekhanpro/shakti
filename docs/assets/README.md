@@ -2,14 +2,15 @@
 
 | File | Use | Meaning |
 |---|---|---|
-| shakti-symbol.png | Standalone symbol, transparent background | Interlocking protective circle and central spark; current brand proposal |
+| shakti-symbol.png | Rejected draft retained in source history | Not used in the README or launcher; replacement assets pending |
 | shakti-overview.svg | README product banner | Original product illustration, not an app screenshot or live incident |
 | sos-flow.gif | README motion graphic | Schematic local-save / independent SMS and cloud channels |
 | generate-sos-flow.mjs | Dependency-free asset source | Regenerates the explanatory GIF with Node.js |
 
-The standalone mark is an AI-generated brand proposal prepared for visual review.
-Do not describe it as trademark-cleared or as a finalized app-store icon pack.
-The existing production launcher icons have not been replaced by this asset.
+The standalone mark proposal was rejected by the project owner and has been
+removed from the README. Replacement visual assets will be supplied by the owner.
+The existing production launcher icons have not been replaced. Do not reuse the
+rejected proposal as finalized branding.
 
 The product banner and workflow diagram use synthetic illustrations. They contain
 no actual incident, recipient, location, delivery status or measured performance.

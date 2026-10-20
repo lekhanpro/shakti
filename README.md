@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/assets/shakti-symbol.png" width="88" height="88" alt="Shakti symbol — an interlocking protective circle around a central spark">
-</p>
-
 <h1 align="center">Shakti</h1>
 
 <p align="center">
