@@ -459,6 +459,7 @@ export async function startCityScene(opts: SceneOptions): Promise<() => void> {
   let last = performance.now();
   let inView = true;
   let visible = !document.hidden;
+  let pagePaused = document.querySelector<HTMLElement>('.shakti-site')?.dataset.motion === 'paused';
   const io = new IntersectionObserver((es) => {
     inView = es.some((e) => e.isIntersecting);
   });
@@ -467,10 +468,12 @@ export async function startCityScene(opts: SceneOptions): Promise<() => void> {
     visible = !document.hidden;
   };
   document.addEventListener('visibilitychange', onVisibility);
+  const onPageMotion = (event: Event) => { pagePaused = Boolean((event as CustomEvent<{ paused: boolean }>).detail.paused); };
+  document.addEventListener('shakti:motion', onPageMotion);
 
   const loop = (now: number) => {
     raf = requestAnimationFrame(loop);
-    if (!inView || !visible) {
+    if (!inView || !visible || pagePaused) {
       last = now;
       return;
     }
@@ -485,6 +488,7 @@ export async function startCityScene(opts: SceneOptions): Promise<() => void> {
     ro.disconnect();
     io.disconnect();
     document.removeEventListener('visibilitychange', onVisibility);
+    document.removeEventListener('shakti:motion', onPageMotion);
     window.removeEventListener('pointermove', onPointer);
     disposables.forEach((d) => d.dispose());
     renderer.dispose();

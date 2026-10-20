@@ -4,15 +4,21 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   app:
-    name: Flutter analyze + test
+    name: Flutter analyze + test + coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: app
@@ -26,18 +32,70 @@ jobs:
       - run: flutter pub get
       - run: dart run build_runner build --delete-conflicting-outputs
       - run: flutter analyze
-      - run: flutter test --coverage
+      - run: flutter test --coverage --concurrency=1
       - name: Coverage gate (domain + data >= 80%)
-        # lcov.info uses relative SF: paths, which lcov --extract globs miss.
         run: awk -v min=80 -f ../.github/scripts/coverage_gate.awk coverage/lcov.info
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: app/coverage/lcov.info
+          if-no-files-found: error
+
+  android:
+    name: Android debug APK + native detector tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space on the disposable Android runner
+        working-directory: ${{ github.workspace }}
+        run: |
+          df -h /
+          # These toolchains are unused by this Android-only job.
+          sudo rm -rf /usr/share/dotnet /usr/local/.ghcup /opt/ghc /usr/share/swift /usr/local/share/boost /usr/local/share/powershell
+          # Keep platform tools/licenses; Gradle installs Flutter's pinned NDK.
+          sudo rm -rf "${ANDROID_HOME:?}/ndk" "$ANDROID_HOME/system-images" "$ANDROID_HOME/emulator"
+          docker image prune --all --force
+          df -h /
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Compile installable Android testing APK
+        run: flutter build apk --debug
+      - name: Run Kotlin detector tests
+        working-directory: app/android
+        run: ./gradlew :app:testDebugUnitTest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shakti-android-debug
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-test-results
+          path: app/build/app/test-results/testDebugUnitTest/
+          if-no-files-found: warn
 
   functions:
     name: Edge functions check + test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: supabase/functions
@@ -49,9 +107,29 @@ jobs:
       - run: deno task check
       - run: deno task test
 
-  web:
-    name: Web typecheck + test + build
+  database:
+    name: Fresh migrations + database access-control assertions
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: '2.121.0'
+      - name: Start isolated local database and apply migrations
+        run: supabase db start
+      - name: Check RLS and token-scoped tracker access
+        run: |
+          docker exec -i supabase_db_shakti psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/rls_test.sql
+          docker exec -i supabase_db_shakti psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/tests/realtime_test.sql
+      - name: Stop isolated test database
+        if: always()
+        run: supabase stop --no-backup
+
+  web:
+    name: Web typecheck + test + build + browser smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: web
@@ -66,3 +144,64 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Install isolated pinned browser test tooling
+        run: npm install --prefix "$RUNNER_TEMP/shakti-browser-tools" --package-lock=false --ignore-scripts @playwright/test@1.56.1
+      - name: Install Chromium for the isolated test runner
+        run: '"$RUNNER_TEMP/shakti-browser-tools/node_modules/.bin/playwright" install --with-deps chromium'
+      - name: Check desktop, mobile, reduced motion and WebGL fallback
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/shakti-browser-tools/node_modules/@playwright/test/index.mjs
+        run: node scripts/browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-browser-evidence
+          path: web/test-results/
+          if-no-files-found: warn
+
+  testing-release:
+    name: Private Android testing prerelease
+    needs: [app, android, functions, database, web]
+    # Only this complete four-PR integration branch may publish the first
+    # testing package. No publication from external PRs or reusable release CI.
+    if: github.event_name == 'pull_request' && github.head_ref == 'review/week-4-release' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: shakti-android-debug
+          path: testing
+      - name: Publish a clearly labelled local-testing APK after every gate passes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          cd testing
+          sha256sum app-debug.apk > SHA256SUMS
+          tag="shakti-testing-${RELEASE_SHA:0:12}"
+          cat > release-notes.md <<'NOTES'
+          Private Android development test build. This APK is debug-signed and
+          intended for the project owner's controlled tests. It is not a signed
+          production APK, Play release, or assurance of emergency reliability.
+
+          Built without hosted-backend configuration: cloud alerts, live remote
+          tracking and AI require a separately configured build. Carrier SMS
+          still requires Android permission, a SIM and cellular service.
+
+          Flutter analysis/tests/coverage, Kotlin detector tests, Android APK
+          compilation, Deno checks/tests, fresh SQL/RLS assertions, and web
+          tests/build/browser smoke must pass before this package is published.
+          Hardware, real SMS delivery, locked-screen triggers, battery drain,
+          and production signing remain separate validation requirements.
+
+          APK updates from a different debug signing key may require uninstalling
+          the old app, which removes its local data. Back up test evidence first.
+          NOTES
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" app-debug.apk SHA256SUMS --clobber
+          else
+            gh release create "$tag" --target "$RELEASE_SHA" --prerelease --title "Shakti Android testing (${RELEASE_SHA:0:7})" --notes-file release-notes.md app-debug.apk SHA256SUMS
+          fi

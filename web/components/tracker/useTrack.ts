@@ -15,14 +15,25 @@ export type TrackState =
   | { kind: 'ready'; data: TrackData };
 
 /**
- * Loads an incident by share token. Polls every 10 s, paused while the tab is
- * hidden. There is no realtime channel: anon has no table grants, so the
- * track_incident RPC is the only way in.
+ * Loads token-scoped RPC data. Empty Realtime invalidations request a fresh
+ * RPC read; ten-second polling remains the fallback. No database rows are
+ * broadcast and anonymous clients receive no direct table grants.
  */
 export function useTrack(token: string, demo: boolean) {
   const [state, setState] = useState<TrackState>({ kind: 'loading' });
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
   const inFlight = useRef(false);
+  const requestVersion = useRef(0);
+
+  useEffect(() => {
+    requestVersion.current++;
+    inFlight.current = false;
+    lastData.current = null;
+    demoOrigin.current = 0;
+    setState({ kind: 'loading' });
+    setFetchedAt(null);
+    return () => { requestVersion.current++; };
+  }, [token, demo]);
   const lastData = useRef<TrackData | null>(null);
   const demoOrigin = useRef<number>(0);
 
@@ -42,8 +53,10 @@ export function useTrack(token: string, demo: boolean) {
     }
     if (inFlight.current) return;
     inFlight.current = true;
+    const version = requestVersion.current;
     try {
       const { data, error } = await getSupabase(config).rpc('track_incident', { p_token: token });
+      if (version !== requestVersion.current) return;
       if (error) throw new Error(error.message || 'The server rejected the request.');
       const parsed = parseTrackResponse(data);
       if (parsed.ok) {
@@ -56,6 +69,7 @@ export function useTrack(token: string, demo: boolean) {
         throw new Error('The server sent data this page could not read.');
       }
     } catch (e) {
+      if (version !== requestVersion.current) return;
       const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
       setState({
         kind: 'error',
@@ -67,7 +81,7 @@ export function useTrack(token: string, demo: boolean) {
         data: lastData.current,
       });
     } finally {
-      inFlight.current = false;
+      if (version === requestVersion.current) inFlight.current = false;
     }
   }, [demo, token]);
 
@@ -98,6 +112,30 @@ export function useTrack(token: string, demo: boolean) {
       window.removeEventListener('online', load);
     };
   }, [load, demo]);
+
+  useEffect(() => {
+    const config = readSupabaseConfig();
+    if (demo || !config || !/^[A-Za-z0-9_-]{22,64}$/.test(token)) return;
+    const client = getSupabase(config);
+    let stopped = false;
+    let refresh: ReturnType<typeof setTimeout> | null = null;
+    const channel = client.channel(`shakti:${token}`, { config: { private: false } })
+      .on('broadcast', { event: 'changed' }, () => {
+        // The payload is deliberately ignored. Only the token-scoped RPC is
+        // trusted; coalesce bursts and keep hidden tabs quiet.
+        if (stopped || document.hidden || refresh !== null) return;
+        refresh = setTimeout(() => {
+          refresh = null;
+          if (!stopped && !document.hidden) void load();
+        }, 300);
+      })
+      .subscribe();
+    return () => {
+      stopped = true;
+      if (refresh !== null) clearTimeout(refresh);
+      void client.removeChannel(channel);
+    };
+  }, [demo, token, load]);
 
   return { state, fetchedAt, retry: load };
 }

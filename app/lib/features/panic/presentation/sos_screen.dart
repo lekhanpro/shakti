@@ -88,7 +88,7 @@ class CountdownView extends ConsumerWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'Your contacts will get an SMS with your location.',
+                  'Shakti will attempt SMS to your enabled contacts. Location is included when available.',
                   textAlign: TextAlign.center,
                   style: t.bodyMedium?.copyWith(color: ShaktiColors.textMid),
                 ),
@@ -213,7 +213,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                   report == null
                       ? 'Starting alerts'
                       : report.smsRecipients > 0
-                          ? 'Help is on the way. ${report.smsRecipients} ${report.smsRecipients == 1 ? 'person has' : 'people have'} your location.'
+                          ? 'Android accepted SMS for ${report.smsRecipients} ${report.smsRecipients == 1 ? 'contact' : 'contacts'}. Delivery is unconfirmed.'
                           : 'Stay where people can see you. Call 112 if you can.',
                   style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
                 ),

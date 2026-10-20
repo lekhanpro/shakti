@@ -36,6 +36,8 @@ class PanicController extends Notifier<PanicViewState> {
   Timer? _breadcrumbs;
   StreamSubscription<bool>? _online;
   static const _uuid = Uuid();
+  SafetySettings? _lastSettings;
+  Completer<void>? _pendingTrigger;
 
   @override
   PanicViewState build() {
@@ -49,13 +51,14 @@ class PanicController extends Notifier<PanicViewState> {
   /// and haptics entirely.
   Future<void> trigger(TriggerSource source, {bool covert = false}) async {
     if (!_idleLike) return;
-    final settings = await ref.read(settingsRepositoryProvider).load();
+    final settings = await _loadSettings();
+    if (!ref.mounted) return;
     final silent = covert || settings.stealthMode;
 
     if (covert) {
       if (!_machine.triggerImmediate()) return;
       state = PanicViewState(phase: PanicPhase.active, source: source, covert: true, startedAt: _now());
-      await _dispatch(source, covert: true, silent: true);
+      await _dispatch(source, covert: true, silent: true, settings: settings);
       return;
     }
 
@@ -72,6 +75,7 @@ class PanicController extends Notifier<PanicViewState> {
     if (!silent) unawaited(_safe(() => ref.read(hapticsServiceProvider).heavy()));
 
     final done = Completer<void>();
+    _pendingTrigger = done;
     _countdown = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_machine.state != PanicMachineState.countdown) {
         t.cancel();
@@ -88,7 +92,7 @@ class PanicController extends Notifier<PanicViewState> {
       _countdown = null;
       if (_machine.activate()) {
         state = state.copyWith(phase: PanicPhase.active, secondsLeft: 0);
-        unawaited(_dispatch(source, covert: false, silent: silent).whenComplete(() {
+        unawaited(_dispatch(source, covert: false, silent: silent, settings: settings).whenComplete(() {
           if (!done.isCompleted) done.complete();
         }));
       } else if (!done.isCompleted) {
@@ -103,6 +107,7 @@ class PanicController extends Notifier<PanicViewState> {
     if (!_machine.abort()) return;
     _countdown?.cancel();
     _countdown = null;
+    _completePendingTrigger();
     unawaited(_safe(() => ref.read(hapticsServiceProvider).cancel()));
     state = const PanicViewState();
   }
@@ -125,7 +130,7 @@ class PanicController extends Notifier<PanicViewState> {
     await _safe(() => ref.read(syncServiceProvider).enqueueIncident(resolved));
 
     if (resolved.covert) return;
-    final settings = await ref.read(settingsRepositoryProvider).load();
+    final settings = await _loadSettings();
     final name = _displayName(settings);
     final contacts = await _activeContacts();
     if (contacts.isNotEmpty) {
@@ -167,7 +172,7 @@ class PanicController extends Notifier<PanicViewState> {
       }),
     );
     _startBreadcrumbs(open.id);
-    final settings = await ref.read(settingsRepositoryProvider).load();
+    final settings = await _loadSettings();
     if (!ref.mounted) return;
     _watchConnectivity(open.id, _displayName(settings), settings);
     if (!open.cloudDispatched) {
@@ -179,8 +184,7 @@ class PanicController extends Notifier<PanicViewState> {
   // Pipeline
   // ---------------------------------------------------------------------------
 
-  Future<void> _dispatch(TriggerSource source, {required bool covert, required bool silent}) async {
-    final settings = await ref.read(settingsRepositoryProvider).load();
+  Future<void> _dispatch(TriggerSource source, {required bool covert, required bool silent, required SafetySettings settings}) async {
     final name = _displayName(settings);
     final incidents = ref.read(incidentRepositoryProvider);
 
@@ -438,9 +442,34 @@ class PanicController extends Notifier<PanicViewState> {
   }
 
   void _teardown() {
+    _completePendingTrigger();
     _countdown?.cancel();
     _breadcrumbs?.cancel();
     _online?.cancel();
+  }
+
+  // A failed settings read must not prevent the local emergency channels.
+  // Preserve the last known choices; without them, avoid opting into audio,
+  // sound or cloud sharing on the user's behalf.
+  Future<SafetySettings> _loadSettings() async {
+    try {
+      final settings = await ref.read(settingsRepositoryProvider).load()
+          .timeout(const Duration(seconds: 1));
+      _lastSettings = settings;
+      return settings;
+    } catch (_) {
+      return _lastSettings ?? const SafetySettings(
+        sirenOnSos: false,
+        recordAudio: false,
+        cloudEnabled: false,
+      );
+    }
+  }
+
+  void _completePendingTrigger() {
+    final pending = _pendingTrigger;
+    _pendingTrigger = null;
+    if (pending != null && !pending.isCompleted) pending.complete();
   }
 
   DateTime _now() => ref.read(clockProvider).now();

@@ -20,9 +20,9 @@ import {
 } from 'lucide-react';
 
 /**
- * Every sentence here is checked against the code (audit of 2026-10-10).
- * "built" means written and tested in the repo. "dev" means the logic exists
- * but the phone service that makes it real is still being written.
+ * Every sentence here is checked against the code (documentation review of 2026-10-21).
+ * "built" refers to implementation in source, not independent device validation.
+ * Physical-device results belong in the QA checklist.
  */
 export type Status = 'built' | 'dev';
 
@@ -61,14 +61,14 @@ export const TRIGGERS: readonly Item[] = [
   {
     icon: Vibrate,
     title: 'Shake',
-    body: 'Three hard shakes of 2.8 g or more. The rule is written and tested. The sensor service is still to come.',
-    status: 'dev',
+    body: 'Three hard shakes of 2.8 g or more. Detection and sensor integration are implemented; false-trigger behavior needs real-device validation.',
+    status: 'built',
   },
   {
     icon: Mic,
     title: 'Voice phrase',
-    body: 'A phrase you choose, matched approximately. Off by default. Matching is written. Listening is still to come.',
-    status: 'dev',
+    body: 'A phrase you choose, matched approximately. Off by default. Matching and speech-service integration are implemented; test permissions and listening behavior on your device.',
+    status: 'built',
   },
 ];
 
@@ -86,8 +86,8 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
       {
         icon: Radio,
         title: 'SMS first, no data needed',
-        body: 'The message carries a maps link, your address, battery and tracking link. It is designed to go to the SIM before any network call.',
-        status: 'dev',
+        body: 'The message uses available incident information and a tracker link. Carrier SMS needs cellular service and permission; Android handoff does not confirm delivery.',
+        status: 'built',
       },
       {
         icon: Send,
@@ -98,8 +98,8 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
       {
         icon: Siren,
         title: 'Siren and strobe',
-        body: 'A loud siren with a flashing screen and torch to draw attention.',
-        status: 'dev',
+        body: 'Siren and strobe controls use device audio and torch capabilities. Validate hardware and permission behavior on the target phone.',
+        status: 'built',
       },
       {
         icon: PhoneIncoming,
@@ -111,7 +111,7 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
         icon: FileLock2,
         title: 'Audio evidence',
         body: 'A 60 second recording during an incident, encrypted on the phone.',
-        status: 'dev',
+        status: 'built',
       },
     ],
   },
@@ -122,7 +122,7 @@ export const FEATURE_GROUPS: readonly FeatureGroup[] = [
       {
         icon: MapPinned,
         title: 'Live tracker link',
-        body: 'Guardians open a link in any browser. No app, no sign-up. It shows your route, battery and distance, refreshed every 10 seconds.',
+        body: 'Guardians open a token-based link without installing the app. It polls uploaded incident and trail data every ten seconds while visible.',
         status: 'built',
       },
       {
@@ -173,7 +173,7 @@ export const FAQS: readonly Faq[] = [
   {
     question: 'Does Shakti need the internet?',
     answer:
-      'It is designed not to. The SOS is meant to be handed to your SIM as an SMS before any network call, so it can work where mobile data does not. The trigger rules and message composer are built and tested. The phone service that sends the SMS is still in development. Telegram, the live map and the tracker link use the internet when it is available.',
+      'Local SOS state, contacts, evidence, and supported device functions do not require mobile data. Carrier SMS still needs a working SIM, cellular service, SMS permission, and plan/balance. Cloud alerts, fresh maps/routes, AI, and uploaded guardian tracking require internet and configuration.',
   },
   {
     question: 'Who are my guardians, and what do they need to install?',
@@ -193,7 +193,7 @@ export const FAQS: readonly Faq[] = [
   {
     question: 'Is my location stored on your servers?',
     answer:
-      'During an incident your position and trail are stored so guardians can follow them. The tracking link stops working 24 hours after you mark yourself safe. Your contacts and PIN stay on the phone.',
+      "During an incident your position and trail are stored so guardians can follow them. Tracking links have expiry rules in the backend. Share a link only with trusted people. Your PIN remains local; review the deployment's data behavior before use.",
   },
   {
     question: 'Is there an iPhone version?',
@@ -214,9 +214,7 @@ export const BUILT_NOW: readonly string[] = [
 ];
 
 export const IN_DEVELOPMENT: readonly string[] = [
-  'Phone services: SMS sending, location, battery, haptics',
-  'Siren, strobe and torch',
-  'Encrypted 60 second audio evidence',
-  'Shake sensor and voice phrase listening',
-  'Testing on real phones: battery use, lock screen reliability',
+  'Recorded real-phone SMS, audio, sensor, and battery validation',
+  'Deployed backend and guardian tracking integration evidence',
+  'Closed-alpha release approval and tester feedback',
 ];
