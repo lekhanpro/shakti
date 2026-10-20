@@ -592,12 +592,16 @@ class FakeSettingsRepository implements SettingsRepository {
 
   final _Subject<SafetySettings> _s;
   int saveCount = 0;
+  bool failLoad = false;
 
   SafetySettings get settings => _s.value;
   set settings(SafetySettings v) => _s.value = v;
 
   @override
-  Future<SafetySettings> load() async => _s.value;
+  Future<SafetySettings> load() async {
+    if (failLoad) throw StateError('Settings storage unavailable');
+    return _s.value;
+  }
 
   @override
   Future<void> save(SafetySettings s) async {

@@ -83,6 +83,9 @@ class EscortController extends Notifier<EscortState> {
   StreamSubscription<LocationFix>? _geo;
   List<SafePlace> _places = const [];
 
+  // Invalidates work that was started for a previous walk.
+  int _runGeneration = 0;
+
   /// Injectable for tests: the ticker period.
   static Duration tickEvery = const Duration(seconds: 1);
 
@@ -96,6 +99,8 @@ class EscortController extends Notifier<EscortState> {
 
   Future<void> start(Duration duration, {SafePlace? destination}) async {
     if (state.running) return;
+    final generation = ++_runGeneration;
+    _places = const [];
     _t.start(duration);
     state = EscortState(
       status: EscortStatus.running,
@@ -106,7 +111,7 @@ class EscortController extends Notifier<EscortState> {
     );
     _ticker?.cancel();
     _ticker = Timer.periodic(tickEvery, (_) => tick());
-    await _watchArrival();
+    await _watchArrival(generation);
   }
 
   /// Advances the timer. Public so tests can drive it with a fake clock.
@@ -146,10 +151,18 @@ class EscortController extends Notifier<EscortState> {
   /// hash. A missing hash never unlocks: the PIN is mandatory.
   Future<bool> checkIn(String pin) async {
     if (!state.running) return false;
+    final generation = _runGeneration;
     final hash = await _safe(() => ref.read(secureStoreProvider).read(pinHashKey));
+    if (!ref.mounted || generation != _runGeneration || !state.running) return false;
     if (hash == null || hash.isEmpty) return false;
     final ok = await PinHasher.verify(pin, hash);
-    if (!ok || !ref.mounted) return false;
+    if (!ok || !ref.mounted || generation != _runGeneration || !state.running) return false;
+    // The deadline can pass while PIN verification is pending, even before the
+    // periodic ticker runs. A late verification must never undo an expiry.
+    if (_t.remaining <= Duration.zero) {
+      tick();
+      return false;
+    }
     _finish();
     return true;
   }
@@ -157,6 +170,7 @@ class EscortController extends Notifier<EscortState> {
   /// Ends the walk without a PIN from the running screen only after the user
   /// verified; the UI routes "End" through [checkIn].
   void reset() {
+    _runGeneration++;
     _stopWatchers();
     _timer?.cancel();
     state = const EscortState();
@@ -165,6 +179,8 @@ class EscortController extends Notifier<EscortState> {
   /// Answer to the arrival prompt. When [checkIn] is true the walk ends and
   /// contacts are told by SMS. Either way the prompt is not shown again.
   Future<bool> answerArrival({required bool checkIn, String? pin}) async {
+    if (!state.running) return false;
+    final generation = _runGeneration;
     final place = state.arrivedAt;
     if (!checkIn) {
       state = state.copyWith(arrivalHandled: true);
@@ -173,14 +189,14 @@ class EscortController extends Notifier<EscortState> {
     if (place == null || pin == null || !await this.checkIn(pin)) return false;
     state = state.copyWith(arrivalHandled: true);
     final contacts = await _safe(() => ref.read(contactRepositoryProvider).active()) ?? const [];
-    if (contacts.isEmpty) return true;
+    if (!ref.mounted || generation != _runGeneration || contacts.isEmpty) return true;
     final res = await _safe(
       () => ref.read(smsServiceProvider).sendToAll(
             [for (final c in contacts) c.phone],
             'I reached ${place.name} safely. - Shakti',
           ),
     );
-    if (!ref.mounted) return true;
+    if (!ref.mounted || generation != _runGeneration) return true;
     state = state.copyWith(notifiedContacts: res?.valueOrNull ?? 0);
     return true;
   }
@@ -207,10 +223,12 @@ class EscortController extends Notifier<EscortState> {
     state = state.copyWith(status: EscortStatus.checkedIn, progress: _t.progress);
   }
 
-  Future<void> _watchArrival() async {
-    _places = await _safe(() => ref.read(safePlaceRepositoryProvider).all()) ?? const [];
-    if (!ref.mounted || !state.running) return;
+  Future<void> _watchArrival(int generation) async {
+    final places = await _safe(() => ref.read(safePlaceRepositoryProvider).all()) ?? const [];
+    if (!ref.mounted || generation != _runGeneration || !state.running) return;
+    _places = places;
     await _geo?.cancel();
+    if (!ref.mounted || generation != _runGeneration || !state.running) return;
     try {
       _geo = ref.read(locationServiceProvider).watch().listen(onFix, onError: (_) {});
     } catch (_) {
