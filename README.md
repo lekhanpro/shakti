@@ -416,6 +416,6 @@ Component and review responsibilities are documented in the [community-review gu
 
 ## Four review milestones and verification
 
-See the [implementation audit](docs/implementation-audit.md) for all acceptance IDs, source/test evidence, unresolved specification differences and build gates. The [four review milestones](docs/review-milestones.md) explain PR dependencies and how to inspect or revert each checkpoint. The Week 4 workflow adds Android debug APK compilation, native Kotlin tests, fresh database/RLS checks and browser smoke tests. Workflow presence is not proof of a passing run; check the exact PR SHA.
+See the [implementation audit](docs/implementation-audit.md) for all acceptance IDs, source/test evidence, unresolved specification differences and build gates. The [four review milestones](docs/review-milestones.md) explain the single PR's checkpoint commits and how to inspect or revert each checkpoint. The Week 4 workflow adds Android debug APK compilation, native Kotlin tests, fresh database/RLS checks and browser smoke tests. Workflow presence is not proof of a passing run; check the exact PR SHA.
 
 The first automated testing prerelease is a **debug-signed Android development APK** built without hosted-backend configuration. It supports controlled local testing; hosted tracking, AI and cloud alerts require a configured build. Signed production APK/AAB delivery remains a separate gated workflow requiring the project's signing/configuration secrets. No iOS build is included.

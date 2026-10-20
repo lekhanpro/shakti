@@ -9,7 +9,7 @@ Scope is Android only. No iOS project, build or distribution is included.
 The implementation plan and design spec are requirements, not proof of completion.
 The rows below distinguish inspected source, test inventory and checks that need execution.
 The last verified green run before these changes is [baseline CI](https://github.com/lekhanpro/shakti/actions/runs/39248683500).
-It does **not** verify these PRs. Use each PR's checks and the combined Week 4 workflow
+It does **not** verify this PR. Use the PR's checks and the combined Week 4 workflow
 for current results. No local commands were run during this audit because the execution
 environment was unavailable. No device, deployed-provider or signing result is invented.
 
@@ -45,7 +45,7 @@ test coverage intentions; only a successful run at the PR SHA establishes a pass
 
 ## Cross-system requirements
 
-| Plan area | Existing implementation | Changes proposed across the review stack | Remaining gate |
+| Plan area | Existing implementation | Changes proposed across the four checkpoints | Remaining gate |
 |---|---|---|---|
 | Domain / data | Pure Dart engines, Drift repositories and queue with tests | Preserve existing architecture; audit all acceptance IDs | Coverage >=80% for domain/data at exact tested SHA |
 | SOS reliability | Independent channel dispatch, cached-location SMS | Settings failure fallback preserves known choices; unknown settings do not enable audio, sound or cloud; cancellation completes its pending operation; honest SMS status copy | New tests and device trials |
