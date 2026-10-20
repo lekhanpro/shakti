@@ -26,7 +26,7 @@ The landing page is read on mobile and desktop, often at night or under stressfu
 
 - Next.js 16.3.7, React 19.3, Tailwind 4, Motion, Three.js, and the existing dark-only Shakti token system.
 - The landing page keeps the existing trigger demo, guardian mesh, safety map illustration, AI/FIR scripted demo, helplines, FAQ, privacy content, and verified built/in-development status.
-- Verified facts come from the Shakti code and claim ledger. SMS sending, sensor services, siren/strobe/torch, audio evidence, and voice listening remain in development.
+- Verified facts come from the Shakti code and claim ledger. Phone-service integrations are present in source; physical-device delivery, permissions, sensor reliability, and battery validation remain separate evidence requirements.
 - The existing `/track/[token]` route remains intact.
 - The site must remain keyboard accessible, preserve visible focus, respect reduced motion, and keep all critical copy available without WebGL.
 
@@ -49,3 +49,8 @@ Fact-checked landing content is in `components/landing/content.ts`. Existing int
 ## Accessibility & Inclusion
 
 All interactive demos need keyboard paths and live status announcements where state changes. Reduced-motion visitors must see the full story without pinning, parallax, or typing animation. Essential copy must not depend on canvas or WebGL.
+
+
+## 21 October 2026 landing update
+
+The active page uses the Shakti Circle direction in `app/landing.css`: a procedural 3D phone/network, a bounded arrival transition, five-stage local SOS walkthrough, clear product requirements, explicit motion controls, and an honest alpha/download state. See [design references](docs/design-references.md). Existing tracker routes remain independent.

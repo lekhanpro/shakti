@@ -30,30 +30,30 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Shakti: three presses, a whole network',
+    default: 'Shakti: your people, one signal away',
     template: '%s | Shakti',
   },
   description:
-    'Shakti is an Android safety network. Three quick presses start a response built around you, your guardians, and the next safest step.',
+    'Shakti is an Android personal safety network with local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   applicationName: 'Shakti',
   openGraph: {
     type: 'website',
     siteName: 'Shakti',
     locale: 'en_IN',
-    title: 'Shakti: three presses, a whole network',
+    title: 'Shakti: your people, one signal away',
     description:
-      'Three quick presses start a response built around you, your guardians, and the next safest step.',
+      'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shakti: three presses, a whole network',
+    title: 'Shakti: your people, one signal away',
     description:
-      'Three quick presses start a response built around you, your guardians, and the next safest step.',
+      'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0C0C0E',
+  themeColor: '#101218',
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
