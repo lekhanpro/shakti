@@ -40,7 +40,7 @@ export default function Home() {
             <p className="s-eyebrow"><span className="s-dot" /> ANDROID PERSONAL SAFETY NETWORK</p>
             <h1 id="hero-title">Your people.<br /><em>One signal away.</em></h1>
             <p className="s-hero-description">A small action on your phone. A clearer way to reach the people who care. Shakti brings SOS, trusted contacts, and guardian tracking into one local-first safety app.</p>
-            <div className="s-actions"><a className="s-button s-button-primary" href="#story">Explore the response <ArrowRight size={17} aria-hidden="true" /></a><Link className="s-text-link" href="/track/demo">Try the guardian demo <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+            <div className="s-actions"><a className="s-button s-button-primary" href="#response">Explore the response <ArrowRight size={17} aria-hidden="true" /></a><Link className="s-text-link" href="/track/demo">Try the guardian demo <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
             <div className="s-hero-facts"><span><Check size={15} aria-hidden="true" /> Android app</span><span><Check size={15} aria-hidden="true" /> No guardian install</span><span>Alpha preparation</span></div>
           </div>
           <div className="s-hero-art"><EarthField /><div className="s-floating-note"><span className="s-note-symbol"><ShieldCheck size={19} aria-hidden="true" /></span><span><strong>Built around your circle.</strong><small>Contacts. Context. A way to check in.</small></span></div></div>
@@ -49,8 +49,8 @@ export default function Home() {
 
         <section className="s-principles" aria-label="Shakti principles"><div className="s-wrap s-principles-grid"><div><span>01</span><strong>Save on the phone first.</strong><p>Emergency state belongs on the device before it depends on the cloud.</p></div><div><span>02</span><strong>Keep each channel independent.</strong><p>A failed internet request should not hold up carrier SMS.</p></div><div><span>03</span><strong>Keep your people informed.</strong><p>A browser link gives guardians the incident context available to share.</p></div></div></section>
 
-        <section className="s-section s-wrap" id="story" aria-labelledby="story-title">
-          <div className="s-section-heading"><div><p className="s-eyebrow">01 / UNDERSTAND THE RESPONSE</p><h2 id="story-title">Less uncertainty.<br /><em>A visible next step.</em></h2></div><p>Follow an ordinary SOS from setup to resolution. Switch off the simulated internet connection and see which channels keep their independence.</p></div>
+        <section className="s-section s-wrap" id="response" aria-labelledby="response-title">
+          <div className="s-section-heading"><div><p className="s-eyebrow">01 / UNDERSTAND THE RESPONSE</p><h2 id="response-title">Less uncertainty.<br /><em>A visible next step.</em></h2></div><p>Follow an ordinary SOS from setup to resolution. Switch off the simulated internet connection and see which channels keep their independence.</p></div>
           <ResponseLab />
         </section>
 

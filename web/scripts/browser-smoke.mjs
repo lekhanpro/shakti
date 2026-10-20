@@ -7,6 +7,7 @@ const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'star
   stdio: 'inherit',
 });
 let browser;
+let activePage;
 try {
   let started = false;
   for (let attempt = 0; attempt < 60; attempt++) {
@@ -26,12 +27,13 @@ try {
   ]) {
     const context = await browser.newContext({ viewport, reducedMotion });
     const page = await context.newPage();
+    activePage = page;
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(origin, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Your people.');
     // Original product chapters remain reachable after the redesign.
-    for (const id of ['story', 'trigger', 'network', 'features', 'map', 'ai', 'faq', 'download']) {
+    for (const id of ['response', 'story', 'trigger', 'network', 'features', 'map', 'ai', 'faq', 'download']) {
       await expect(page.locator('#' + id)).toHaveCount(1);
     }
     await page.getByRole('button', { name: /Alert/ }).click();
@@ -55,11 +57,15 @@ try {
     };
   });
   const page = await fallback.newPage();
+  activePage = page;
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Your people.');
   await expect(page.getByRole('link', { name: /Try the guardian demo/ }).first()).toBeVisible();
   await page.screenshot({ path: 'test-results/no-webgl.png', fullPage: true });
   await fallback.close();
+} catch (error) {
+  await activePage?.screenshot({ path: 'test-results/failure.png', fullPage: true }).catch(() => {});
+  throw error;
 } finally {
   await browser?.close();
   server.kill('SIGTERM');

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
-  { href: '#story', label: 'How it works' },
+  { href: '#response', label: 'How it works' },
   { href: '#network', label: 'For guardians' },
   { href: '#features', label: 'Features' },
   { href: '#faq', label: 'Questions' },
