@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
-import { chromium, expect } from '@playwright/test';
+const { chromium, expect } = await import(process.env.PLAYWRIGHT_MODULE || '@playwright/test');
 
 const origin = 'http://127.0.0.1:3100';
 const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3100'], {

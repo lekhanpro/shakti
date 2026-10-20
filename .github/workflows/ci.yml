@@ -134,10 +134,13 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Install pinned browser test tooling without modifying lockfiles
-        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.56.1
-      - run: npx playwright install --with-deps chromium
+      - name: Install isolated pinned browser test tooling
+        run: npm install --prefix "$RUNNER_TEMP/shakti-browser-tools" --package-lock=false --ignore-scripts @playwright/test@1.56.1
+      - name: Install Chromium for the isolated test runner
+        run: '"$RUNNER_TEMP/shakti-browser-tools/node_modules/.bin/playwright" install --with-deps chromium'
       - name: Check desktop, mobile, reduced motion and WebGL fallback
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/shakti-browser-tools/node_modules/@playwright/test/index.mjs
         run: node scripts/browser-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()

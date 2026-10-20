@@ -38,7 +38,7 @@ exception when others then
 end;
 $$;
 
-revoke all on function public.notify_tracker_change() from public;
+revoke all on function public.notify_tracker_change() from public, anon, authenticated;
 drop trigger if exists tracker_incident_changed on public.incident_reports;
 create trigger tracker_incident_changed
 after insert or update or delete on public.incident_reports
