@@ -30,6 +30,7 @@ export function GuardianMesh() {
     let raf = 0;
     let inView = true;
     let visible = !document.hidden;
+    let pagePaused = document.querySelector<HTMLElement>('.shakti-site')?.dataset.motion === 'paused';
 
     const draw = (t: number) => {
       ctx.clearRect(0, 0, w, h);
@@ -108,9 +109,11 @@ export function GuardianMesh() {
     io.observe(canvas);
     const onVis = () => (visible = !document.hidden);
     document.addEventListener('visibilitychange', onVis);
+    const onPageMotion = (event: Event) => { pagePaused = Boolean((event as CustomEvent<{ paused: boolean }>).detail.paused); };
+    document.addEventListener('shakti:motion', onPageMotion);
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
-      if (inView && visible) draw(now / 1000);
+      if (inView && visible && !pagePaused) draw(now / 1000);
     };
     raf = requestAnimationFrame(loop);
     return () => {
@@ -118,6 +121,7 @@ export function GuardianMesh() {
       ro.disconnect();
       io.disconnect();
       document.removeEventListener('visibilitychange', onVis);
+      document.removeEventListener('shakti:motion', onPageMotion);
     };
   }, []);
 

@@ -144,3 +144,7 @@ The story uses a sticky stage, three scenes, a progress line, and a live state s
 - **Don't** use acid-lime or coral as random decoration.
 - **Don't** use gradient text or a second display typeface.
 - **Don't** let the motion hide the action, the helplines, or the fact that a demo is scripted.
+
+## Active landing direction (21 October 2026)
+
+The revised composition retains the Earth globe, city story, guardian mesh, safety radar, trigger interaction, and AI demonstration. Local Earth textures remove the remote texture dependency; procedural fallback content remains available. `app/landing.css` supplies the new layout. The added phone/network sculpture complements the globe. The arrival transition is bounded and reduced-motion visitors retain the copy. Global and scene motion controls, keyboard operation, responsive layouts, and WebGL fallback are review gates. See `docs/design-references.md` for design sources.
