@@ -30,7 +30,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Shakti: your people, one signal away',
+    default: 'Shakti: Your people. Within reach.',
     template: '%s | Shakti',
   },
   description:
@@ -40,13 +40,13 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Shakti',
     locale: 'en_IN',
-    title: 'Shakti: your people, one signal away',
+    title: 'Shakti: Your people. Within reach.',
     description:
       'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shakti: your people, one signal away',
+    title: 'Shakti: Your people. Within reach.',
     description:
       'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },

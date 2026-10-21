@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Shakti: a safety network that works without internet';
+export const alt = 'Shakti: Your people. Within reach. Personal Safety Network.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -32,20 +32,23 @@ export default function OpenGraphImage() {
               justifyContent: 'center',
             }}
           >
-            <div style={{ width: '18px', height: '18px', borderRadius: '9px', background: '#fff' }} />
+            <svg width="52" height="52" viewBox="0 0 256 256" fill="none">
+              <path d="M128 30 L204 59 L204 120 C204 169 169 205 128 226 C87 205 52 169 52 120 L52 59 Z" stroke="#F8FAFC" strokeWidth="12" />
+              <path d="M136 75 C143 96 165 117 159 139 C156 157 141 171 124 170 C102 169 89 153 93 134 C95 122 103 113 111 104 C108 121 115 131 124 134 C117 116 124 91 136 75 Z" fill="#F8FAFC" />
+            </svg>
           </div>
           <div style={{ fontSize: '40px', fontWeight: 700, letterSpacing: '-0.02em' }}>Shakti</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: '76px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em' }}>
-            One press. Your people
+            Your people.
           </div>
           <div style={{ fontSize: '76px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em' }}>
-            know where you are.
+            Within reach.
           </div>
           <div style={{ marginTop: '28px', fontSize: '30px', color: '#CBD5E1' }}>
-            An SOS built to work without mobile data. By SMS, first.
+            Personal Safety Network
           </div>
         </div>
 

@@ -1,0 +1,158 @@
+[
+  {
+    "asset": "logos/shakti-symbol-indigo",
+    "width": 256,
+    "height": 256,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-symbol-ink",
+    "width": 256,
+    "height": 256,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-symbol-white",
+    "width": 256,
+    "height": 256,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-symbol-black",
+    "width": 256,
+    "height": 256,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-horizontal-light",
+    "width": 660,
+    "height": 170,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-horizontal-dark",
+    "width": 660,
+    "height": 170,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-horizontal-mono-black",
+    "width": 660,
+    "height": 170,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-horizontal-mono-white",
+    "width": 660,
+    "height": 170,
+    "alpha": true
+  },
+  {
+    "asset": "logos/shakti-stacked-light",
+    "width": 600,
+    "height": 600,
+    "alpha": false
+  },
+  {
+    "asset": "logos/shakti-stacked-dark",
+    "width": 600,
+    "height": 600,
+    "alpha": false
+  },
+  {
+    "asset": "icons/shakti-app-icon",
+    "width": 1024,
+    "height": 1024,
+    "alpha": false
+  },
+  {
+    "asset": "store/google-play-feature-graphic-1024x500",
+    "width": 1024,
+    "height": 500,
+    "alpha": false
+  },
+  {
+    "asset": "social/shakti-opengraph-1200x630",
+    "width": 1200,
+    "height": 630,
+    "alpha": false
+  },
+  {
+    "asset": "social/shakti-square-1080",
+    "width": 1080,
+    "height": 1080,
+    "alpha": false
+  },
+  {
+    "asset": "social/shakti-portrait-1080x1350",
+    "width": 1080,
+    "height": 1350,
+    "alpha": false
+  },
+  {
+    "asset": "social/shakti-story-1080x1920",
+    "width": 1080,
+    "height": 1920,
+    "alpha": false
+  },
+  {
+    "asset": "social/shakti-banner-1600x400",
+    "width": 1600,
+    "height": 400,
+    "alpha": false
+  },
+  {
+    "asset": "presentation/shakti-title-1920x1080",
+    "width": 1920,
+    "height": 1080,
+    "alpha": false
+  },
+  {
+    "asset": "presentation/shakti-content-template-1920x1080",
+    "width": 1920,
+    "height": 1080,
+    "alpha": false
+  },
+  {
+    "asset": "print/shakti-community-poster-A4",
+    "width": 1190,
+    "height": 1684,
+    "alpha": false
+  },
+  {
+    "asset": "wallpapers/shakti-desktop-1920x1080",
+    "width": 1920,
+    "height": 1080,
+    "alpha": false
+  },
+  {
+    "asset": "wallpapers/shakti-phone-1080x1920",
+    "width": 1080,
+    "height": 1920,
+    "alpha": false
+  },
+  {
+    "asset": "illustrations/shakti-circle",
+    "width": 640,
+    "height": 480,
+    "alpha": true
+  },
+  {
+    "asset": "illustrations/shakti-walk",
+    "width": 640,
+    "height": 480,
+    "alpha": true
+  },
+  {
+    "asset": "illustrations/shakti-vault",
+    "width": 640,
+    "height": 480,
+    "alpha": true
+  },
+  {
+    "asset": "identity-preview",
+    "width": 1600,
+    "height": 1000,
+    "alpha": false
+  }
+]

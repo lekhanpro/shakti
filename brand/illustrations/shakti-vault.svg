@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480" role="img"><title>Shakti - Personal Safety Network</title>
+<rect x="176" y="132" width="288" height="240" rx="32" fill="#4F46E5"/>
+<path d="M240 140 V108 C240 24 400 24 400 108 V140" transform="translate(0 0) scale(1)" fill="none" stroke="#4F46E5" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="320" cy="234" r="27" fill="#F8FAFC" stroke="none" stroke-width="1"/>
+<rect x="310" y="247" width="20" height="54" rx="5" fill="#F8FAFC"/>
+</svg>

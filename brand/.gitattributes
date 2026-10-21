@@ -1,0 +1,9 @@
+*.pdf binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary
+*.svg text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+fonts/OFL-*.txt -whitespace

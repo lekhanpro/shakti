@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#4F46E5"/>
-  <circle cx="32" cy="32" r="15" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3"/>
-  <circle cx="32" cy="32" r="6.5" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img"><title>Shakti - Personal Safety Network</title>
+<rect x="0" y="0" width="1024" height="1024" rx="0" fill="#4F46E5"/>
+<path d="M128 30 L204 59 L204 120 C204 169 169 205 128 226 C87 205 52 169 52 120 L52 59 Z" transform="translate(42 42) scale(3.671875)" fill="none" stroke="#F8FAFC" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M136 75 C143 96 165 117 159 139 C156 157 141 171 124 170 C102 169 89 153 93 134 C95 122 103 113 111 104 C108 121 115 131 124 134 C117 116 124 91 136 75 Z" transform="translate(42 42) scale(3.671875)" fill="#F8FAFC" stroke="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
 </svg>

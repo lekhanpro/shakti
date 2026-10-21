@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480" role="img"><title>Shakti - Personal Safety Network</title>
+<path d="M90 340 C210 420 180 100 350 150 C440 180 430 300 550 100" transform="translate(0 0) scale(1)" fill="none" stroke="#4F46E5" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="90" cy="340" r="18" fill="#4F46E5" stroke="none" stroke-width="1"/>
+<circle cx="90" cy="340" r="6" fill="#F8FAFC" stroke="none" stroke-width="1"/>
+<circle cx="550" cy="100" r="18" fill="#4F46E5" stroke="none" stroke-width="1"/>
+<circle cx="550" cy="100" r="6" fill="#F8FAFC" stroke="none" stroke-width="1"/>
+<path d="M128 30 L204 59 L204 120 C204 169 169 205 128 226 C87 205 52 169 52 120 L52 59 Z" transform="translate(251 177) scale(0.5078125)" fill="none" stroke="#4F46E5" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M136 75 C143 96 165 117 159 139 C156 157 141 171 124 170 C102 169 89 153 93 134 C95 122 103 113 111 104 C108 121 115 131 124 134 C117 116 124 91 136 75 Z" transform="translate(251 177) scale(0.5078125)" fill="#4F46E5" stroke="none" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

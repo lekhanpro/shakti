@@ -1,0 +1,12 @@
+/* Identity accents. Rose is reserved for emergency meaning. */
+:root {
+  --shakti-brand: #4f46e5;
+  --shakti-night: #070b14;
+  --shakti-ink: #0f172a;
+  --shakti-cloud: #f8fafc;
+  --shakti-lilac: #a5b4fc;
+  --shakti-safe: #10b981;
+  --shakti-sos: #e11d48;
+  --shakti-brand-font: 'Poppins', sans-serif;
+  --shakti-body-font: 'Nunito', sans-serif;
+}

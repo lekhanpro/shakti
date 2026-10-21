@@ -158,8 +158,7 @@ class _EmergencyButton extends StatelessWidget {
   }
 }
 
-/// The Shakti logo mark: a rose flame held inside a shield, drawn in code so
-/// it needs no asset.
+/// The shared shield-and-flame identity, using the brand master's 256-unit grid.
 class ShaktiMark extends StatelessWidget {
   const ShaktiMark({this.size = 48, super.key});
 
@@ -178,36 +177,38 @@ class ShaktiMark extends StatelessWidget {
 class _MarkPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size s) {
-    final w = s.width, h = s.height;
+    canvas.save();
+    canvas.scale(s.width / 256, s.height / 256);
     final shield = Path()
-      ..moveTo(w * 0.5, h * 0.02)
-      ..lineTo(w * 0.92, h * 0.18)
-      ..cubicTo(w * 0.92, h * 0.62, w * 0.72, h * 0.86, w * 0.5, h * 0.98)
-      ..cubicTo(w * 0.28, h * 0.86, w * 0.08, h * 0.62, w * 0.08, h * 0.18)
+      ..moveTo(128, 30)
+      ..lineTo(204, 59)
+      ..lineTo(204, 120)
+      ..cubicTo(204, 169, 169, 205, 128, 226)
+      ..cubicTo(87, 205, 52, 169, 52, 120)
+      ..lineTo(52, 59)
       ..close();
     canvas.drawPath(
       shield,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = w * 0.06
+        ..strokeWidth = 12
         ..strokeJoin = StrokeJoin.round
         ..color = ShaktiColors.textHi,
     );
     final flame = Path()
-      ..moveTo(w * 0.5, h * 0.26)
-      ..cubicTo(w * 0.68, h * 0.44, w * 0.7, h * 0.58, w * 0.62, h * 0.7)
-      ..cubicTo(w * 0.56, h * 0.78, w * 0.44, h * 0.78, w * 0.38, h * 0.7)
-      ..cubicTo(w * 0.3, h * 0.58, w * 0.36, h * 0.46, w * 0.5, h * 0.26)
+      ..moveTo(136, 75)
+      ..cubicTo(143, 96, 165, 117, 159, 139)
+      ..cubicTo(156, 157, 141, 171, 124, 170)
+      ..cubicTo(102, 169, 89, 153, 93, 134)
+      ..cubicTo(95, 122, 103, 113, 111, 104)
+      ..cubicTo(108, 121, 115, 131, 124, 134)
+      ..cubicTo(117, 116, 124, 91, 136, 75)
       ..close();
     canvas.drawPath(
       flame,
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [ShaktiColors.sosGlow, ShaktiColors.sos],
-        ).createShader(Offset.zero & s),
+      Paint()..color = ShaktiColors.textHi,
     );
+    canvas.restore();
   }
 
   @override

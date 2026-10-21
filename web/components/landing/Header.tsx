@@ -11,7 +11,12 @@ const NAV_LINKS = [
 ] as const;
 
 export function LogoMark({ className = '' }: { className?: string }) {
-  return <svg className={`s-logo ${className}`} width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3 27 9v9c0 6-11 11-11 11S5 24 5 18V9L16 3Z" stroke="currentColor" strokeWidth="1.5" /><path d="m18 9-6 8h5l-3 7 8-11h-6l2-4Z" fill="currentColor" /></svg>;
+  return (
+    <svg className={`s-logo ${className}`} width="32" height="32" viewBox="0 0 256 256" fill="none" aria-hidden="true">
+      <path d="M128 30 L204 59 L204 120 C204 169 169 205 128 226 C87 205 52 169 52 120 L52 59 Z" stroke="currentColor" strokeWidth="12" strokeLinejoin="round" />
+      <path d="M136 75 C143 96 165 117 159 139 C156 157 141 171 124 170 C102 169 89 153 93 134 C95 122 103 113 111 104 C108 121 115 131 124 134 C117 116 124 91 136 75 Z" fill="currentColor" />
+    </svg>
+  );
 }
 
 export function Header({ downloadHref, hasDownload = false }: { downloadHref: string; hasDownload?: boolean }) {
