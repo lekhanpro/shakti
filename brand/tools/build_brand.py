@@ -146,7 +146,7 @@ class Scene:
 
     def pdf(self, page_size=None):
         stream=io.BytesIO()
-        c=canvas.Canvas(stream,pagesize=page_size or (self.w,self.h),pageCompression=1)
+        c=canvas.Canvas(stream,pagesize=page_size or (self.w,self.h),pageCompression=1,invariant=1)
         c.setTitle('Shakti | Personal Safety Network')
         c.setAuthor('Lekhan, Manas, Vikat and Hemanth | DBIT')
         if page_size: c.scale(page_size[0]/self.w,page_size[1]/self.h)
@@ -285,7 +285,7 @@ def guide():
     pages.append(s)
     path=DEST/'guides/shakti-brand-guide.pdf'
     path.parent.mkdir(parents=True,exist_ok=True)
-    c=canvas.Canvas(str(path),pagesize=(1200,800),pageCompression=1)
+    c=canvas.Canvas(str(path),pagesize=(1200,800),pageCompression=1,invariant=1)
     c.setTitle('Shakti | Brand Guide');c.setAuthor('Shakti team | DBIT')
     for s in pages: s.paint(c);c.showPage()
     c.save()
@@ -385,6 +385,16 @@ def build(integrate=False):
         d.text((x,y+385),label,fill=INK,font=font)
     sheet.save(DEST/'preview.jpg',quality=91)
     (DEST/'asset-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    cards=[]
+    for item in manifest:
+        name=item['asset']
+        bg=NIGHT if any(word in name for word in ['white','-dark']) else '#F4F5FB'
+        links=f'<a href="{name}.svg">SVG</a> <a href="{name}.png">PNG</a>'
+        if (DEST/f'{name}.pdf').exists(): links+=f' <a href="{name}.pdf">PDF</a>'
+        cards.append(f'<article><div class="art" style="background:{bg}"><img src="{name}.png" alt="{escape(name.split("/")[-1].replace("-"," "))}" loading="lazy"></div><h2>{escape(name.split("/")[-1])}</h2><p>{item["width"]} x {item["height"]}</p><nav>{links}</nav></article>')
+    (DEST/'index.html').write_text('''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shakti | Brand assets</title>
+<style>@font-face{font-family:Poppins;src:url(fonts/Poppins-Bold.ttf)}@font-face{font-family:Nunito;src:url(fonts/Nunito-Regular.ttf)}*{box-sizing:border-box}body{margin:0;background:#f4f5fb;color:#0f172a;font-family:Nunito,sans-serif}header{padding:64px max(5vw,24px);background:#070b14;color:#f8fafc}header img{width:260px;max-width:100%}h1{font:40px Poppins,sans-serif;margin:36px 0 10px}header p{color:#a5b4fc;font-size:20px}a{color:#4f46e5}header a{color:#a5b4fc}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px;padding:40px max(5vw,24px)}article{padding:16px;border:1px solid #d9ddf8;border-radius:20px;background:white;min-width:0}.art{height:240px;border-radius:12px;display:grid;place-items:center;padding:16px}.art img{max-width:100%;max-height:208px}h2{font-size:17px;overflow-wrap:anywhere}nav a{display:inline-block;margin-right:12px;padding:8px 0}footer{padding:24px max(5vw,24px)}@media(prefers-reduced-motion:no-preference){a{transition:opacity .15s}a:hover{opacity:.7}}</style>
+<header><img src="logos/shakti-horizontal-dark.svg" alt="Shakti"><h1>Your people. Within reach.</h1><p>Editable identity kit / 26 asset families</p><a href="guides/shakti-brand-guide.pdf">Read the brand guide</a> &nbsp; <a href="README.md">Usage and sources</a></header><main>'''+''.join(cards)+'''</main><footer>Lekhan / Manas / Vikat / Hemanth · DBIT · VTU 1BCP308 Community Project</footer></html>''',encoding='utf-8')
     archive=ROOT/'output/brand/shakti-brand-kit.zip';archive.parent.mkdir(parents=True,exist_ok=True)
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
         for file in sorted(DEST.rglob('*')):

@@ -10,7 +10,7 @@ import '../../../domain/engines/pin_hasher.dart';
 import '../../../domain/entities/entities.dart';
 import '../../contacts/presentation/contact_form.dart';
 import '../../home/application/home_providers.dart';
-import '../../lock/presentation/lock_screen.dart' show ShaktiMark;
+import '../../../core/widgets/shakti_mark.dart';
 import '../application/permission_gateway.dart';
 
 /// Four steps: welcome, permissions, you + a trusted contact, PIN.

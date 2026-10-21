@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/pin_pad.dart';
+import '../../../core/widgets/shakti_mark.dart';
 import '../../../domain/entities/entities.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/application/startup.dart';
@@ -156,61 +157,4 @@ class _EmergencyButton extends StatelessWidget {
       ),
     );
   }
-}
-
-/// The shared shield-and-flame identity, using the brand master's 256-unit grid.
-class ShaktiMark extends StatelessWidget {
-  const ShaktiMark({this.size = 48, super.key});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: 'Shakti',
-      image: true,
-      child: CustomPaint(size: Size.square(size), painter: _MarkPainter()),
-    );
-  }
-}
-
-class _MarkPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size s) {
-    canvas.save();
-    canvas.scale(s.width / 256, s.height / 256);
-    final shield = Path()
-      ..moveTo(128, 30)
-      ..lineTo(204, 59)
-      ..lineTo(204, 120)
-      ..cubicTo(204, 169, 169, 205, 128, 226)
-      ..cubicTo(87, 205, 52, 169, 52, 120)
-      ..lineTo(52, 59)
-      ..close();
-    canvas.drawPath(
-      shield,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 12
-        ..strokeJoin = StrokeJoin.round
-        ..color = ShaktiColors.textHi,
-    );
-    final flame = Path()
-      ..moveTo(136, 75)
-      ..cubicTo(143, 96, 165, 117, 159, 139)
-      ..cubicTo(156, 157, 141, 171, 124, 170)
-      ..cubicTo(102, 169, 89, 153, 93, 134)
-      ..cubicTo(95, 122, 103, 113, 111, 104)
-      ..cubicTo(108, 121, 115, 131, 124, 134)
-      ..cubicTo(117, 116, 124, 91, 136, 75)
-      ..close();
-    canvas.drawPath(
-      flame,
-      Paint()..color = ShaktiColors.textHi,
-    );
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_MarkPainter oldDelegate) => false;
 }

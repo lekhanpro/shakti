@@ -2,7 +2,7 @@
 
 An original, editable shield-and-flame identity for **Shakti: Personal Safety Network**. Indigo is the brand colour; rose stays reserved for emergency actions. The visual motif connects one central shield to three guardian nodes. It describes a support network, without claiming guaranteed protection.
 
-Start with `preview.jpg` and `guides/shakti-brand-guide.pdf`.
+Open `index.html` for the offline download gallery, or start with `preview.jpg` and `guides/shakti-brand-guide.pdf`.
 
 | Folder | Deliverables |
 |---|---|

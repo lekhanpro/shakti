@@ -33,40 +33,47 @@ class HomeScreen extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: ShaktiSpace.screen.copyWith(top: ShaktiSpace.md, bottom: ShaktiSpace.xl),
-          children: [
-            Semantics(
-              header: true,
-              child: Text(_greeting(ref.read(clockProvider).now(), settings.userName), style: t.headlineMedium),
-            ),
-            const SizedBox(height: ShaktiSpace.xs),
-            Align(alignment: Alignment.centerLeft, child: _Status(settings: settings, activeContacts: active.length)),
-            if (contactsLoaded && active.isEmpty) ...[
-              const SizedBox(height: ShaktiSpace.md),
-              const _NoContactsWarning(),
-            ],
-            const SizedBox(height: ShaktiSpace.md),
-            Center(
-              child: SosButton(
-                key: const ValueKey('sos-button'),
-                enabled: phase == PanicPhase.idle,
-                onPressed: () => ref.read(panicControllerProvider.notifier).trigger(TriggerSource.hudTap),
+      body: DecoratedBox(
+        // A faint indigo halo behind the SOS area, echoing the brand artwork.
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(center: Alignment(0, -0.35), radius: 0.9, colors: [Color(0x1F4F46E5), Color(0x004F46E5)]),
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: ShaktiSpace.screen.copyWith(top: ShaktiSpace.sm, bottom: ShaktiSpace.xl),
+            children: [
+              _BrandBar(onSettings: () => context.go(Routes.settings)),
+              const SizedBox(height: ShaktiSpace.lg),
+              Semantics(header: true, child: Text(_greeting(ref.read(clockProvider).now(), settings.userName), style: t.headlineMedium)),
+              const SizedBox(height: ShaktiSpace.xs),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _Status(settings: settings, activeContacts: active.length),
               ),
-            ),
-            Text(
-              settings.powerTrigger ? 'Or press the power button 3 times, even when locked.' : 'Tap once. You get ${settings.countdownSeconds} seconds to cancel.',
-              textAlign: TextAlign.center,
-              style: t.bodyMedium,
-            ),
-            const SizedBox(height: ShaktiSpace.lg),
-            const _QuickActions(),
-            const SizedBox(height: ShaktiSpace.lg),
-            _ContactsSummary(contacts: active, total: contacts.value?.length ?? 0),
-            const SizedBox(height: ShaktiSpace.sm),
-            const _Helplines(),
-          ],
+              if (contactsLoaded && active.isEmpty) ...[const SizedBox(height: ShaktiSpace.md), const _NoContactsWarning()],
+              const SizedBox(height: ShaktiSpace.xs),
+              Center(
+                child: SosButton(
+                  key: const ValueKey('sos-button'),
+                  enabled: phase == PanicPhase.idle,
+                  onPressed: () => ref.read(panicControllerProvider.notifier).trigger(TriggerSource.hudTap),
+                ),
+              ),
+              Text(
+                settings.powerTrigger
+                    ? 'Or press the power button 3 times, even when locked.'
+                    : 'Tap once. You get ${settings.countdownSeconds} seconds to cancel.',
+                textAlign: TextAlign.center,
+                style: t.bodyMedium,
+              ),
+              const SizedBox(height: ShaktiSpace.xl),
+              const _QuickActions(),
+              const SizedBox(height: ShaktiSpace.md),
+              _Circle(contacts: active, total: contacts.value?.length ?? 0),
+              const SizedBox(height: ShaktiSpace.md),
+              const _Helplines(),
+            ],
+          ),
         ),
       ),
     );
@@ -77,14 +84,38 @@ class HomeScreen extends ConsumerWidget {
     final part = h < 5
         ? 'Stay safe tonight'
         : h < 12
-            ? 'Good morning'
-            : h < 17
-                ? 'Good afternoon'
-                : h < 21
-                    ? 'Good evening'
-                    : 'Stay safe tonight';
+        ? 'Good morning'
+        : h < 17
+        ? 'Good afternoon'
+        : h < 21
+        ? 'Good evening'
+        : 'Stay safe tonight';
     final n = name.trim().split(' ').first;
     return n.isEmpty ? part : '$part, $n';
+  }
+}
+
+/// Wordmark row: the brand lockup on the left, trigger settings on the right.
+class _BrandBar extends StatelessWidget {
+  const _BrandBar({required this.onSettings});
+
+  final VoidCallback onSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const ShaktiMark(size: 28, color: ShaktiColors.lilac),
+        const SizedBox(width: ShaktiSpace.xs),
+        Text('Shakti', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+        const Spacer(),
+        IconButton(
+          tooltip: 'Triggers and privacy settings',
+          onPressed: onSettings,
+          icon: const Icon(Icons.tune_rounded, color: ShaktiColors.textMid),
+        ),
+      ],
+    );
   }
 }
 
@@ -162,85 +193,113 @@ class _QuickActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final actions = [
-      (Icons.phone_callback_rounded, 'Fake call', () => context.push(Routes.fakeCall)),
-      (Icons.campaign_rounded, 'Siren', () => context.push(Routes.siren)),
-      (Icons.directions_walk_rounded, 'Walk with me', () => context.go(Routes.escort)),
-      (Icons.share_location_rounded, 'Share location', () => _share(context, ref)),
+      (Icons.directions_walk_rounded, 'Walk with me', 'Check-in timer for your walk', () => context.go(Routes.escort)),
+      (Icons.phone_callback_rounded, 'Fake call', 'A believable reason to leave', () => context.push(Routes.fakeCall)),
+      (Icons.share_location_rounded, 'Share location', 'Send where you are right now', () => _share(context, ref)),
+      (Icons.campaign_rounded, 'Siren', 'Loud alarm and flashing light', () => context.push(Routes.siren)),
     ];
-    return Row(
-      children: [
-        for (final (icon, label, onTap) in actions)
-          Expanded(
-            child: Semantics(
-              button: true,
-              label: label,
-              excludeSemantics: true,
-              child: InkWell(
-                onTap: onTap,
-                borderRadius: BorderRadius.circular(ShaktiRadius.md),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: ShaktiColors.surfaceHigh,
-                          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+    final t = Theme.of(context).textTheme;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final width = (box.maxWidth - ShaktiSpace.sm) / 2;
+        return Wrap(
+          spacing: ShaktiSpace.sm,
+          runSpacing: ShaktiSpace.sm,
+          children: [
+            for (final (icon, label, hint, onTap) in actions)
+              SizedBox(
+                width: width,
+                child: Semantics(
+                  button: true,
+                  label: label,
+                  hint: hint,
+                  excludeSemantics: true,
+                  child: Material(
+                    color: ShaktiColors.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(ShaktiRadius.md),
+                      side: BorderSide(color: ShaktiColors.outline.withValues(alpha: 0.7)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: onTap,
+                      child: Padding(
+                        padding: const EdgeInsets.all(ShaktiSpace.sm),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: ShaktiColors.brand.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+                              ),
+                              child: Icon(icon, color: ShaktiColors.lilac, size: 20),
+                            ),
+                            const SizedBox(width: ShaktiSpace.sm),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(label, style: t.titleSmall),
+                                  const SizedBox(height: 2),
+                                  Text(hint, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        child: Icon(icon, color: ShaktiColors.textHi),
                       ),
-                      const SizedBox(height: ShaktiSpace.xs),
-                      Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
 
-class _ContactsSummary extends StatelessWidget {
-  const _ContactsSummary({required this.contacts, required this.total});
+/// The trusted circle, drawn as the brand's guardian network.
+class _Circle extends StatelessWidget {
+  const _Circle({required this.contacts, required this.total});
 
   final List<EmergencyContact> contacts;
   final int total;
+
+  static String _initial(String name) {
+    final n = name.trim();
+    return n.isEmpty ? '?' : n.characters.first.toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final names = contacts.map((c) => c.name.split(' ').first).take(3).join(', ');
     final more = contacts.length > 3 ? ' and ${contacts.length - 3} more' : '';
+    final summary = contacts.isEmpty ? (total == 0 ? 'No one added yet' : 'All contacts are paused') : 'SOS goes to $names$more';
+    final open = 5 - contacts.length;
     return ShaktiCard(
       semanticLabel: 'Trusted contacts. ${contacts.isEmpty ? 'None active' : '$names$more'}. Manage',
       onTap: () => context.push(Routes.contacts),
       child: Row(
         children: [
-          const Icon(Icons.group_rounded, color: ShaktiColors.action),
-          const SizedBox(width: ShaktiSpace.sm),
+          GuardianNetwork(initials: [for (final c in contacts.take(5)) _initial(c.name)], size: 112),
+          const SizedBox(width: ShaktiSpace.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Trusted contacts', style: t.titleMedium),
-                Text(
-                  contacts.isEmpty ? (total == 0 ? 'No one added yet' : 'All contacts are paused') : 'SOS goes to $names$more',
-                  style: t.bodySmall,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text('Your circle', style: t.titleMedium),
+                const SizedBox(height: 2),
+                Text(summary, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: ShaktiSpace.sm),
+                Text(open > 0 ? '${contacts.length} of 5 added' : 'Circle full', style: t.labelMedium?.copyWith(color: ShaktiColors.lilac)),
               ],
             ),
           ),
-          Text('${contacts.length}/5', style: t.labelMedium),
           const Icon(Icons.chevron_right_rounded, color: ShaktiColors.textLo),
         ],
       ),
@@ -251,63 +310,68 @@ class _ContactsSummary extends StatelessWidget {
 class _Helplines extends StatelessWidget {
   const _Helplines();
 
-  static const _lines = [
-    ('112', 'Emergency'),
-    ('181', 'Women helpline'),
-    ('1091', 'Women police'),
-    ('1098', 'Child helpline'),
-  ];
+  static const _lines = [('112', 'Emergency'), ('181', 'Women helpline'), ('1091', 'Women police'), ('1098', 'Child helpline')];
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    return ShaktiCard(
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.md, ShaktiSpace.md, ShaktiSpace.xs),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(header: true, child: Text('Helplines', style: t.titleMedium)),
-          Text('Free, 24 hours, from any phone', style: t.bodySmall),
-          const SizedBox(height: ShaktiSpace.xs),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.6,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(ShaktiSpace.xxs, ShaktiSpace.xs, ShaktiSpace.xxs, ShaktiSpace.sm),
+          child: Wrap(
+            spacing: ShaktiSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.end,
             children: [
-              for (final (number, name) in _lines)
-                Semantics(
-                  button: true,
-                  label: 'Call $number, $name',
-                  excludeSemantics: true,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(ShaktiRadius.sm),
-                    onTap: () => launchUrl(Uri(scheme: 'tel', path: number)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.xs),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.call_outlined, size: 20, color: ShaktiColors.safe),
-                          const SizedBox(width: ShaktiSpace.xs),
-                          Expanded(
+              Semantics(header: true, child: Text('Helplines', style: t.titleMedium)),
+              Text('Free, 24 hours, from any phone', style: t.bodySmall),
+            ],
+          ),
+        ),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, (number, name)) in _lines.indexed) ...[
+                if (i > 0) const SizedBox(width: ShaktiSpace.xs),
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: 'Call $number, $name',
+                    excludeSemantics: true,
+                    child: Material(
+                      color: ShaktiColors.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(ShaktiRadius.md),
+                        side: BorderSide(color: ShaktiColors.outline.withValues(alpha: 0.7)),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => launchUrl(Uri(scheme: 'tel', path: number)),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 72),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.sm, horizontal: ShaktiSpace.xxs),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(number, style: t.titleMedium?.copyWith(fontFamily: ShaktiFonts.heading)),
-                                Text(name, style: t.bodySmall, overflow: TextOverflow.ellipsis),
+                                Text(number, style: t.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 2),
+                                Text(name, style: t.bodySmall, textAlign: TextAlign.center, maxLines: 2),
                               ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ],
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

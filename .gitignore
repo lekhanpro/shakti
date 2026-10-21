@@ -37,6 +37,7 @@ media/remotion-promo/video/out/
 .playwright-mcp/
 **/.claude/
 web/tsconfig.tsbuildinfo
+app/test/_preview/
 
 # Generated design-review screenshots
 web/.impeccable/review/

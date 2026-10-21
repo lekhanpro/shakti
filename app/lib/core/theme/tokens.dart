@@ -14,6 +14,10 @@ abstract final class ShaktiColors {
   static const sosGlow = Color(0xFFFB7185);
   static const action = Color(0xFF6366F1);
   static const actionDeep = Color(0xFF4F46E5);
+
+  // Brand kit (brand/tokens.json): indigo identity, lilac for quiet structure.
+  static const brand = Color(0xFF4F46E5);
+  static const lilac = Color(0xFFA5B4FC);
   static const safe = Color(0xFF10B981);
   static const safeDeep = Color(0xFF059669);
   static const warn = Color(0xFFF59E0B);
