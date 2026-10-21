@@ -147,13 +147,17 @@ class _Orb extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'SOS',
-                style: t.displayLarge?.copyWith(
-                  color: ShaktiColors.textHi,
-                  fontSize: size * 0.25,
-                  letterSpacing: size * 0.02,
-                  height: 1,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'SOS',
+                  maxLines: 1,
+                  style: t.displayLarge?.copyWith(
+                    color: ShaktiColors.textHi,
+                    fontSize: size * 0.25,
+                    letterSpacing: size * 0.02,
+                    height: 1,
+                  ),
                 ),
               ),
               SizedBox(height: size * 0.03),

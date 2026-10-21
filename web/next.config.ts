@@ -34,6 +34,8 @@ const csp = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Keep prerendering within the memory available on development laptops.
+  experimental: { cpus: 2 },
   // `next build`'s embedded TypeScript worker exhausts virtual memory in this
   // environment (VirtualAlloc abort, exit 134). Types are verified separately
   // with `npm run typecheck`, which passes.

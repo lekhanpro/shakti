@@ -23,6 +23,7 @@ try {
   browser = await chromium.launch();
   for (const [name, viewport, reducedMotion] of [
     ['desktop', { width: 1440, height: 1000 }, 'no-preference'],
+    ['desktop-reduced-motion', { width: 1440, height: 1000 }, 'reduce'],
     ['mobile-reduced-motion', { width: 390, height: 844 }, 'reduce'],
   ]) {
     const context = await browser.newContext({ viewport, reducedMotion });
@@ -35,6 +36,20 @@ try {
     // Original product chapters remain reachable after the redesign.
     for (const id of ['response', 'story', 'trigger', 'network', 'features', 'map', 'ai', 'faq', 'download']) {
       await expect(page.locator('#' + id)).toHaveCount(1);
+    }
+    if (reducedMotion === 'reduce') {
+      const scenes = page.locator('#story .story-scene-copy');
+      await expect(scenes).toHaveCount(3);
+      const bounds = await scenes.evaluateAll((cards) => cards.map((card) => {
+        const rect = card.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom, height: rect.height, opacity: getComputedStyle(card).opacity };
+      }));
+      for (let i = 0; i < bounds.length; i++) {
+        expect(bounds[i].height, 'static story card must occupy space').toBeGreaterThan(0);
+        expect(Number(bounds[i].opacity), 'every static story card must be visible').toBe(1);
+        if (i > 0) expect(bounds[i].top, 'static story cards must not overlap').toBeGreaterThanOrEqual(bounds[i - 1].bottom);
+      }
+      await page.locator('#story').screenshot({ path: 'test-results/' + name + '-story.png' });
     }
     await page.getByRole('button', { name: /Alert/ }).click();
     await page.getByRole('button', { name: 'Internet connected', exact: true }).click();

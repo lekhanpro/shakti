@@ -107,8 +107,10 @@ class _BrandBar extends StatelessWidget {
       children: [
         const ShaktiMark(size: 28, color: ShaktiColors.lilac),
         const SizedBox(width: ShaktiSpace.xs),
-        Text('Shakti', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3)),
-        const Spacer(),
+        Expanded(
+          child: Text('Shakti', maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+        ),
         IconButton(
           tooltip: 'Triggers and privacy settings',
           onPressed: onSettings,
@@ -201,7 +203,9 @@ class _QuickActions extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     return LayoutBuilder(
       builder: (context, box) {
-        final width = (box.maxWidth - ShaktiSpace.sm) / 2;
+        final minWidth = 160 * MediaQuery.textScalerOf(context).scale(14) / 14;
+        final columns = box.maxWidth >= 2 * minWidth + ShaktiSpace.sm ? 2 : 1;
+        final width = (box.maxWidth - ShaktiSpace.sm * (columns - 1)) / columns;
         return Wrap(
           spacing: ShaktiSpace.sm,
           runSpacing: ShaktiSpace.sm,
@@ -213,6 +217,7 @@ class _QuickActions extends ConsumerWidget {
                   button: true,
                   label: label,
                   hint: hint,
+                  onTap: onTap,
                   excludeSemantics: true,
                   child: Material(
                     color: ShaktiColors.surface,
@@ -280,7 +285,6 @@ class _Circle extends StatelessWidget {
     final names = contacts.map((c) => c.name.split(' ').first).take(3).join(', ');
     final more = contacts.length > 3 ? ' and ${contacts.length - 3} more' : '';
     final summary = contacts.isEmpty ? (total == 0 ? 'No one added yet' : 'All contacts are paused') : 'SOS goes to $names$more';
-    final open = 5 - contacts.length;
     return ShaktiCard(
       semanticLabel: 'Trusted contacts. ${contacts.isEmpty ? 'None active' : '$names$more'}. Manage',
       onTap: () => context.push(Routes.contacts),
@@ -296,7 +300,7 @@ class _Circle extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(summary, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: ShaktiSpace.sm),
-                Text(open > 0 ? '${contacts.length} of 5 added' : 'Circle full', style: t.labelMedium?.copyWith(color: ShaktiColors.lilac)),
+                Text('$total of 5 added · ${contacts.length} active', style: t.labelMedium?.copyWith(color: ShaktiColors.lilac)),
               ],
             ),
           ),
@@ -329,47 +333,74 @@ class _Helplines extends StatelessWidget {
             ],
           ),
         ),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (i, (number, name)) in _lines.indexed) ...[
-                if (i > 0) const SizedBox(width: ShaktiSpace.xs),
-                Expanded(
-                  child: Semantics(
-                    button: true,
-                    label: 'Call $number, $name',
-                    excludeSemantics: true,
-                    child: Material(
-                      color: ShaktiColors.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(ShaktiRadius.md),
-                        side: BorderSide(color: ShaktiColors.outline.withValues(alpha: 0.7)),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => launchUrl(Uri(scheme: 'tel', path: number)),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 72),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.sm, horizontal: ShaktiSpace.xxs),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(number, style: t.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-                                const SizedBox(height: 2),
-                                Text(name, style: t.bodySmall, textAlign: TextAlign.center, maxLines: 2),
-                              ],
+        LayoutBuilder(
+          builder: (context, box) {
+            final minWidth =
+                80 * MediaQuery.textScalerOf(context).scale(18) / 18;
+            final columns = box.maxWidth >= 4 * minWidth + 3 * ShaktiSpace.xs
+                ? 4
+                : box.maxWidth >= 2 * minWidth + ShaktiSpace.xs
+                ? 2
+                : 1;
+            final width =
+                (box.maxWidth - (columns - 1) * ShaktiSpace.xs) / columns;
+            return Wrap(
+              spacing: ShaktiSpace.xs,
+              runSpacing: ShaktiSpace.xs,
+              children: [
+                for (final (number, name) in _lines)
+                  SizedBox(
+                    width: width,
+                    child: Semantics(
+                      button: true,
+                      label: 'Call $number, $name',
+                      onTap: () => launchUrl(Uri(scheme: 'tel', path: number)),
+                      excludeSemantics: true,
+                      child: Material(
+                        color: ShaktiColors.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+                          side: BorderSide(
+                            color: ShaktiColors.outline.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () =>
+                              launchUrl(Uri(scheme: 'tel', path: number)),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 72),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: ShaktiSpace.sm,
+                                horizontal: ShaktiSpace.xxs,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    number,
+                                    style: t.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    name,
+                                    style: t.bodySmall,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
               ],
-            ],
-          ),
+            );
+          },
         ),
       ],
     );

@@ -1183,6 +1183,13 @@ a, button, summary { cursor: pointer; }
   min-height: 11rem;
 }
 .story-scene-copy { position: absolute; inset: 0; }
+.motion-story-scenes-static {
+  position: relative;
+  display: grid;
+  gap: 2rem;
+  min-height: unset;
+}
+.motion-story-scenes-static .story-scene-copy { position: relative; }
 .story-scene-marker {
   display: inline-flex;
   width: 2.4rem;
@@ -2293,7 +2300,9 @@ a, button, summary { cursor: pointer; }
   }
   .motion-story { height: auto; }
   .motion-story-sticky { position: relative; }
-  .motion-story-scenes { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 1.4rem; }
+  .motion-story-scenes { position: relative; right: auto; bottom: auto; width: 100%; margin-top: 1.4rem; display: grid; gap: 2rem; min-height: unset; }
+  /* Keep every scene readable even before hydration or after a preference change. */
+  .motion-story-scenes .story-scene-copy { position: relative; opacity: 1 !important; transform: none !important; }
   .motion-story-progress { display: none; }
   .motion-story-state { position: relative; right: auto; bottom: auto; left: auto; margin-top: 1.5rem; }
   .motion-story-intro { padding-top: 0; }

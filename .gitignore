@@ -35,6 +35,7 @@ media/remotion-promo/video/out/
 
 # Local tool state
 .playwright-mcp/
+.playwright-cli/
 **/.claude/
 web/tsconfig.tsbuildinfo
 app/test/_preview/
