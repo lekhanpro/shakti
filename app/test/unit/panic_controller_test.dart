@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shakti/core/result.dart';
 import 'package:shakti/domain/entities/entities.dart';
 import 'package:shakti/features/panic/application/panic_controller.dart';
 import 'package:shakti/features/panic/application/panic_view_state.dart';
@@ -75,6 +78,39 @@ void main() {
       expect(f.incidents.incidents, isEmpty);
       expect(f.cloud.calls, isEmpty);
       expect(f.haptics.cancels, 1);
+    });
+  });
+
+  test('abort completes the pending trigger future', () {
+    fakeAsync((async) {
+      var completed = false;
+      ctrl().trigger(TriggerSource.hudTap).then((_) => completed = true);
+      async.flushMicrotasks();
+      ctrl().abort();
+      async.flushMicrotasks();
+      expect(completed, isTrue);
+    });
+  });
+
+  test('late SMS failure cannot modify a newer incident', () {
+    fakeAsync((async) {
+      final pending = Completer<Result<int>>();
+      f.sms.pendingResult = pending;
+      ctrl().trigger(TriggerSource.decoyPin, covert: true);
+      async.flushMicrotasks();
+      final oldId = st().incident!.id;
+      ctrl().resolve();
+      async.flushMicrotasks();
+      ctrl().acknowledge();
+      f.sms.pendingResult = null;
+      ctrl().trigger(TriggerSource.decoyPin, covert: true);
+      async.flushMicrotasks();
+      final newId = st().incident!.id;
+      expect(newId, isNot(oldId));
+      pending.complete(const Err('Old send failed'));
+      async.flushMicrotasks();
+      expect(st().incident!.id, newId);
+      expect(st().report!.status(DispatchChannel.sms), ChannelStatus.ok);
     });
   });
 

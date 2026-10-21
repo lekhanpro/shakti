@@ -184,6 +184,8 @@ class PanicController extends Notifier<PanicViewState> {
   // Pipeline
   // ---------------------------------------------------------------------------
 
+  bool _owns(String id) => ref.mounted && state.report?.incident.id == id;
+
   Future<void> _dispatch(TriggerSource source, {required bool covert, required bool silent, required SafetySettings settings}) async {
     final name = _displayName(settings);
     final incidents = ref.read(incidentRepositoryProvider);
@@ -201,6 +203,7 @@ class PanicController extends Notifier<PanicViewState> {
       for (final c in DispatchChannel.values) c: ChannelStatus.pending,
     }).withChannel(DispatchChannel.localSave, ChannelStatus.running));
     final saved = await _safe(() => incidents.save(incident));
+    if (!_owns(incident.id)) return;
     _setChannel(DispatchChannel.localSave, saved ? ChannelStatus.ok : ChannelStatus.failed,
         note: saved ? null : 'Device storage failed; alert channels will still run');
 
@@ -233,6 +236,7 @@ class PanicController extends Notifier<PanicViewState> {
     _watchConnectivity(incident.id, name, settings);
     final fix = (await fixFuture).valueOrNull;
     final battery = await batteryFuture;
+    if (!_owns(incident.id)) return;
     final enriched = (state.report?.incident ?? incident).copyWith(
         lat: fix?.point.lat ?? usable?.point.lat,
         lng: fix?.point.lng ?? usable?.point.lng, batteryLevel: battery);
@@ -241,6 +245,7 @@ class PanicController extends Notifier<PanicViewState> {
         note: fix == null && usable == null ? 'Location unavailable; SMS was not delayed' : null,
         incident: enriched);
     await dispatch;
+    if (!_owns(incident.id)) return;
 
     // 4. Persist the final channel state, then keep streaming breadcrumbs.
     final latest = state.report?.incident ?? incident;
@@ -257,6 +262,7 @@ class PanicController extends Notifier<PanicViewState> {
   Future<void> _sendSms(Incident incident, String name, GeoPoint? at, int? battery, String trackUrl) async {
     _setChannel(DispatchChannel.sms, ChannelStatus.running);
     final contacts = await _activeContacts();
+    if (!_owns(incident.id)) return;
     if (contacts.isEmpty) {
       _setChannel(DispatchChannel.sms, ChannelStatus.failed, note: 'No trusted contacts added');
       return;
@@ -274,6 +280,7 @@ class PanicController extends Notifier<PanicViewState> {
       const Err('SMS timed out'),
       PanicBudgets.sms,
     );
+    if (!_owns(incident.id)) return;
     result.when(
       ok: (sent) {
         final updated = (state.report?.incident ?? incident).copyWith(smsDispatched: sent > 0);

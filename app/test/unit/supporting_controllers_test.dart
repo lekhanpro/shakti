@@ -16,6 +16,17 @@ void main() {
   setUp(() { f = Fakes(); c = ProviderContainer(overrides: f.overrides()); });
   tearDown(() => c.dispose());
 
+  test('escort expiry during PIN verification cannot become a safe check-in', () async {
+    f.secureStore.map[pinHashKey] = await PinHasher.hash('2580', iterations: 1000);
+    final ctrl = c.read(escortControllerProvider.notifier);
+    await ctrl.start(const Duration(minutes: 1));
+    final check = ctrl.checkIn('2580');
+    f.clock.advance(const Duration(minutes: 2));
+    ctrl.tick();
+    expect(await check, isFalse);
+    expect(c.read(escortControllerProvider).status, EscortStatus.expired);
+  });
+
   test('map uses cached havens offline and routes when available', () async {
     f.connectivity.online = false;
     f.havenCache.havens = List.of(f.havens.havens);

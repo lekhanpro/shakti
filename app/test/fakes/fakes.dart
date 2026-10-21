@@ -94,6 +94,7 @@ class FakeLocationService implements LocationService, CachedLocationService {
 }
 
 class FakeSmsService implements SmsService {
+  Completer<Result<int>>? pendingResult;
   final List<(List<String>, String)> sent = [];
 
   /// When non-null, [sendToAll] returns `Err(failWith)` and records nothing.
@@ -108,6 +109,7 @@ class FakeSmsService implements SmsService {
     final f = failWith;
     if (f != null) return Err(f);
     sent.add((List.of(phones), message));
+    if (pendingResult != null) return pendingResult!.future;
     return Ok(result ?? phones.length);
   }
 
