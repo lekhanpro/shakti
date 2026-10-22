@@ -15,12 +15,11 @@ import {
   Siren,
   Timer,
   Vibrate,
-  Volume2,
   type LucideIcon,
 } from 'lucide-react';
 
 /**
- * Every sentence here is checked against the code (documentation review of 2026-10-21).
+ * Every sentence here is checked against the code (documentation review of 2026-10-22).
  * "built" refers to implementation in source, not independent device validation.
  * Physical-device results belong in the QA checklist.
  */
@@ -38,12 +37,6 @@ export const TRIGGERS: readonly Item[] = [
     icon: Power,
     title: 'Power button, three times',
     body: 'Three presses inside 1.2 seconds start the countdown. On by default.',
-    status: 'built',
-  },
-  {
-    icon: Volume2,
-    title: 'Volume down, three times',
-    body: 'Optional. Same rule, through an accessibility service. Off until you switch it on.',
     status: 'built',
   },
   {
@@ -203,7 +196,7 @@ export const FAQS: readonly Faq[] = [
 ];
 
 export const BUILT_NOW: readonly string[] = [
-  'Power, volume, walk-with-me and duress triggers',
+  'Power, walk-with-me and duress triggers',
   'Five second cancel window with swipe to cancel',
   'Message composer: maps link, address, battery, tracking link',
   'Telegram alerts through a rate-limited edge function',

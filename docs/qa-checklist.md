@@ -8,7 +8,7 @@ Record each run as: device / Android version / pass or fail / notes.
 - [ ] **Power x3, screen on.** Press power 3 times quickly. The countdown opens within 1 s.
 - [ ] **Power x3, screen locked and in a pocket.** The phone vibrates twice. The SOS screen appears over the lock screen, or a full-screen notification does (Android 14).
 - [ ] **Power x3 after a reboot**, with the guard enabled. The guard notification is back and the trigger works.
-- [ ] **Volume-down x3** with the accessibility service on. Normal volume behaviour still works.
+- [ ] **Permission audit:** run `scripts/verify_android_permissions.py` on the APK. No accessibility service, notification listener or SMS-reading permissions; volume keys retain normal behavior.
 - [ ] **Shake.** A hard shake for about 1 s triggers. Walking, running up stairs and putting the phone on a table do **not**. Drop the phone onto a bed 5 times: at most 1 false trigger.
 - [ ] **Voice phrase** ("shakti help") with the app open, in a quiet room and in street noise.
 - [ ] **Escort timer expiry** with the screen off. The SOS fires.

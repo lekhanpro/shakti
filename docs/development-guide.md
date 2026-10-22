@@ -27,7 +27,7 @@ Shakti keeps emergency state on the phone first and treats each alert channel in
 | Area | What is implemented | Conditions and boundaries |
 | --- | --- | --- |
 | SOS and cancellation | On-screen SOS, a configurable countdown, cancellation, active incident status, and PIN-confirmed resolution | The ordinary flow provides a cancellation window; a duress trigger bypasses it |
-| Alternative triggers | Native triple-power detection, opt-in volume-key accessibility support, shake detection, voice phrase matching, and escort timer expiry | Power detection uses screen-toggle events; device behavior, permissions, background limits, and false triggers need hardware testing |
+| Alternative triggers | Native triple-power detection, shake detection, voice phrase matching, and escort timer expiry | Power detection uses screen-toggle events; device behavior, permissions, background limits, and false triggers need hardware testing. The optional volume-key/accessibility trigger was removed on 22 October 2026 |
 | Trusted contacts | Local contact management and carrier SMS with incident information and a tracker link | Needs a usable SIM, cellular service, SMS capability, and permission; Android accepting a send request is not proof of delivery |
 | Guardian tracker | Token-based browser view with incident status, location history, battery information, and last-update information | Needs the configured backend, uploaded incident data, and internet on the guardian's device |
 | Location and sync | Local breadcrumb storage during an incident and a durable retry queue for cloud uploads | The app samples on a 10-second interval; actual freshness depends on GPS, Android scheduling, and connectivity |
@@ -86,7 +86,7 @@ flowchart TD
 | Component | Stack | Responsibility |
 | --- | --- | --- |
 | Android app | Flutter 3.47.5, Dart, Riverpod 3, go_router, Drift | Screens, emergency orchestration, local data, contacts, location, evidence, and retry queue |
-| Android integration | Kotlin, foreground service, platform channels, optional accessibility service | Native trigger events, guard-service lifecycle, and platform protections |
+| Android integration | Kotlin, foreground service, platform channels | Native power-trigger events, guard-service lifecycle, and platform protections |
 | Backend | Supabase Postgres/Auth, SQL RLS policies, Deno 2 Edge Functions | Owned incident data, guardian relationships, alert dispatch, AI proxying, and token-scoped tracking |
 | Guardian website | Next.js 16, React 19, TypeScript, Tailwind, Leaflet | Product landing page and `/track/[token]` guardian view |
 | Verification and release | GitHub Actions, Flutter tests, Deno tests, Vitest | Static checks, tests, coverage gate, web build, and signed Android release artifacts |
@@ -304,7 +304,7 @@ Use [the hardware QA checklist](../docs/qa-checklist.md) and record device model
 Priority checks include:
 
 - Real SMS receipt, denied SMS permission, missing SIM, no contacts, and no cellular service.
-- Locked-screen, background, reboot, power/volume trigger, voice, and shake behavior.
+- Locked-screen, background, reboot, power trigger, voice, and shake behavior.
 - SOS cancellation, silent duress, incident restoration, and resolution.
 - Cloud retry after reconnecting, an actual guardian tracker token, and expired/invalid-token behavior.
 - Encrypted audio recording, replay/export, screenshot restrictions, and backup behavior.
@@ -388,7 +388,7 @@ The [checkpoint script](../scripts/review-checkpoint.ps1) snapshots eligible cur
 | Guardian link has no live data | Same Supabase project across components, migration/RPC availability, actual token, pending app sync, and correct tracker origin |
 | Map or route is unavailable offline | Tiles, fresh place lookup, routing, and geocoding require internet; cached places are limited to previously saved data |
 | SMS channel fails | SIM/service, cellular signal, plan/balance, permission, and active contacts; verify receipt independently |
-| Hardware trigger fails | Guard/accessibility settings, device power management, Android permissions, and the real-device QA checklist |
+| Hardware trigger fails | Guard settings, device power management, Android permissions, and the real-device QA checklist; volume-key triggering is no longer supported |
 | Drift types appear stale | Run `dart run build_runner build --delete-conflicting-outputs` from `app/` |
 | Release packaging fails | Upload keystore, `key.properties`, secret configuration, SDK/toolchain, and increasing app version |
 | Windows dependency cache fails | Use an existing cache directory without spaces through `PUB_CACHE` |

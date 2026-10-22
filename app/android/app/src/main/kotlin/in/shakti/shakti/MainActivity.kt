@@ -1,12 +1,9 @@
 package `in`.shakti.shakti
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.text.TextUtils
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -17,9 +14,8 @@ import io.flutter.plugin.common.MethodChannel
  * FlutterFragmentActivity (required by local_auth).
  *
  * MethodChannel "shakti/guard":
- *   startGuard, stopGuard, setSecureScreen(bool), isAccessibilityEnabled -> bool,
- *   openAccessibilitySettings, consumeLaunchTrigger -> String?
- * EventChannel "shakti/guard/events": trigger wire strings (TRIPLE_POWER, VOLUME_TRIPLE).
+ *   startGuard, stopGuard, setSecureScreen(bool), consumeLaunchTrigger -> String?
+ * EventChannel "shakti/guard/events": TRIPLE_POWER trigger wire string.
  */
 class MainActivity : FlutterFragmentActivity() {
 
@@ -110,18 +106,6 @@ class MainActivity : FlutterFragmentActivity() {
                         result.success(null)
                     }
                 }
-                "isAccessibilityEnabled" -> result.success(isAccessibilityServiceEnabled())
-                "openAccessibilitySettings" -> {
-                    try {
-                        startActivity(
-                            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        )
-                        result.success(null)
-                    } catch (e: Exception) {
-                        result.error("UNAVAILABLE", e.message, null)
-                    }
-                }
                 "consumeLaunchTrigger" -> {
                     val t = pendingTrigger
                     pendingTrigger = null
@@ -152,21 +136,6 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     private fun prefs() = getSharedPreferences(TriggerBus.PREFS, Context.MODE_PRIVATE)
-
-    private fun isAccessibilityServiceEnabled(): Boolean {
-        val expected = ComponentName(this, ShaktiAccessibilityService::class.java)
-        val enabled = Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-        ) ?: return false
-        val splitter = TextUtils.SimpleStringSplitter(':')
-        splitter.setString(enabled)
-        for (s in splitter) {
-            val cn = ComponentName.unflattenFromString(s) ?: continue
-            if (cn == expected) return true
-        }
-        return false
-    }
 
     companion object {
         const val METHOD_CHANNEL = "shakti/guard"

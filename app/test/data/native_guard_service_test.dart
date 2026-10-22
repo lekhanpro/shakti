@@ -35,8 +35,6 @@ void main() {
     messenger.setMockMethodCallHandler(method, (call) async {
       calls.add(call);
       switch (call.method) {
-        case 'isAccessibilityEnabled':
-          return true;
         case 'consumeLaunchTrigger':
           final t = launchTrigger;
           launchTrigger = null;
@@ -56,26 +54,22 @@ void main() {
     await s.startGuard();
     await s.setSecureScreen(false);
     await s.stopGuard();
-    await s.openAccessibilitySettings();
-    expect(await s.isAccessibilityEnabled(), isTrue);
     expect(calls.map((c) => c.method), [
       'startGuard',
       'setSecureScreen',
       'stopGuard',
-      'openAccessibilitySettings',
-      'isAccessibilityEnabled',
     ]);
     expect(calls[1].arguments, false);
   });
 
-  test('streams known triggers, drops unknown values', () async {
+  test('streams power triggers, drops removed volume triggers and unknown values', () async {
     mockEvents(['TRIPLE_POWER', 'BOGUS', 42, 'VOLUME_TRIPLE']);
     final s = MethodChannelNativeGuardService();
     final got = <TriggerSource>[];
     final sub = s.triggers.listen(got.add);
     await pumpEventQueue();
     await sub.cancel();
-    expect(got, [TriggerSource.triplePower, TriggerSource.volumeTriple]);
+    expect(got, [TriggerSource.triplePower]);
   });
 
   test('emits the launch trigger once on first subscription', () async {
@@ -102,7 +96,6 @@ void main() {
     final s = MethodChannelNativeGuardService();
     await s.startGuard();
     await s.setSecureScreen(true);
-    expect(await s.isAccessibilityEnabled(), isFalse);
     final got = <TriggerSource>[];
     final sub = s.triggers.listen(got.add, onError: (_) => fail('should not error'));
     await pumpEventQueue();
@@ -116,6 +109,5 @@ void main() {
     });
     final s = MethodChannelNativeGuardService();
     await s.stopGuard();
-    expect(await s.isAccessibilityEnabled(), isFalse);
   });
 }

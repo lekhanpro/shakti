@@ -1,5 +1,10 @@
 # Shakti Implementation Plan
 
+Scope update — 22 October 2026: the optional volume-key trigger and Android
+accessibility service were removed at the project owner's request. Preserve
+power, SOS, shake, voice, escort and duress triggers. Audit packaged APK permissions
+using `scripts/verify_android_permissions.py`; ignore legacy volume settings.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the complete Shakti personal-safety system (Flutter Android app, Supabase backend, Next.js guardian web) described in the spec.
@@ -43,7 +48,7 @@
 | Domain engines | `lib/domain/engines/{panic_state_machine,shake_filter,power_press_detector,proximity,escort_timer,safe_route_scorer,distress_classifier,pin_hasher,sms_composer,phone_number,voice_matcher,fir_template}.dart` |
 | Data | `lib/data/local/{app_database,tables}.dart` + generated code, `lib/data/repositories/*`, `lib/data/services/*`, `lib/data/remote/*` |
 | Features | `lib/features/{onboarding,lock,panic,contacts,safety_map,escort,ai_guard,de_escalation,evidence_vault,settings,home}/**` |
-| Native | `android/app/src/main/kotlin/in/shakti/shakti/{MainActivity,GuardService,PowerPressCounter,ShaktiAccessibilityService,BootReceiver}.kt`, `AndroidManifest.xml`, `res/xml/accessibility_config.xml` |
+| Native | `android/app/src/main/kotlin/in/shakti/shakti/{MainActivity,GuardService,PowerPressCounter,BootReceiver}.kt`, `AndroidManifest.xml` |
 | Backend | `supabase/migrations/*.sql`, `supabase/functions/{_shared,ai-guard,emergency-dispatch,guardian-invite}/**`, `supabase/tests/*.sql` |
 | Web | `web/**` |
 | CI | `.github/workflows/{ci,release}.yml` |
@@ -83,7 +88,7 @@ The API of each engine is pinned in its own file header. For each engine: write 
 - `TriggerHub` (`lib/features/panic/application/trigger_hub.dart`) subscribes to native, shake and voice sources according to the settings.
 
 ### Task 4: Native Android
-- Manifest permissions. `GuardService` (foreground service of type `location`, with screen receivers). `PowerPressCounter`. The accessibility service for volume keys. `BootReceiver`. `MainActivity` channels and FLAG_SECURE. Release signing from `key.properties`, if present.
+- Manifest permissions. `GuardService` (foreground service of type `location`, with screen receivers). `PowerPressCounter`. `BootReceiver`. `MainActivity` channels and FLAG_SECURE. Release signing from `key.properties`, if present.
 - Verify with `flutter build apk --debug`.
 
 ### Task 5: Feature UI

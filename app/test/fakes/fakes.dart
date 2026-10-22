@@ -430,10 +430,8 @@ class FakeNativeGuard implements NativeGuardService {
   final triggerController = StreamController<TriggerSource>.broadcast();
   bool started = false;
   bool secureScreen = false;
-  bool accessibilityEnabled = false;
   int startCalls = 0;
   int stopCalls = 0;
-  int openAccessibilityCalls = 0;
 
   /// Emits a native trigger.
   void fire(TriggerSource s) => triggerController.add(s);
@@ -455,12 +453,6 @@ class FakeNativeGuard implements NativeGuardService {
 
   @override
   Future<void> setSecureScreen(bool on) async => secureScreen = on;
-
-  @override
-  Future<bool> isAccessibilityEnabled() async => accessibilityEnabled;
-
-  @override
-  Future<void> openAccessibilitySettings() async => openAccessibilityCalls++;
 }
 
 class FakeVoice implements VoiceTriggerService {

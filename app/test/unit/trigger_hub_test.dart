@@ -48,11 +48,18 @@ void main() {
     c.read(panicControllerProvider.notifier).abort();
   });
 
-  test('a volume trigger is ignored while volumeTrigger is off', () async {
-    await start(const SafetySettings(powerTrigger: true, volumeTrigger: false));
+  test('removed volume triggers are ignored even with legacy settings enabled', () async {
+    await start(SafetySettings.fromJson({'powerTrigger': true, 'volumeTrigger': true}));
     f.nativeGuard.fire(TriggerSource.volumeTriple);
     await Future<void>.delayed(Duration.zero);
     expect(c.read(panicControllerProvider).phase, PanicPhase.idle);
+  });
+
+  test('legacy volume settings cannot arm the native guard', () async {
+    final settings = SafetySettings.fromJson({'powerTrigger': false, 'volumeTrigger': true});
+    await start(settings);
+    expect(f.nativeGuard.started, isFalse);
+    expect(settings.toJson().containsKey('volumeTrigger'), isFalse);
   });
 
   test('violent shaking routes to a shake trigger', () async {
@@ -82,7 +89,7 @@ void main() {
 
   test('resubscribes when settings change', () async {
     await start(const SafetySettings());
-    f.settings.settings = const SafetySettings(powerTrigger: false, volumeTrigger: false, shakeTrigger: false, voiceTrigger: true);
+    f.settings.settings = const SafetySettings(powerTrigger: false, shakeTrigger: false, voiceTrigger: true);
     await settle();
     expect(f.nativeGuard.stopCalls, 1);
     expect(f.voice.starts, 1);

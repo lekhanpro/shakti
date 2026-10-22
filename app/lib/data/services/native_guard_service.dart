@@ -6,14 +6,13 @@ import '../../domain/entities/incident.dart';
 import '../../domain/services/services.dart';
 
 /// Android implementation of [NativeGuardService] backed by the Kotlin layer
-/// (MainActivity, GuardService, ShaktiAccessibilityService).
+/// (MainActivity and GuardService).
 ///
 /// Contract:
 /// - MethodChannel `shakti/guard`: `startGuard`, `stopGuard`,
-///   `setSecureScreen(bool)`, `isAccessibilityEnabled -> bool`,
-///   `openAccessibilitySettings`, `consumeLaunchTrigger -> String?`.
+///   `setSecureScreen(bool)`, `consumeLaunchTrigger -> String?`.
 /// - EventChannel `shakti/guard/events`: trigger wire strings
-///   (`TRIPLE_POWER`, `VOLUME_TRIPLE`), matching [TriggerSource.wire].
+///   (`TRIPLE_POWER`), matching [TriggerSource.wire].
 ///
 /// Every call swallows [MissingPluginException] / [PlatformException], so this
 /// is a harmless no-op off Android and in tests.
@@ -81,9 +80,7 @@ class MethodChannelNativeGuardService implements NativeGuardService {
   /// Maps a wire string to a known native trigger; unknown values are dropped
   /// (fromWire would otherwise silently fall back to hudTap).
   static TriggerSource? _parse(Object? raw) {
-    if (raw is! String) return null;
-    final known = TriggerSource.values.any((e) => e.wire == raw);
-    return known ? TriggerSource.fromWire(raw) : null;
+    return raw == TriggerSource.triplePower.wire ? TriggerSource.triplePower : null;
   }
 
   Future<String?> _consumeLaunchTrigger() async {
@@ -114,11 +111,4 @@ class MethodChannelNativeGuardService implements NativeGuardService {
 
   @override
   Future<void> setSecureScreen(bool on) => _invoke<void>('setSecureScreen', on);
-
-  @override
-  Future<bool> isAccessibilityEnabled() async =>
-      await _invoke<bool>('isAccessibilityEnabled') ?? false;
-
-  @override
-  Future<void> openAccessibilitySettings() => _invoke<void>('openAccessibilitySettings');
 }

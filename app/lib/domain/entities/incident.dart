@@ -1,7 +1,7 @@
 enum TriggerSource {
   hudTap('HUD_TAP', 'SOS button'),
   triplePower('TRIPLE_POWER', 'Power button x3'),
-  volumeTriple('VOLUME_TRIPLE', 'Volume key x3'),
+  volumeTriple('VOLUME_TRIPLE', 'Volume key x3'), // Historical incidents only; trigger removed.
   shake('SHAKE', 'Shake or fall'),
   voiceKeyword('VOICE_KEYWORD', 'Voice keyword'),
   timerExpired('TIMER_EXPIRED', 'Escort timer expired'),

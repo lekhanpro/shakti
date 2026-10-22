@@ -23,6 +23,34 @@ earlier APK; export test evidence before uninstalling because local data is remo
 For repeatable update installation use the signed release workflow with the same
 project upload key.
 
+## Play Protect and downloaded test APKs
+
+Extract the Actions artifact ZIP first; install the `.apk` inside it. The ZIP is
+not an Android installation package. An older workflow run retains its older APK
+even after source changes are committed.
+
+On 22 October 2026 the optional volume-key trigger and its Android accessibility
+service were removed at the project owner's request. The app no longer offers
+accessibility setup. Power, on-screen SOS, shake, voice, escort and duress triggers
+remain, subject to their existing settings and device limitations. Legacy saved
+volume-trigger settings are ignored; existing incident history is preserved.
+
+CI and signed packaging now audit the actual APK with
+`scripts/verify_android_permissions.py`. Accessibility/notification-listener access
+and SMS/call-log reading permissions fail the audit; emergency `SEND_SMS` must
+remain. No security setting needs to be disabled for these source changes.
+
+Google documents that downloaded APKs declaring accessibility access can be
+blocked under enhanced fraud protection. Removing that access addresses the
+identified declaration; it does not certify the app or guarantee installation on
+every phone. Keep Play Protect enabled. If a new APK is still blocked, record the
+exact warning, phone/Android version and SHA-256, then follow Google's developer
+review/appeal guidance. A future Play closed test still requires Console access,
+signing, policy declarations and review.
+
+- [Play Protect developer guidance](https://developers.google.com/android/play-protect/warning-dev-guidance)
+- [SMS permission policy and emergency exception](https://support.google.com/googleplay/android-developer/answer/10208820)
+
 ## Signed release APK and AAB
 
 The existing Release workflow now depends on the reusable full CI workflow before

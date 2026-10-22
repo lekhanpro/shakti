@@ -22,7 +22,6 @@ import io.flutter.plugin.common.EventChannel
  */
 object TriggerBus {
     const val TRIPLE_POWER = "TRIPLE_POWER"
-    const val VOLUME_TRIPLE = "VOLUME_TRIPLE"
 
     const val EXTRA_TRIGGER = "shakti_trigger"
     const val PREFS = "shakti_guard"

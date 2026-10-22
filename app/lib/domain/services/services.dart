@@ -115,15 +115,13 @@ abstract interface class BiometricService {
   Future<bool> authenticate(String reason);
 }
 
-/// Bridge to the native Kotlin guard service (power/volume triggers,
+/// Bridge to the native Kotlin guard service (power trigger,
 /// FLAG_SECURE, foreground service).
 abstract interface class NativeGuardService {
   Stream<TriggerSource> get triggers;
   Future<void> startGuard();
   Future<void> stopGuard();
   Future<void> setSecureScreen(bool on);
-  Future<bool> isAccessibilityEnabled();
-  Future<void> openAccessibilitySettings();
 }
 
 abstract interface class VoiceTriggerService {

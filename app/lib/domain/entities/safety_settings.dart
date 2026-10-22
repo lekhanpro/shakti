@@ -10,7 +10,6 @@ class SafetySettings {
     this.recordAudio = true,
     this.shakeTrigger = true,
     this.powerTrigger = true,
-    this.volumeTrigger = false,
     this.voiceTrigger = false,
     this.voicePhrases = const ['shakti help', 'help me now'],
     this.stealthMode = false,
@@ -32,7 +31,6 @@ class SafetySettings {
   final bool recordAudio;
   final bool shakeTrigger;
   final bool powerTrigger;
-  final bool volumeTrigger;
   final bool voiceTrigger;
   final List<String> voicePhrases;
 
@@ -58,7 +56,6 @@ class SafetySettings {
     bool? recordAudio,
     bool? shakeTrigger,
     bool? powerTrigger,
-    bool? volumeTrigger,
     bool? voiceTrigger,
     List<String>? voicePhrases,
     bool? stealthMode,
@@ -80,7 +77,6 @@ class SafetySettings {
         recordAudio: recordAudio ?? this.recordAudio,
         shakeTrigger: shakeTrigger ?? this.shakeTrigger,
         powerTrigger: powerTrigger ?? this.powerTrigger,
-        volumeTrigger: volumeTrigger ?? this.volumeTrigger,
         voiceTrigger: voiceTrigger ?? this.voiceTrigger,
         voicePhrases: voicePhrases ?? this.voicePhrases,
         stealthMode: stealthMode ?? this.stealthMode,
@@ -103,7 +99,6 @@ class SafetySettings {
         'recordAudio': recordAudio,
         'shakeTrigger': shakeTrigger,
         'powerTrigger': powerTrigger,
-        'volumeTrigger': volumeTrigger,
         'voiceTrigger': voiceTrigger,
         'voicePhrases': voicePhrases,
         'stealthMode': stealthMode,
@@ -135,7 +130,6 @@ class SafetySettings {
       recordAudio: pick('recordAudio', d.recordAudio),
       shakeTrigger: pick('shakeTrigger', d.shakeTrigger),
       powerTrigger: pick('powerTrigger', d.powerTrigger),
-      volumeTrigger: pick('volumeTrigger', d.volumeTrigger),
       voiceTrigger: pick('voiceTrigger', d.voiceTrigger),
       voicePhrases: phrases is List ? phrases.whereType<String>().toList() : d.voicePhrases,
       stealthMode: pick('stealthMode', d.stealthMode),

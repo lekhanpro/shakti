@@ -1,5 +1,10 @@
 # Shakti: Personal Safety Network (Design Spec)
 
+Update — 22 October 2026: the project owner removed the optional volume-key SOS
+trigger and its Android accessibility service after a downloaded APK was blocked
+by Play Protect. Legacy volume settings are ignored; historical incident types
+remain readable. Other triggers and emergency SMS sending remain in scope.
+
 VTU 1BCP308 Community Project, Topic #25. The source plan is `../AEGIS_SHAKTI_MASTER_IMPLEMENTATION_PLAN.tex` (v3.0). This spec replaces it wherever the two differ. Every change is listed under "Deviations".
 
 ## 1. Goal and success criteria
@@ -67,14 +72,13 @@ trigger(source) -> PanicStateMachine: idle -> countdown(5s, haptic tick each sec
    resolve (PIN) -> resolved | falseAlarm; send an "I am safe" SMS and Telegram message
 ```
 
-Trigger sources: HUD tap, triple power press (native), volume triple press (accessibility, optional), shake/fall, voice keyword, escort timer expiry, decoy PIN entry.
+Trigger sources: HUD tap, triple power press (native), shake/fall, voice keyword, escort timer expiry, decoy PIN entry.
 
 The dispatch result records which channels succeeded. The UI shows each one as a live checklist.
 
 ## 5. Native Android (Kotlin)
 
 - `ShaktiGuardService`: a foreground service of type `location` with a persistent low-priority notification. It registers `SCREEN_OFF`/`SCREEN_ON` receivers. 3 toggles within 1.2 s send `onPowerTrigger` over the `MethodChannel("shakti/guard")` and launch the app with an SOS intent.
-- `ShaktiAccessibilityService` (opt-in): counts volume-down triple presses.
 - `FLAG_SECURE` is toggled by a method call. It is on by default.
 - Receiving boot restarts the guard service if the user enabled it.
 

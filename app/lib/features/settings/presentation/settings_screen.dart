@@ -94,11 +94,6 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
                       (v) => s.copyWith(powerTrigger: v)),
                   _toggle(Icons.vibration_rounded, 'Shake trigger', 'Raise an SOS countdown by shaking the phone.', s.shakeTrigger,
                       (v) => s.copyWith(shakeTrigger: v)),
-                  _toggle(Icons.volume_up_rounded, 'Volume trigger', 'Requires optional accessibility access.', s.volumeTrigger,
-                      (v) => s.copyWith(volumeTrigger: v)),
-                  if (s.volumeTrigger)
-                    _link(Icons.accessibility_new_rounded, 'Configure accessibility access', null,
-                        () => ref.read(nativeGuardServiceProvider).openAccessibilitySettings()),
                   _toggle(Icons.mic_rounded, 'Voice trigger', 'While the app is listening: Shakti help / help me now.', s.voiceTrigger,
                       (v) => s.copyWith(voiceTrigger: v)),
                 ]),

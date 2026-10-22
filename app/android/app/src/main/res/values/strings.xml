@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="accessibility_service_label">Shakti volume SOS</string>
-    <string name="accessibility_service_description">Shakti uses this only to notice when you press Volume Down three times quickly, so you can raise an SOS without unlocking your phone. It does not read your screen, record what you type, or block your volume keys. You can turn it off at any time.</string>
     <string name="guard_channel_name">Shakti protection</string>
     <string name="guard_channel_description">Shows while Shakti is listening for the power button SOS gesture.</string>
     <string name="guard_notification_title">Shakti is protecting you</string>

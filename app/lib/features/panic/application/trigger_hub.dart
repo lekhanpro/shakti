@@ -26,7 +26,7 @@ class TriggerHubState {
   int get hashCode => Object.hash(native, shake, voice);
 }
 
-/// Arms native (power / volume), shake and voice triggers according to the
+/// Arms native power, shake and voice triggers according to the
 /// live settings and routes each one to [PanicController.trigger].
 ///
 /// Re-subscribes whenever the relevant settings change; everything is torn
@@ -72,16 +72,15 @@ class TriggerHub extends Notifier<TriggerHubState> {
   Future<void> _apply(SafetySettings s) async {
     if (!ref.mounted) return;
     _lastSettings = s;
-    final wantNative = s.powerTrigger || s.volumeTrigger;
+    final wantNative = s.powerTrigger;
     final wantShake = s.shakeTrigger;
     final wantVoice = s.voiceTrigger && s.voicePhrases.isNotEmpty;
 
-    // Native guard (power button / volume keys via the Kotlin service).
+    // Native guard (power button via the Kotlin service).
     if (wantNative && _nativeSub == null) {
       final guard = ref.read(nativeGuardServiceProvider);
       _nativeSub = guard.triggers.listen((source) {
-        if (source == TriggerSource.triplePower && !_lastSettings.powerTrigger) return;
-        if (source == TriggerSource.volumeTriple && !_lastSettings.volumeTrigger) return;
+        if (source != TriggerSource.triplePower || !_lastSettings.powerTrigger) return;
         _fire(source);
       }, onError: (Object _) {});
       await _safe(guard.startGuard);
