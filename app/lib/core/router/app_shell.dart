@@ -89,9 +89,9 @@ class ShaktiDock extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GlassSurface(
     blur: true,
-    radius: 32,
+    radius: 24,
     padding: const EdgeInsets.all(6),
-    color: ShaktiColors.surfaceHigh.withValues(alpha: 0.76),
+    color: context.shakti.surface,
     child: LayoutBuilder(
       builder: (context, box) {
         final labels = MediaQuery.textScalerOf(context).scale(11) <= 15;
@@ -115,18 +115,8 @@ class ShaktiDock extends StatelessWidget {
                   height: height,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(26),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          ShaktiColors.lilac.withValues(alpha: 0.26),
-                          ShaktiColors.lilac.withValues(alpha: 0.10),
-                        ],
-                      ),
-                      border: Border.all(
-                        color: ShaktiColors.lilac.withValues(alpha: 0.24),
-                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      color: context.shakti.accentContainer,
                     ),
                   ),
                 ),
@@ -148,7 +138,7 @@ class ShaktiDock extends StatelessWidget {
                         child: Tooltip(
                           message: _tabs[i].$3,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(26),
+                            borderRadius: BorderRadius.circular(18),
                             onTap: () => onSelected(i),
                             child: SizedBox(
                               height: height,
@@ -166,8 +156,8 @@ class ShaktiDock extends StatelessWidget {
                                       key: ValueKey('$i-${selectedIndex == i}'),
                                       size: 24,
                                       color: selectedIndex == i
-                                          ? ShaktiColors.textHi
-                                          : ShaktiColors.textLo,
+                                          ? context.shakti.accent
+                                          : context.shakti.textLo,
                                     ),
                                   ),
                                   if (labels) ...[
@@ -184,8 +174,8 @@ class ShaktiDock extends StatelessWidget {
                                                 ? FontWeight.w700
                                                 : FontWeight.w500,
                                             color: selectedIndex == i
-                                                ? ShaktiColors.textHi
-                                                : ShaktiColors.textLo,
+                                                ? context.shakti.accent
+                                                : context.shakti.textLo,
                                           ),
                                     ),
                                   ],

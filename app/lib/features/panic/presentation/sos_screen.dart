@@ -68,13 +68,13 @@ class CountdownView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
     return Scaffold(
-      backgroundColor: ShaktiColors.bg,
+      backgroundColor: context.shakti.bg,
       body: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment(0, -0.25),
             radius: 1.2,
-            colors: [ShaktiColors.surfaceHigh, ShaktiColors.bg],
+            colors: [context.shakti.surfaceHigh, context.shakti.bg],
             stops: [0, 0.9],
           ),
         ),
@@ -98,7 +98,7 @@ class CountdownView extends ConsumerWidget {
                             child: Text(
                               'Sending SOS in',
                               style: t.headlineMedium?.copyWith(
-                                color: ShaktiColors.textHi,
+                                color: context.shakti.textHi,
                               ),
                             ),
                           ),
@@ -106,7 +106,7 @@ class CountdownView extends ConsumerWidget {
                           Text(
                             'Started by ${state.source?.label ?? 'SOS button'}',
                             style: t.bodyLarge?.copyWith(
-                              color: ShaktiColors.textMid,
+                              color: context.shakti.textMid,
                             ),
                           ),
                           const SizedBox(height: ShaktiSpace.xl),
@@ -122,7 +122,7 @@ class CountdownView extends ConsumerWidget {
                             'Shakti will attempt SMS to your enabled contacts. Location is included when available.',
                             textAlign: TextAlign.center,
                             style: t.bodyMedium?.copyWith(
-                              color: ShaktiColors.textMid,
+                              color: context.shakti.textMid,
                             ),
                           ),
                         ],
@@ -224,7 +224,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
     final report = s.report;
 
     return Scaffold(
-      backgroundColor: ShaktiColors.bg,
+      backgroundColor: context.shakti.bg,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -247,7 +247,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                           child: Text(
                             'SOS active',
                             style: t.displaySmall?.copyWith(
-                              color: ShaktiColors.textHi,
+                              color: context.shakti.textHi,
                             ),
                           ),
                         ),
@@ -258,7 +258,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                         child: Text(
                           _clock(elapsed),
                           style: t.headlineMedium?.copyWith(
-                            color: ShaktiColors.sosGlow,
+                            color: context.shakti.sosGlow,
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
@@ -272,7 +272,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                         : report.smsRecipients > 0
                         ? 'Android accepted SMS for ${report.smsRecipients} ${report.smsRecipients == 1 ? 'contact' : 'contacts'}. Delivery is unconfirmed.'
                         : 'Stay where people can see you. Call 112 if you can.',
-                    style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+                    style: t.bodyLarge?.copyWith(color: context.shakti.textMid),
                   ),
                   const SizedBox(height: ShaktiSpace.lg),
                   ChannelChecklist(report: report),
@@ -298,7 +298,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                       onPressed: _call112,
                       style: FilledButton.styleFrom(
                         backgroundColor: ShaktiColors.sos,
-                        foregroundColor: ShaktiColors.textHi,
+                        foregroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(72),
                         textStyle: t.headlineSmall,
                       ),
@@ -326,8 +326,8 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                             key: const ValueKey('im-safe'),
                             onPressed: () => _imSafe(),
                             style: FilledButton.styleFrom(
-                              backgroundColor: ShaktiColors.safeDeep,
-                              foregroundColor: ShaktiColors.textHi,
+                              backgroundColor: context.shakti.safeDeep,
+                              foregroundColor: Colors.white,
                             ),
                             icon: const Icon(Icons.verified_user_rounded),
                             label: const Text("I'm safe"),
@@ -340,7 +340,7 @@ class _ActiveViewState extends ConsumerState<ActiveView> {
                       key: const ValueKey('false-alarm'),
                       onPressed: () => _imSafe(falseAlarm: true),
                       style: TextButton.styleFrom(
-                        foregroundColor: ShaktiColors.textLo,
+                        foregroundColor: context.shakti.textLo,
                       ),
                       child: const Text('It was a false alarm'),
                     ),
@@ -442,9 +442,11 @@ class ChannelChecklist extends StatelessWidget {
     final r = report;
     return Container(
       decoration: BoxDecoration(
-        color: ShaktiColors.surface,
+        color: context.shakti.surface,
         borderRadius: BorderRadius.circular(ShaktiRadius.card),
-        border: Border.all(color: ShaktiColors.outline.withValues(alpha: 0.7)),
+        border: Border.all(
+          color: context.shakti.outline.withValues(alpha: 0.7),
+        ),
       ),
       padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
       child: Column(
@@ -468,22 +470,33 @@ class _ChannelRow extends StatelessWidget {
   final ChannelStatus status;
   final String? note;
 
-  static (IconData, Color, String) _look(ChannelStatus s) => switch (s) {
+  static (IconData, Color, String) _look(
+    BuildContext context,
+    ChannelStatus s,
+  ) => switch (s) {
     ChannelStatus.pending => (
       Icons.schedule_rounded,
-      ShaktiColors.textLo,
+      context.shakti.textLo,
       'Waiting',
     ),
-    ChannelStatus.running => (Icons.sync_rounded, ShaktiColors.info, 'Working'),
-    ChannelStatus.ok => (Icons.check_circle_rounded, ShaktiColors.safe, 'Done'),
+    ChannelStatus.running => (
+      Icons.sync_rounded,
+      context.shakti.info,
+      'Working',
+    ),
+    ChannelStatus.ok => (
+      Icons.check_circle_rounded,
+      context.shakti.safe,
+      'Done',
+    ),
     ChannelStatus.failed => (
       Icons.error_rounded,
-      ShaktiColors.sosGlow,
+      context.shakti.sosGlow,
       'Failed',
     ),
     ChannelStatus.skipped => (
       Icons.remove_circle_outline_rounded,
-      ShaktiColors.textLo,
+      context.shakti.textLo,
       'Off',
     ),
   };
@@ -491,7 +504,7 @@ class _ChannelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final (icon, color, word) = _look(status);
+    final (icon, color, word) = _look(context, status);
     return Semantics(
       liveRegion: status == ChannelStatus.failed || status == ChannelStatus.ok,
       label: '${channel.label}: $word${note == null ? '' : '. $note'}',
@@ -517,7 +530,9 @@ class _ChannelRow extends StatelessWidget {
                   if (note != null)
                     Text(
                       note!,
-                      style: t.bodySmall?.copyWith(color: ShaktiColors.textMid),
+                      style: t.bodySmall?.copyWith(
+                        color: context.shakti.textMid,
+                      ),
                     ),
                 ],
               ),
@@ -651,15 +666,15 @@ class ResolvedView extends ConsumerWidget {
     final falseAlarm = inc?.status == IncidentStatus.falseAlarm;
 
     return Scaffold(
-      backgroundColor: ShaktiColors.bg,
+      backgroundColor: context.shakti.bg,
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: const Alignment(0, -0.6),
             radius: 1.1,
             colors: [
-              ShaktiColors.safeDeep.withValues(alpha: 0.45),
-              ShaktiColors.bg,
+              context.shakti.safeDeep.withValues(alpha: 0.45),
+              context.shakti.bg,
             ],
           ),
         ),
@@ -670,9 +685,9 @@ class ResolvedView extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Spacer(),
-                const Icon(
+                Icon(
                   Icons.verified_user_rounded,
-                  color: ShaktiColors.safe,
+                  color: context.shakti.safe,
                   size: 56,
                 ),
                 const SizedBox(height: ShaktiSpace.md),
@@ -691,7 +706,7 @@ class ResolvedView extends ConsumerWidget {
                   inc?.covert ?? false
                       ? 'The alert has ended.'
                       : 'Your contacts are getting an "I am safe" message now.',
-                  style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+                  style: t.bodyLarge?.copyWith(color: context.shakti.textMid),
                 ),
                 const SizedBox(height: ShaktiSpace.xl),
                 _SummaryLine(
@@ -719,8 +734,8 @@ class ResolvedView extends ConsumerWidget {
                   onPressed: () =>
                       ref.read(panicControllerProvider.notifier).acknowledge(),
                   style: FilledButton.styleFrom(
-                    backgroundColor: ShaktiColors.safeDeep,
-                    foregroundColor: ShaktiColors.textHi,
+                    backgroundColor: context.shakti.safeDeep,
+                    foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(56),
                   ),
                   child: const Text('Done'),
@@ -745,7 +760,7 @@ class _SummaryLine extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
     child: Row(
       children: [
-        Icon(icon, color: ShaktiColors.safe, size: 22),
+        Icon(icon, color: context.shakti.safe, size: 22),
         const SizedBox(width: ShaktiSpace.sm),
         Expanded(
           child: Text(text, style: Theme.of(context).textTheme.bodyLarge),

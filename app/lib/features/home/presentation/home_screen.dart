@@ -12,7 +12,6 @@ import '../../../core/widgets/widgets.dart';
 import '../../../domain/entities/entities.dart';
 import '../../panic/application/panic_controller.dart';
 import '../../panic/application/panic_view_state.dart';
-import '../../panic/application/trigger_hub.dart';
 import '../application/home_providers.dart';
 import '../application/startup.dart';
 
@@ -45,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           children: [
             _BrandBar(onSettings: () => context.go(Routes.settings)),
-            const SizedBox(height: ShaktiSpace.lg),
+            const SizedBox(height: ShaktiSpace.md),
             Semantics(
               header: true,
               child: Text(
@@ -57,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
                     : t.headlineLarge,
               ),
             ),
-            const SizedBox(height: ShaktiSpace.sm),
+            const SizedBox(height: ShaktiSpace.xs),
             Align(
               alignment: Alignment.centerLeft,
               child: _Status(settings: settings, activeContacts: active.length),
@@ -67,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
               const _NoContactsWarning(),
             ],
             if (active.isNotEmpty) _CirclePreview(contacts: active),
-            const SizedBox(height: ShaktiSpace.sm),
+            const SizedBox(height: ShaktiSpace.xs),
             Center(
               child: SosButton(
                 key: const ValueKey('sos-button'),
@@ -84,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
               textAlign: TextAlign.center,
               style: t.bodySmall,
             ),
-            const SizedBox(height: ShaktiSpace.lg),
+            const SizedBox(height: ShaktiSpace.md),
             const _QuickActions(),
             const SizedBox(height: ShaktiSpace.lg),
             _Circle(contacts: active, total: contacts.value?.length ?? 0),
@@ -122,7 +121,7 @@ class _BrandBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const ShaktiMark(size: 32, color: ShaktiColors.lilac),
+        ShaktiMark(size: 32, color: context.shakti.lilac),
         const SizedBox(width: ShaktiSpace.xs),
         Expanded(
           child: Text(
@@ -136,36 +135,26 @@ class _BrandBar extends StatelessWidget {
         IconButton(
           tooltip: 'Triggers and privacy settings',
           onPressed: onSettings,
-          icon: const Icon(Icons.tune_rounded, color: ShaktiColors.textMid),
+          icon: Icon(Icons.tune_rounded, color: context.shakti.textMid),
         ),
       ],
     );
   }
 }
 
-class _Status extends ConsumerWidget {
+class _Status extends StatelessWidget {
   const _Status({required this.settings, required this.activeContacts});
 
   final SafetySettings settings;
   final int activeContacts;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hub = ref.watch(triggerHubProvider);
-    final parts = <String>[
-      '$activeContacts ${activeContacts == 1 ? 'contact' : 'contacts'}',
-      if (settings.powerTrigger) 'Power ×3 enabled',
-      if (settings.shakeTrigger && hub.shake) 'Shake on',
-      if (settings.voiceTrigger && hub.voice) 'Voice on',
-    ];
-    if (activeContacts == 0) {
-      return StatusPill.warn('Not protected, ${parts.first}', wrap: true);
-    }
-    final largeText = MediaQuery.textScalerOf(context).scale(13) > 20;
-    return StatusPill.safe(
-      largeText ? parts.first : parts.join(' · '),
-      wrap: true,
-    );
+  Widget build(BuildContext context) {
+    final count =
+        '$activeContacts ${activeContacts == 1 ? 'contact' : 'contacts'}';
+    return activeContacts == 0
+        ? StatusPill.warn('Not protected, $count', wrap: true)
+        : StatusPill.safe('$count in your circle', wrap: true);
   }
 }
 
@@ -193,10 +182,10 @@ class _CirclePreview extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: ShaktiSize.minTap),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.people_outline_rounded,
                 size: 20,
-                color: ShaktiColors.lilac,
+                color: context.shakti.lilac,
               ),
               const SizedBox(width: ShaktiSpace.xs),
               Expanded(
@@ -205,10 +194,10 @@ class _CirclePreview extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
                 size: 18,
-                color: ShaktiColors.textLo,
+                color: context.shakti.textLo,
               ),
             ],
           ),
@@ -226,15 +215,15 @@ class _NoContactsWarning extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     return ShaktiCard(
       key: const ValueKey('no-contacts-warning'),
-      color: ShaktiColors.warn.withValues(alpha: 0.12),
-      borderColor: ShaktiColors.warn.withValues(alpha: 0.6),
+      color: context.shakti.warningContainer,
+      borderColor: context.shakti.outline,
       semanticLabel: "Add a trusted contact, or SOS can't send SMS",
       onTap: () => context.push(Routes.contacts),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.warning_amber_rounded,
-            color: ShaktiColors.warn,
+            color: context.shakti.warn,
             size: 28,
           ),
           const SizedBox(width: ShaktiSpace.sm),
@@ -249,12 +238,12 @@ class _NoContactsWarning extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Takes 20 seconds. Works offline.',
-                  style: t.bodySmall?.copyWith(color: ShaktiColors.textMid),
+                  style: t.bodySmall?.copyWith(color: context.shakti.textMid),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: ShaktiColors.warn),
+          Icon(Icons.chevron_right_rounded, color: context.shakti.warn),
         ],
       ),
     );
@@ -297,82 +286,53 @@ class _QuickActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
-    final actions = [
+    final primary = [
+      (
+        Icons.directions_walk_rounded,
+        'Walk with me',
+        'A check-in timer',
+        () => context.go(Routes.escort),
+      ),
       (
         Icons.phone_callback_outlined,
         'Fake call',
-        'A believable reason to leave',
+        'A reason to leave',
         () => context.push(Routes.fakeCall),
       ),
-      (
-        Icons.share_location_outlined,
-        'Share location',
-        'Send your current location',
-        () => _share(context, ref),
-      ),
-      (
-        Icons.campaign_outlined,
-        'Siren',
-        'Loud alarm and flashing light',
-        () => context.push(Routes.siren),
-      ),
     ];
+    Widget action(
+      IconData icon,
+      String label,
+      String hint,
+      VoidCallback onTap,
+    ) => Semantics(
+      button: true,
+      label: label,
+      hint: hint,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: GlassSurface(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: context.shakti.accent, size: 24),
+            const SizedBox(height: ShaktiSpace.sm),
+            Text(label, style: t.titleSmall),
+            const SizedBox(height: ShaktiSpace.xxs),
+            Text(hint, style: t.bodySmall),
+          ],
+        ),
+      ),
+    );
     return Column(
       children: [
-        Semantics(
-          button: true,
-          label: 'Walk with me',
-          hint: 'Start a check-in timer for your walk',
-          onTap: () => context.go(Routes.escort),
-          excludeSemantics: true,
-          child: GlassSurface(
-            onTap: () => context.go(Routes.escort),
-            semanticLabel: 'Walk with me. Start a check-in timer for your walk',
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: ShaktiColors.lilac.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: const Icon(
-                    Icons.directions_walk_rounded,
-                    color: ShaktiColors.lilac,
-                  ),
-                ),
-                const SizedBox(width: ShaktiSpace.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Walk with me', style: t.titleMedium),
-                      const SizedBox(height: ShaktiSpace.xxs),
-                      Text(
-                        'A check-in timer for the way home',
-                        style: t.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: ShaktiSpace.xs),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 20,
-                  color: ShaktiColors.lilac,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: ShaktiSpace.sm),
         LayoutBuilder(
           builder: (context, box) {
             final columns =
                 box.maxWidth >= 300 &&
-                    MediaQuery.textScalerOf(context).scale(14) <= 18
-                ? 3
+                    MediaQuery.textScalerOf(context).scale(14) <= 20
+                ? 2
                 : 1;
             final width =
                 (box.maxWidth - (columns - 1) * ShaktiSpace.sm) / columns;
@@ -380,57 +340,43 @@ class _QuickActions extends ConsumerWidget {
               spacing: ShaktiSpace.sm,
               runSpacing: ShaktiSpace.sm,
               children: [
-                for (final (icon, label, hint, action) in actions)
+                for (final (icon, label, hint, onTap) in primary)
                   SizedBox(
                     width: width,
-                    child: Semantics(
-                      button: true,
-                      label: label,
-                      hint: hint,
-                      onTap: action,
-                      excludeSemantics: true,
-                      child: GlassSurface(
-                        onTap: action,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: ShaktiSpace.sm,
-                          vertical: ShaktiSpace.md,
-                        ),
-                        radius: 20,
-                        child: columns == 1
-                            ? Row(
-                                children: [
-                                  Icon(icon, color: ShaktiColors.lilac),
-                                  const SizedBox(width: ShaktiSpace.md),
-                                  Expanded(
-                                    child: Text(label, style: t.titleSmall),
-                                  ),
-                                  const Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: ShaktiColors.textLo,
-                                  ),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  Icon(
-                                    icon,
-                                    color: ShaktiColors.lilac,
-                                    size: 25,
-                                  ),
-                                  const SizedBox(height: ShaktiSpace.sm),
-                                  Text(
-                                    label,
-                                    style: t.labelMedium,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
+                    child: action(icon, label, hint, onTap),
                   ),
               ],
             );
           },
+        ),
+        const SizedBox(height: ShaktiSpace.xs),
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: ShaktiSpace.md,
+          children: [
+            Semantics(
+              label: 'Share location',
+              button: true,
+              onTap: () => _share(context, ref),
+              excludeSemantics: true,
+              child: TextButton.icon(
+                onPressed: () => _share(context, ref),
+                icon: const Icon(Icons.share_location_outlined, size: 20),
+                label: const Text('Share location'),
+              ),
+            ),
+            Semantics(
+              label: 'Siren',
+              button: true,
+              onTap: () => context.push(Routes.siren),
+              excludeSemantics: true,
+              child: TextButton.icon(
+                onPressed: () => context.push(Routes.siren),
+                icon: const Icon(Icons.campaign_outlined, size: 20),
+                label: const Text('Siren'),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -466,9 +412,18 @@ class _Circle extends StatelessWidget {
       onTap: () => context.push(Routes.contacts),
       child: Row(
         children: [
-          GuardianNetwork(
-            initials: [for (final c in contacts.take(5)) _initial(c.name)],
-            size: 112,
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: context.shakti.accentContainer,
+            foregroundColor: context.shakti.accent,
+            child: contacts.isEmpty
+                ? const Icon(Icons.people_outline_rounded)
+                : Text(
+                    _initial(contacts.first.name),
+                    style: t.titleMedium?.copyWith(
+                      color: context.shakti.accent,
+                    ),
+                  ),
           ),
           const SizedBox(width: ShaktiSpace.md),
           Expanded(
@@ -486,12 +441,12 @@ class _Circle extends StatelessWidget {
                 const SizedBox(height: ShaktiSpace.sm),
                 Text(
                   '$total of 5 added · ${contacts.length} active',
-                  style: t.labelMedium?.copyWith(color: ShaktiColors.lilac),
+                  style: t.labelMedium?.copyWith(color: context.shakti.lilac),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: ShaktiColors.textLo),
+          Icon(Icons.chevron_right_rounded, color: context.shakti.textLo),
         ],
       ),
     );
@@ -557,11 +512,13 @@ class _Helplines extends StatelessWidget {
                       onTap: () => launchUrl(Uri(scheme: 'tel', path: number)),
                       excludeSemantics: true,
                       child: Material(
-                        color: ShaktiColors.surface,
+                        color: context.shakti.surface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(ShaktiRadius.md),
                           side: BorderSide(
-                            color: ShaktiColors.outline.withValues(alpha: 0.7),
+                            color: context.shakti.outline.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                         clipBehavior: Clip.antiAlias,

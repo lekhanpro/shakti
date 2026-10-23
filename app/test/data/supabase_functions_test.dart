@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shakti/core/result.dart';
 import 'package:shakti/data/remote/supabase_functions.dart';
@@ -56,16 +58,50 @@ void main() {
       expect(r.calls.single.$2.containsKey('location'), isFalse);
     });
 
+    test('long conversations send the latest 20 turns', () async {
+      final r = Recorder(200, {'content': 'ok'});
+      final conversation = List.generate(
+        45,
+        (i) => ChatMessage(
+          id: '$i',
+          role: i.isEven ? ChatRole.user : ChatRole.assistant,
+          content: 'turn $i',
+          createdAt: DateTime(2026),
+        ),
+      );
+      await SupabaseAiService(r.call).chat(conversation);
+      final sent = r.calls.single.$2['messages']! as List;
+      expect(sent, hasLength(20));
+      expect((sent.first as Map)['content'], 'turn 25');
+      expect((sent.last as Map)['content'], 'turn 44');
+    });
+
+    test('oversize chat is rejected before a network request', () async {
+      final r = Recorder(200, {'content': 'ok'});
+      final res = await SupabaseAiService(r.call)
+          .chat([ChatMessage(id: 'long', role: ChatRole.user, content: 'x' * 2001, createdAt: DateTime(2026))]);
+      expect(res.isOk, isFalse);
+      expect(r.calls, isEmpty);
+    });
+
+    test('a hanging request returns a retryable timeout error', () async {
+      final waiting = Completer<({int status, Object? data})>();
+      final service = SupabaseAiService((_, _) => waiting.future, timeout: const Duration(milliseconds: 1));
+      final result = await service.chat(history);
+      expect((result as Err).message, contains('took too long'));
+      waiting.complete((status: 200, data: {'content': 'late'}));
+    });
+
     test('maps HTTP errors to friendly messages', () async {
-      Future<String?> msg(int status) async =>
-          switch (await SupabaseAiService(Recorder(status).call).chat(history)) {
-            Err(:final message) => message,
-            Ok() => null,
-          };
+      Future<String?> msg(int status) async => switch (await SupabaseAiService(Recorder(status).call).chat(history)) {
+        Err(:final message) => message,
+        Ok() => null,
+      };
       expect(await msg(401), 'Please sign in to use the AI guardian');
       expect(await msg(429), 'Too many requests. Please wait a minute');
       expect(await msg(500), 'The AI guardian is unavailable right now');
       expect(await msg(400), 'The AI guardian is unavailable right now');
+      expect(await msg(503), SupabaseAiService.msgNotConfigured);
     });
 
     test('empty content, bad body and exceptions are unavailable', () async {
@@ -76,25 +112,36 @@ void main() {
       expect((res as Err).message, SupabaseAiService.msgUnavailable);
     });
 
-    test('draftFir sends fir mode with incident and breadcrumbs', () async {
+    test('draftFir sends the server contract without tracker tokens or a full location trail', () async {
       final r = Recorder(200, {'content': 'FIR text'});
-      final res = await SupabaseAiService(r.call).draftFir(FirInput(
-            incident: _incident,
-            breadcrumbs: [Breadcrumb(incidentId: 'i1', lat: 1, lng: 2, recordedAt: DateTime.utc(2026))],
-            complainantName: 'Priya',
-            narrative: 'Followed near the bus stop',
-            accusedDescription: 'Tall, red shirt',
-          ));
+      final res = await SupabaseAiService(r.call).draftFir(
+        FirInput(
+          incident: _incident,
+          breadcrumbs: [Breadcrumb(incidentId: 'i1', lat: 1, lng: 2, recordedAt: DateTime.utc(2026))],
+          complainantName: 'Priya',
+          narrative: 'Followed near the bus stop',
+          accusedDescription: 'Tall, red shirt',
+        ),
+      );
       expect(res.valueOrNull, 'FIR text');
       final body = r.calls.single.$2;
       expect(body['mode'], 'fir');
-      expect(body['location'], {'lat': 12.97, 'lng': 77.59});
+      expect(body.containsKey('location'), isFalse);
       final fir = body['fir']! as Map;
       expect(fir['complainantName'], 'Priya');
       expect(fir['narrative'], 'Followed near the bus stop');
       expect(fir['accusedDescription'], 'Tall, red shirt');
-      expect((fir['incident']! as Map)['id'], 'i1');
-      expect(fir['breadcrumbs'], hasLength(1));
+      expect(fir['incidentTime'], '2026-09-29T10:00:00.000Z');
+      expect(fir['triggerLabel'], 'Shake or fall');
+      expect(fir['latitude'], 12.97);
+      expect(fir['longitude'], 77.59);
+      expect(fir['breadcrumbCount'], 1);
+      expect(fir['trailStart'], '2026-01-01T00:00:00.000Z');
+      expect(fir['trailEnd'], '2026-01-01T00:00:00.000Z');
+      expect(fir['hasAudio'], isFalse);
+      expect(fir.containsKey('incident'), isFalse);
+      expect(fir.containsKey('breadcrumbs'), isFalse);
+      expect(body.toString(), isNot(contains(_incident.shareToken)));
     });
   });
 
@@ -122,17 +169,19 @@ void main() {
     });
 
     test('zero delivered alerts or malformed success is not reported as success', () async {
-      for (final data in [{'telegram': 0, 'push': 0}, {'ok': true}, null]) {
-        final result = await SupabaseCloudDispatchService(Recorder(200, data).call)
-            .dispatch(_incident, userName: 'x');
+      for (final data in [
+        {'telegram': 0, 'push': 0},
+        {'ok': true},
+        null,
+      ]) {
+        final result = await SupabaseCloudDispatchService(Recorder(200, data).call).dispatch(_incident, userName: 'x');
         expect(result.isOk, isFalse);
       }
     });
 
     test('non-2xx and exceptions are Err', () async {
       for (final s in [401, 429, 500]) {
-        expect((await SupabaseCloudDispatchService(Recorder(s).call).dispatch(_incident, userName: 'x')).isOk,
-            isFalse);
+        expect((await SupabaseCloudDispatchService(Recorder(s).call).dispatch(_incident, userName: 'x')).isOk, isFalse);
       }
       final r = Recorder(200)..throwThis = Exception('offline');
       expect((await SupabaseCloudDispatchService(r.call).dispatch(_incident, userName: 'x')).isOk, isFalse);
@@ -142,8 +191,11 @@ void main() {
   test('offline implementations always Err', () async {
     const ai = OfflineAiService();
     expect((await ai.chat(history) as Err).message, 'AI guardian needs internet and a configured backend');
-    expect((await ai.draftFir(FirInput(incident: _incident, breadcrumbs: const [], complainantName: '', narrative: '')))
-        .isOk, isFalse);
+    expect(
+      (await ai.draftFir(FirInput(incident: _incident, breadcrumbs: const [], complainantName: '', narrative: '')))
+          .isOk,
+      isFalse,
+    );
     const cloud = OfflineCloudDispatch();
     expect((await cloud.dispatch(_incident, userName: 'x')).isOk, isFalse);
     expect((await cloud.notifyResolved(_incident, userName: 'x')).isOk, isFalse);

@@ -67,7 +67,7 @@ class _SosButtonState extends State<SosButton>
     final reduced = ShaktiMotion.reduced(context);
     final size = widget.size;
     // The ripple canvas extends beyond the orb so rings have room to grow.
-    final canvas = size * 1.25;
+    final canvas = size * 1.15;
 
     return Semantics(
       button: true,
@@ -135,49 +135,21 @@ class _Orb extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: const RadialGradient(
-            center: Alignment(-0.3, -0.4),
-            radius: 1.05,
-            colors: [
-              ShaktiColors.sosGlow,
-              ShaktiColors.sos,
-              ShaktiColors.sosDeep,
-            ],
-            stops: [0, 0.55, 1],
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [ShaktiColors.sos, ShaktiColors.sosDeep],
           ),
           boxShadow: [
             BoxShadow(
-              color: ShaktiColors.sosDeep.withValues(alpha: 0.35),
-              blurRadius: 32,
-              offset: const Offset(0, 12),
-            ),
-            BoxShadow(
-              color: ShaktiColors.sosDeep.withValues(alpha: 0.6),
-              blurRadius: 12,
-              offset: const Offset(0, 8),
+              color: ShaktiColors.sosDeep.withValues(alpha: 0.16),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Container(
-          // Inner bevel ring gives the orb a pressed-glass depth.
           margin: EdgeInsets.all(size * 0.06),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: ShaktiColors.textHi.withValues(alpha: 0.18),
-              width: 1.5,
-            ),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ShaktiColors.textHi.withValues(alpha: 0.18),
-                Colors.transparent,
-                ShaktiColors.sosDeep.withValues(alpha: 0.20),
-              ],
-              stops: const [0, 0.4, 1],
-            ),
-          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -187,7 +159,7 @@ class _Orb extends StatelessWidget {
                   'SOS',
                   maxLines: 1,
                   style: t.displayLarge?.copyWith(
-                    color: ShaktiColors.textHi,
+                    color: Colors.white,
                     fontSize: size * 0.25,
                     letterSpacing: size * 0.02,
                     height: 1,
@@ -198,7 +170,7 @@ class _Orb extends StatelessWidget {
               Text(
                 'Tap for help',
                 style: t.labelMedium?.copyWith(
-                  color: ShaktiColors.textHi.withValues(alpha: 0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                 ),
               ),
             ],
@@ -220,23 +192,17 @@ class _RipplePainter extends CustomPainter {
   final double orbRadius;
   final bool animated;
 
-  static const _rings = 3;
-
   @override
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
-    final maxGrow = size.width / 2 - orbRadius;
-    for (var i = 0; i < _rings; i++) {
-      // Static fallback spaces rings evenly; animated rings phase-shift.
-      final p = animated ? (t + i / _rings) % 1.0 : (i + 1) / (_rings + 1);
-      final r = orbRadius + maxGrow * Curves.easeOut.transform(p);
-      final alpha = animated ? (1 - p) * 0.35 : 0.22 - i * 0.05;
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..color = ShaktiColors.sosGlow.withValues(alpha: alpha.clamp(0, 1));
-      canvas.drawCircle(center, r, paint);
-    }
+    final radius = orbRadius + 7 + (animated ? t * 7 : 3);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.25
+      ..color = ShaktiColors.sos.withValues(
+        alpha: animated ? 0.12 * (1 - t) : 0.08,
+      );
+    canvas.drawCircle(center, radius, paint);
   }
 
   @override

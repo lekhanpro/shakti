@@ -57,14 +57,15 @@ class ContactsScreen extends ConsumerWidget {
                 title: 'Your circle',
                 subtitle: 'The people you choose to reach first.',
               ),
-              GlassSurface(
+              Padding(
+                padding: const EdgeInsets.only(bottom: ShaktiSpace.xs),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       '$activeCount active ${activeCount == 1 ? 'contact' : 'contacts'}',
                       style: Theme.of(context).textTheme.titleLarge
-                          ?.copyWith(color: ShaktiColors.lilac),
+                          ?.copyWith(color: context.shakti.lilac),
                     ),
                     const SizedBox(height: ShaktiSpace.xs),
                     Text(
@@ -132,15 +133,15 @@ class _ContactTile extends ConsumerWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: ShaktiSpace.lg),
         decoration: BoxDecoration(
-          color: ShaktiColors.sos.withValues(alpha: 0.22),
+          color: context.shakti.sos.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(ShaktiRadius.card),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.delete_outline_rounded, color: ShaktiColors.sosGlow),
-            SizedBox(width: 6),
-            Text('Remove'),
+            Icon(Icons.delete_outline_rounded, color: context.shakti.sos),
+            const SizedBox(width: 6),
+            Text('Remove', style: TextStyle(color: context.shakti.sos)),
           ],
         ),
       ),
@@ -191,10 +192,10 @@ class _ContactTile extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: ShaktiSpace.xxs),
-                      const Icon(
+                      Icon(
                         Icons.edit_outlined,
                         size: 20,
-                        color: ShaktiColors.textLo,
+                        color: context.shakti.textLo,
                       ),
                     ],
                   ),
@@ -212,8 +213,8 @@ class _ContactTile extends ConsumerWidget {
                             : 'Paused. Won\'t get SOS messages',
                         style: t.bodySmall?.copyWith(
                           color: c.isActive
-                              ? ShaktiColors.textMid
-                              : ShaktiColors.warn,
+                              ? context.shakti.textMid
+                              : context.shakti.warn,
                         ),
                       ),
                     ),
@@ -247,7 +248,7 @@ class _ContactAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? ShaktiColors.lilac : ShaktiColors.textLo;
+    final color = active ? context.shakti.lilac : context.shakti.textLo;
     final parts = name
         .trim()
         .split(RegExp(r'\s+'))
@@ -269,8 +270,9 @@ class _ContactAvatar extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: color.withValues(alpha: 0.16),
-          border: Border.all(color: color.withValues(alpha: 0.6)),
+          color: active
+              ? context.shakti.accentContainer
+              : context.shakti.surfaceHigh,
         ),
         child: Padding(
           padding: const EdgeInsets.all(ShaktiSpace.xxs),

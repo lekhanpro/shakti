@@ -29,6 +29,8 @@ class MapState {
     this.routeLoading = false,
     this.routeError,
     this.safePlacesOnRoute = 0,
+    this.locationError,
+    this.placesError,
   });
 
   final MapPhase phase;
@@ -46,14 +48,22 @@ class MapState {
   final bool routeLoading;
   final String? routeError;
   final int safePlacesOnRoute;
+  final String? locationError;
+  final String? placesError;
 
-  GeoPoint get center => me ?? fallbackCenter;
+  GeoPoint get center =>
+      me ?? (havens.isEmpty ? fallbackCenter : havens.first.point);
 
-  List<SafeHaven> get visible => [for (final h in havens) if (filters.contains(h.category)) h];
+  List<SafeHaven> get visible => [
+    for (final h in havens)
+      if (filters.contains(h.category)) h,
+  ];
 
-  WalkRoute? get bestRoute => bestIndex >= 0 && bestIndex < routes.length ? routes[bestIndex] : null;
+  WalkRoute? get bestRoute =>
+      bestIndex >= 0 && bestIndex < routes.length ? routes[bestIndex] : null;
 
-  double? distanceTo(SafeHaven h) => me == null ? null : Proximity.haversineM(me!, h.point);
+  double? distanceTo(SafeHaven h) =>
+      me == null ? null : Proximity.haversineM(me!, h.point);
 
   MapState copyWith({
     MapPhase? phase,
@@ -69,25 +79,33 @@ class MapState {
     String? routeError,
     bool clearRouteError = false,
     int? safePlacesOnRoute,
-  }) =>
-      MapState(
-        phase: phase ?? this.phase,
-        me: me ?? this.me,
-        havens: havens ?? this.havens,
-        fromCache: fromCache ?? this.fromCache,
-        filters: filters ?? this.filters,
-        routeTarget: clearRoute ? null : (routeTarget ?? this.routeTarget),
-        routes: clearRoute ? const [] : (routes ?? this.routes),
-        bestIndex: clearRoute ? -1 : (bestIndex ?? this.bestIndex),
-        routeLoading: routeLoading ?? this.routeLoading,
-        routeError: clearRouteError || clearRoute ? null : (routeError ?? this.routeError),
-        safePlacesOnRoute: clearRoute ? 0 : (safePlacesOnRoute ?? this.safePlacesOnRoute),
-      );
+  }) => MapState(
+    phase: phase ?? this.phase,
+    me: me ?? this.me,
+    havens: havens ?? this.havens,
+    fromCache: fromCache ?? this.fromCache,
+    filters: filters ?? this.filters,
+    routeTarget: clearRoute ? null : (routeTarget ?? this.routeTarget),
+    routes: clearRoute ? const [] : (routes ?? this.routes),
+    bestIndex: clearRoute ? -1 : (bestIndex ?? this.bestIndex),
+    routeLoading: routeLoading ?? this.routeLoading,
+    routeError: clearRouteError || clearRoute
+        ? null
+        : (routeError ?? this.routeError),
+    safePlacesOnRoute: clearRoute
+        ? 0
+        : (safePlacesOnRoute ?? this.safePlacesOnRoute),
+    locationError: locationError,
+    placesError: placesError,
+  );
 }
 
 /// Loads nearby havens (network first, offline cache as fallback) and scores
 /// walking routes by how many havens they pass.
 class MapController extends Notifier<MapState> {
+  int _loadVersion = 0;
+  int _routeVersion = 0;
+
   @override
   MapState build() {
     Future.microtask(load);
@@ -95,48 +113,81 @@ class MapController extends Notifier<MapState> {
   }
 
   Future<void> load() async {
+    final version = ++_loadVersion;
+    ++_routeVersion;
     state = state.copyWith(phase: MapPhase.loading);
     final location = ref.read(locationServiceProvider);
+    final connectivity = ref.read(connectivityServiceProvider);
+    final havenService = ref.read(havenServiceProvider);
+    final cache = ref.read(havenCacheRepositoryProvider);
 
     final granted = await _try(() => location.ensurePermission(), false);
+    if (!ref.mounted || version != _loadVersion) return;
     GeoPoint? me;
+    String? locationError;
     if (granted) {
       final fix = await _try<Result<LocationFix>>(
         () => location.currentFix(),
         const Err('Location unavailable'),
       );
       me = fix.valueOrNull?.point;
+      if (me == null) {
+        locationError =
+            'Could not get your location. Turn on device location and retry.';
+      }
+    } else {
+      locationError = 'Location permission is needed for nearby places and walking routes. Allow it in Android settings, then retry.';
     }
+    if (!ref.mounted || version != _loadVersion) return;
 
-    final online = await _try(() => ref.read(connectivityServiceProvider).isOnline(), true);
+    final online = await _try(() => connectivity.isOnline(), true);
     List<SafeHaven>? fresh;
-    if (online) {
+    String? placesError;
+    // Never query an arbitrary default city and call it "near you".
+    if (online && me != null) {
       final res = await _try<Result<List<SafeHaven>>>(
-        () => ref.read(havenServiceProvider).nearby(me ?? fallbackCenter),
+        () => havenService.nearby(me!),
         const Err('Network error'),
       );
       fresh = res.valueOrNull;
+      if (fresh == null) {
+        placesError =
+            'Nearby places could not load. Check your connection and retry.';
+      }
+    } else if (!online) {
+      placesError = 'You are offline. Saved places are available; map tiles and new routes need internet.';
     }
+    if (!ref.mounted || version != _loadVersion) return;
 
-    final cache = ref.read(havenCacheRepositoryProvider);
     List<SafeHaven> havens;
     var fromCache = false;
     if (fresh != null) {
       havens = fresh;
-      if (fresh.isNotEmpty) unawaited(_try(() => cache.replaceAll(fresh!), null));
+      unawaited(_try(() => cache.replaceAll(fresh!), null));
     } else {
       havens = await _try(() => cache.cached(), const <SafeHaven>[]);
       fromCache = true;
     }
-    if (!ref.mounted) return;
-    if (me != null) havens = Proximity.sortByDistance(me, havens);
+    if (!ref.mounted || version != _loadVersion) return;
+    if (me != null) {
+      havens = Proximity.sortByDistance(
+        me,
+        havens.where((h) => Proximity.within(me!, h.point, 5000)).toList(),
+      );
+    }
 
     state = MapState(
-      phase: granted ? MapPhase.ready : MapPhase.permissionDenied,
+      phase: !granted
+          ? MapPhase.permissionDenied
+          : me == null || (placesError != null && havens.isEmpty)
+          ? MapPhase.error
+          : MapPhase.ready,
       me: me,
       havens: havens,
       fromCache: fromCache,
       filters: state.filters,
+      locationError: locationError,
+      placesError: placesError,
     );
   }
 
@@ -146,13 +197,21 @@ class MapController extends Notifier<MapState> {
     state = state.copyWith(filters: next);
   }
 
-  void clearRoute() => state = state.copyWith(clearRoute: true);
+  void clearRoute() {
+    ++_routeVersion;
+    state = state.copyWith(clearRoute: true, routeLoading: false);
+  }
 
   /// Fetches walking alternatives to [target] and picks the safest.
   Future<void> walkTo(SafeHaven target) async {
+    final version = ++_routeVersion;
     final me = state.me;
     if (me == null) {
-      state = state.copyWith(routeTarget: target, routeError: 'Turn on location to plan a walking route.');
+      state = state.copyWith(clearRoute: true, routeLoading: false);
+      state = state.copyWith(
+        routeTarget: target,
+        routeError: 'Turn on location to plan a walking route.',
+      );
       return;
     }
     state = state.copyWith(clearRoute: true);
@@ -161,7 +220,7 @@ class MapController extends Notifier<MapState> {
       () => ref.read(routingServiceProvider).walkingRoutes(me, target.point),
       const Err('Routing failed'),
     );
-    if (!ref.mounted) return;
+    if (!ref.mounted || version != _routeVersion) return;
     switch (res) {
       case Ok(:final value) when value.isNotEmpty:
         final best = SafeRouteScorer.bestIndex(value, state.havens);
@@ -173,14 +232,22 @@ class MapController extends Notifier<MapState> {
           safePlacesOnRoute: countOnRoute(value[idx], state.havens),
         );
       case Ok():
-        state = state.copyWith(routeLoading: false, routeError: 'No walking route found.');
+        state = state.copyWith(
+          routeLoading: false,
+          routeError: 'No walking route found.',
+        );
       case Err():
-        state = state.copyWith(routeLoading: false, routeError: 'Could not load a route. Check your connection.');
+        state = state.copyWith(
+          routeLoading: false,
+          routeError: 'Could not load a route. Check your connection.',
+        );
     }
   }
 
   static int countOnRoute(WalkRoute r, List<SafeHaven> havens) => havens
-      .where((h) => r.points.any((p) => Proximity.within(h.point, p, routeCoverM)))
+      .where(
+        (h) => r.points.any((p) => Proximity.within(h.point, p, routeCoverM)),
+      )
       .length;
 
   Future<T> _try<T>(Future<T> Function() f, T fallback) async {
@@ -192,4 +259,6 @@ class MapController extends Notifier<MapState> {
   }
 }
 
-final mapControllerProvider = NotifierProvider<MapController, MapState>(MapController.new);
+final mapControllerProvider = NotifierProvider<MapController, MapState>(
+  MapController.new,
+);

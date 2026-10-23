@@ -10,12 +10,9 @@ import '../../../domain/engines/proximity.dart';
 import '../../../domain/entities/entities.dart';
 import '../application/map_controller.dart' hide MapController;
 import 'haven_style.dart';
+import 'map_basemap.dart';
 
 LatLng _ll(GeoPoint p) => LatLng(p.lat, p.lng);
-
-/// CartoDB dark basemap: quieter than stock OSM at night, and markers pop.
-const _tileUrl =
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
 class SafetyMapScreen extends ConsumerStatefulWidget {
   const SafetyMapScreen({this.showTiles = true, super.key});
@@ -30,9 +27,37 @@ class SafetyMapScreen extends ConsumerStatefulWidget {
 class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
   final _map = MapController();
   bool _mapReady = false;
+  bool _tilesUnavailable = false;
+  int _tileEpoch = 0;
+
+  @override
+  void dispose() {
+    _map.dispose();
+    super.dispose();
+  }
+
+  void _retry() {
+    setState(() {
+      _tilesUnavailable = false;
+      _tileEpoch++;
+    });
+    ref.read(mapControllerProvider.notifier).load();
+  }
+
+  void _tileError() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_tilesUnavailable) {
+        setState(() => _tilesUnavailable = true);
+      }
+    });
+  }
 
   void _recenter() {
     final s = ref.read(mapControllerProvider);
+    if (s.me == null) {
+      _retry();
+      return;
+    }
     if (_mapReady) _map.move(_ll(s.center), 15);
   }
 
@@ -42,6 +67,7 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
 
   Future<void> _walk(SafeHaven h) async {
     await ref.read(mapControllerProvider.notifier).walkTo(h);
+    if (!mounted) return;
     final s = ref.read(mapControllerProvider);
     final best = s.bestRoute;
     if (best != null && best.points.length > 1 && _mapReady) {
@@ -74,7 +100,8 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
             child: _TopBar(
               state: s,
               onToggle: ctrl.toggleFilter,
-              onRetry: ctrl.load,
+              onRetry: _retry,
+              tilesUnavailable: _tilesUnavailable,
             ),
           ),
           Positioned.fill(
@@ -85,7 +112,7 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
               onWalk: _walk,
               onRecenter: _recenter,
               onClearRoute: ctrl.clearRoute,
-              onRetry: ctrl.load,
+              onRetry: _retry,
             ),
           ),
         ],
@@ -95,22 +122,38 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
 
   Widget _buildMap(MapState s) {
     final routes = s.routes;
+    final dark = context.shakti.isDark;
+    Widget? tiles;
+    if (widget.showTiles) {
+      tiles = TileLayer(
+        key: ValueKey('tiles-$dark-$_tileEpoch'),
+        urlTemplate: MapBasemap.url(dark: dark),
+        subdomains: const ['a', 'b', 'c', 'd'],
+        retinaMode: MapBasemap.usesCarto && RetinaMode.isHighDensity(context),
+        maxNativeZoom: MapBasemap.usesCarto ? 20 : 19,
+        userAgentPackageName: 'in.shakti.shakti',
+        errorTileCallback: (_, _, _) => _tileError(),
+      );
+      if (dark && !MapBasemap.usesCarto) {
+        tiles = ColorFiltered(
+          colorFilter: MapBasemap.nightFilter,
+          child: tiles,
+        );
+      }
+    }
     return FlutterMap(
       mapController: _map,
       options: MapOptions(
         initialCenter: _ll(s.center),
         initialZoom: 14,
-        backgroundColor: ShaktiColors.bg,
-        onMapReady: () => _mapReady = true,
+        backgroundColor: context.shakti.bg,
+        onMapReady: () {
+          _mapReady = true;
+          _map.move(_ll(ref.read(mapControllerProvider).center), 14);
+        },
       ),
       children: [
-        if (widget.showTiles)
-          TileLayer(
-            urlTemplate: _tileUrl,
-            subdomains: const ['a', 'b', 'c', 'd'],
-            retinaMode: RetinaMode.isHighDensity(context),
-            userAgentPackageName: 'in.shakti.shakti',
-          ),
+        ?tiles,
         if (routes.isNotEmpty)
           PolylineLayer(
             polylines: [
@@ -119,15 +162,15 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
                   Polyline(
                     points: [for (final p in routes[i].points) _ll(p)],
                     strokeWidth: 4,
-                    color: ShaktiColors.textLo.withValues(alpha: 0.45),
+                    color: context.shakti.textLo.withValues(alpha: 0.45),
                   ),
               if (s.bestRoute != null)
                 Polyline(
                   points: [for (final p in s.bestRoute!.points) _ll(p)],
                   strokeWidth: 7,
-                  color: ShaktiColors.safe,
+                  color: context.shakti.safe,
                   borderStrokeWidth: 2,
-                  borderColor: ShaktiColors.bg,
+                  borderColor: context.shakti.bg,
                 ),
             ],
           ),
@@ -185,11 +228,26 @@ class _Credit extends StatelessWidget {
                 icon: const Icon(Icons.open_in_new_rounded),
                 label: const Text('© OpenStreetMap contributors'),
               ),
+              if (MapBasemap.usesCarto)
+                TextButton.icon(
+                  onPressed: () =>
+                      launchUrl(Uri.parse('https://carto.com/attributions')),
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: const Text('© CARTO'),
+                ),
               TextButton.icon(
-                onPressed: () =>
-                    launchUrl(Uri.parse('https://carto.com/attributions')),
-                icon: const Icon(Icons.open_in_new_rounded),
-                label: const Text('© CARTO'),
+                onPressed: () => launchUrl(
+                  Uri.parse('https://routing.openstreetmap.de/about.html'),
+                ),
+                icon: const Icon(Icons.directions_walk_rounded),
+                label: const Text('Routing: OSRM · FOSSGIS'),
+              ),
+              TextButton.icon(
+                onPressed: () => launchUrl(
+                  Uri.parse('https://www.openstreetmap.org/fixthemap'),
+                ),
+                icon: const Icon(Icons.edit_location_alt_outlined),
+                label: const Text('Report a map issue'),
               ),
               const SizedBox(height: ShaktiSpace.sm),
               OutlinedButton(
@@ -207,13 +265,15 @@ class _Credit extends StatelessWidget {
   Widget build(BuildContext context) => TextButton(
     onPressed: () => _show(context),
     style: TextButton.styleFrom(
-      foregroundColor: ShaktiColors.textMid,
-      backgroundColor: ShaktiColors.bg.withValues(alpha: 0.7),
+      foregroundColor: context.shakti.textMid,
+      backgroundColor: context.shakti.bg.withValues(alpha: 0.7),
       minimumSize: const Size(ShaktiSize.minTap, ShaktiSize.minTap),
       padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.xs),
     ),
     child: Text(
-      '© OpenStreetMap, © CARTO',
+      MapBasemap.usesCarto
+          ? '© OpenStreetMap, © CARTO'
+          : '© OpenStreetMap contributors',
       style: Theme.of(context).textTheme.labelSmall,
     ),
   );
@@ -230,16 +290,9 @@ class _MePin extends StatelessWidget {
         width: 22,
         height: 22,
         decoration: BoxDecoration(
-          color: ShaktiColors.info,
+          color: context.shakti.info,
           shape: BoxShape.circle,
-          border: Border.all(color: ShaktiColors.textHi, width: 3),
-          boxShadow: [
-            BoxShadow(
-              color: ShaktiColors.info.withValues(alpha: 0.5),
-              blurRadius: 16,
-              spreadRadius: 6,
-            ),
-          ],
+          border: Border.all(color: context.shakti.surface, width: 3),
         ),
       ),
     ),
@@ -259,7 +312,7 @@ class _HavenPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = haven.category.color;
+    final c = haven.category.color(context);
     return Semantics(
       button: true,
       label: '${haven.category.label}: ${haven.name}',
@@ -274,7 +327,7 @@ class _HavenPin extends StatelessWidget {
             width: selected ? 40 : 32,
             height: selected ? 40 : 32,
             decoration: BoxDecoration(
-              color: ShaktiColors.surface,
+              color: context.shakti.surface,
               shape: BoxShape.circle,
               border: Border.all(color: c, width: selected ? 3 : 2),
             ),
@@ -295,11 +348,13 @@ class _TopBar extends StatelessWidget {
     required this.state,
     required this.onToggle,
     required this.onRetry,
+    required this.tilesUnavailable,
   });
 
   final MapState state;
   final ValueChanged<HavenCategory> onToggle;
   final VoidCallback onRetry;
+  final bool tilesUnavailable;
 
   @override
   Widget build(BuildContext context) {
@@ -311,9 +366,9 @@ class _TopBar extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            ShaktiColors.bg,
-            ShaktiColors.bg.withValues(alpha: 0.85),
-            ShaktiColors.bg.withValues(alpha: 0),
+            context.shakti.bg,
+            context.shakti.bg.withValues(alpha: 0.85),
+            context.shakti.bg.withValues(alpha: 0),
           ],
         ),
       ),
@@ -333,17 +388,35 @@ class _TopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Semantics(
-                  header: true,
-                  label: largeText ? 'Safe places near you' : null,
-                  child: Text(
-                    largeText ? 'Safe places' : 'Safe places near you',
-                    style: largeText ? t.titleLarge : t.headlineSmall,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        label: largeText ? 'Safety map' : null,
+                        child: Text(
+                          largeText ? 'Safety map' : 'Find a place nearby',
+                          style: largeText ? t.titleLarge : t.headlineSmall,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Refresh map and nearby places',
+                      onPressed: state.phase == MapPhase.loading
+                          ? null
+                          : onRetry,
+                      icon: const Icon(Icons.refresh_rounded),
+                    ),
+                  ],
                 ),
                 if (!largeText) ...[
                   const SizedBox(height: ShaktiSpace.xxs),
-                  Text('Find somewhere to pause.', style: t.bodyMedium),
+                  Text(
+                    state.me == null
+                        ? 'Allow location to find places near you.'
+                        : 'Police, care and a place to pause.',
+                    style: t.bodyMedium,
+                  ),
                 ],
                 if (state.fromCache && state.phase != MapPhase.loading) ...[
                   const SizedBox(height: ShaktiSpace.xs),
@@ -351,16 +424,25 @@ class _TopBar extends StatelessWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     spacing: ShaktiSpace.xs,
                     children: [
-                      const StatusPill(
-                        label: 'Offline. Showing saved places',
+                      StatusPill(
+                        label: state.havens.isEmpty
+                            ? 'No saved places available'
+                            : 'Showing saved places',
                         icon: Icons.cloud_off_rounded,
-                        color: ShaktiColors.warn,
+                        color: context.shakti.warn,
                       ),
                       TextButton(
                         onPressed: onRetry,
                         child: const Text('Refresh'),
                       ),
                     ],
+                  ),
+                ],
+                if (tilesUnavailable) ...[
+                  const SizedBox(height: ShaktiSpace.xs),
+                  Text(
+                    'Map tiles could not load. Check your connection and refresh.',
+                    style: t.bodySmall?.copyWith(color: context.shakti.warn),
                   ),
                 ],
                 const SizedBox(height: ShaktiSpace.sm),
@@ -375,13 +457,22 @@ class _TopBar extends StatelessWidget {
                             selected: state.filters.contains(c),
                             onSelected: (_) => onToggle(c),
                             showCheckmark: false,
-                            avatar: Icon(c.icon, size: 18, color: c.color),
+                            avatar: Icon(
+                              c.icon,
+                              size: 18,
+                              color: c.color(context),
+                            ),
                             label: Text(c.filterLabel),
-                            selectedColor: c.color.withValues(alpha: 0.18),
+                            selectedColor: c
+                                .color(context)
+                                .withValues(alpha: 0.12),
+                            labelStyle: t.labelMedium?.copyWith(
+                              color: context.shakti.textHi,
+                            ),
                             side: BorderSide(
                               color: state.filters.contains(c)
-                                  ? c.color.withValues(alpha: 0.7)
-                                  : ShaktiColors.outline,
+                                  ? c.color(context).withValues(alpha: 0.7)
+                                  : context.shakti.outline,
                             ),
                             materialTapTargetSize: MaterialTapTargetSize.padded,
                           ),
@@ -460,9 +551,9 @@ class _HavenSheet extends StatelessWidget {
                     blur: true,
                     radius: ShaktiRadius.md,
                     padding: const EdgeInsets.all(ShaktiSpace.sm),
-                    child: const Icon(
+                    child: Icon(
                       Icons.my_location_rounded,
-                      color: ShaktiColors.lilac,
+                      color: context.shakti.lilac,
                     ),
                   ),
                 ),
@@ -493,37 +584,45 @@ class _HavenSheet extends StatelessWidget {
     }
     final visible = state.visible;
     return [
-      if (state.phase == MapPhase.permissionDenied)
+      if (state.locationError != null || state.placesError != null)
         SliverToBoxAdapter(
           child: Padding(
             padding: ShaktiSpace.screen,
             child: ShaktiCard(
-              borderColor: ShaktiColors.warn.withValues(alpha: 0.5),
+              borderColor: context.shakti.warn.withValues(alpha: 0.5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_off_rounded,
-                        color: ShaktiColors.warn,
+                        color: context.shakti.warn,
                       ),
                       const SizedBox(width: ShaktiSpace.sm),
                       Expanded(
-                        child: Text('Location is off', style: t.titleMedium),
+                        child: Text(
+                          state.locationError != null
+                              ? 'Location unavailable'
+                              : 'Places unavailable',
+                          style: t.titleMedium,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: ShaktiSpace.xs),
                   Text(
-                    'Allow location so Shakti can sort places by distance and plan a walking route.',
+                    [
+                      state.locationError,
+                      state.placesError,
+                    ].whereType<String>().join(' '),
                     style: t.bodyMedium,
                   ),
                   const SizedBox(height: ShaktiSpace.sm),
                   FilledButton.icon(
                     onPressed: onRetry,
                     icon: const Icon(Icons.my_location_rounded),
-                    label: const Text('Allow location'),
+                    label: const Text('Retry'),
                   ),
                 ],
               ),
@@ -542,8 +641,8 @@ class _HavenSheet extends StatelessWidget {
             header: true,
             child: Text(
               visible.isEmpty
-                  ? 'Nearest safe places'
-                  : '${visible.length} nearest safe places',
+                  ? 'Nearby places'
+                  : '${visible.length} ${state.me == null ? 'saved' : 'nearby'} places',
               style: t.titleMedium,
             ),
           ),
@@ -557,7 +656,11 @@ class _HavenSheet extends StatelessWidget {
                 ? 'No safe places found yet'
                 : 'Nothing matches these filters',
             message: state.havens.isEmpty
-                ? 'Connect to the internet once and Shakti will save nearby police, hospitals and pharmacies for offline use.'
+                ? state.me == null
+                      ? 'Allow location, then connect to load places around you.'
+                      : state.placesError != null
+                      ? 'Try again when your connection is available.'
+                      : 'No matching places are mapped within 5 km. Try another area or call for help if needed.'
                 : 'Turn a filter back on to see more places.',
             action: state.havens.isEmpty
                 ? OutlinedButton(
@@ -595,7 +698,7 @@ class _Grabber extends StatelessWidget {
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: ShaktiColors.outline,
+        color: context.shakti.outline,
         borderRadius: BorderRadius.circular(ShaktiRadius.pill),
       ),
     ),
@@ -630,7 +733,7 @@ class _RouteCard extends StatelessWidget {
     } else if (state.routeError != null) {
       body = Text(
         state.routeError!,
-        style: t.bodyMedium?.copyWith(color: ShaktiColors.warn),
+        style: t.bodyMedium?.copyWith(color: context.shakti.warn),
       );
     } else if (best != null) {
       final mins = (best.durationS / 60).ceil();
@@ -639,14 +742,19 @@ class _RouteCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Safest route: passes $n safe ${n == 1 ? 'place' : 'places'}',
-            style: t.titleMedium?.copyWith(color: ShaktiColors.safe),
+            'Suggested route · $n nearby ${n == 1 ? 'place' : 'places'}',
+            style: t.titleMedium?.copyWith(color: context.shakti.safe),
           ),
           const SizedBox(height: ShaktiSpace.xxs),
           Text(
             '${Proximity.formatDistance(best.distanceM)}, about $mins min on foot'
             '${state.routes.length > 1 ? '. ${state.routes.length - 1} other route${state.routes.length > 2 ? 's' : ''} shown faint.' : '.'}',
             style: t.bodyMedium,
+          ),
+          const SizedBox(height: ShaktiSpace.xs),
+          Text(
+            'Based on mapped places, not live safety conditions. Choose well-lit, familiar streets.',
+            style: t.bodySmall,
           ),
         ],
       );
@@ -661,15 +769,15 @@ class _RouteCard extends StatelessWidget {
         ShaktiSpace.sm,
       ),
       child: ShaktiCard(
-        borderColor: ShaktiColors.safe.withValues(alpha: 0.5),
+        borderColor: context.shakti.safe.withValues(alpha: 0.5),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 2),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
               child: Icon(
                 Icons.directions_walk_rounded,
-                color: ShaktiColors.safe,
+                color: context.shakti.safe,
               ),
             ),
             const SizedBox(width: ShaktiSpace.sm),
@@ -711,7 +819,7 @@ class _HavenTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final c = haven.category.color;
+    final c = haven.category.color(context);
     final meta = [
       if (distanceM != null) Proximity.formatDistance(distanceM!),
       haven.category.label,

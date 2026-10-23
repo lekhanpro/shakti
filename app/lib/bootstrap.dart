@@ -30,19 +30,26 @@ Future<List<Override>> bootstrap() async {
     /* Storage cleanup must not prevent emergency startup. */
   }
   const url = String.fromEnvironment('SUPABASE_URL');
-  const anon = String.fromEnvironment('SUPABASE_ANON_KEY');
+  const anon = String.fromEnvironment(
+    'SUPABASE_PUBLISHABLE_KEY',
+    defaultValue: String.fromEnvironment('SUPABASE_ANON_KEY'),
+  );
   SupabaseClient? client;
   if (url.isNotEmpty && anon.isNotEmpty) {
-    await Supabase.initialize(url: url, publishableKey: anon);
-    client = Supabase.instance.client;
+    try {
+      await Supabase.initialize(url: url, publishableKey: anon);
+      client = Supabase.instance.client;
+    } catch (_) {
+      // A cloud configuration/storage failure must not prevent local SOS startup.
+    }
   }
   final cloud = client;
   Future<void>? signingIn;
   Future<void> authenticate() async {
     if (cloud == null) throw StateError('Cloud backend is not configured');
-    if (cloud.auth.currentSession != null) return;
-    await (signingIn ??= cloud.auth
-            .signInAnonymously()
+    final session = cloud.auth.currentSession;
+    if (session != null && !session.isExpired) return;
+    await (signingIn ??= (session == null ? cloud.auth.signInAnonymously() : cloud.auth.refreshSession())
             .then<void>((_) {})
             .whenComplete(() => signingIn = null))
         .timeout(const Duration(seconds: 12));
@@ -52,11 +59,10 @@ Future<List<Override>> bootstrap() async {
     await authenticate();
     return supabaseInvoker(cloud!)(fn, body);
   }
+
   final sync = SyncServiceImpl(
     db,
-    cloud == null
-        ? const NullRemoteSink()
-        : _AuthenticatedSink(cloud, authenticate),
+    cloud == null ? const NullRemoteSink() : _AuthenticatedSink(cloud, authenticate),
     connectivity,
     const SystemClock(),
   );
@@ -76,9 +82,7 @@ Future<List<Override>> bootstrap() async {
     }),
     incidentRepositoryProvider.overrideWithValue(DriftIncidentRepository(db)),
     settingsRepositoryProvider.overrideWithValue(DriftSettingsRepository(db)),
-    havenCacheRepositoryProvider.overrideWithValue(
-      DriftHavenCacheRepository(db),
-    ),
+    havenCacheRepositoryProvider.overrideWithValue(DriftHavenCacheRepository(db)),
     safePlaceRepositoryProvider.overrideWithValue(DriftSafePlaceRepository(db)),
     chatRepositoryProvider.overrideWithValue(DriftChatRepository(db)),
     locationServiceProvider.overrideWithValue(location),
@@ -89,36 +93,26 @@ Future<List<Override>> bootstrap() async {
     sirenServiceProvider.overrideWithValue(siren),
     strobeServiceProvider.overrideWithValue(PlatformStrobeService()),
     audioEvidenceServiceProvider.overrideWithValue(audio),
-    evidenceExportServiceProvider.overrideWithValue(
-      PlatformEvidenceExportService(audio),
-    ),
+    evidenceExportServiceProvider.overrideWithValue(PlatformEvidenceExportService(audio)),
     geocodingServiceProvider.overrideWithValue(NominatimGeocodingService()),
     cloudDispatchServiceProvider.overrideWithValue(
-      cloud == null
-          ? const OfflineCloudDispatch()
-          : SupabaseCloudDispatchService(invoke),
+      cloud == null ? const OfflineCloudDispatch() : SupabaseCloudDispatchService(invoke),
     ),
     syncServiceProvider.overrideWithValue(sync),
-    aiServiceProvider.overrideWithValue(
-      cloud == null ? const OfflineAiService() : SupabaseAiService(invoke),
-    ),
+    aiServiceProvider.overrideWithValue(cloud == null ? const OfflineAiService() : SupabaseAiService(invoke)),
+    aiBackendConfiguredProvider.overrideWithValue(cloud != null),
     havenServiceProvider.overrideWithValue(OverpassHavenService()),
     routingServiceProvider.overrideWithValue(OsrmRoutingService()),
     secureStoreProvider.overrideWithValue(store),
     biometricServiceProvider.overrideWithValue(PlatformBiometricService()),
-    nativeGuardServiceProvider.overrideWithValue(
-      MethodChannelNativeGuardService(),
-    ),
-    voiceTriggerServiceProvider.overrideWithValue(
-      PlatformVoiceTriggerService(),
-    ),
+    nativeGuardServiceProvider.overrideWithValue(MethodChannelNativeGuardService()),
+    voiceTriggerServiceProvider.overrideWithValue(PlatformVoiceTriggerService()),
     shakeSensorServiceProvider.overrideWithValue(PlatformShakeSensorService()),
   ];
 }
 
 class _AuthenticatedSink implements RemoteSink {
-  _AuthenticatedSink(SupabaseClient client, this.authenticate)
-    : sink = SupabaseRemoteSink(client);
+  _AuthenticatedSink(SupabaseClient client, this.authenticate) : sink = SupabaseRemoteSink(client);
   final SupabaseRemoteSink sink;
   final Future<void> Function() authenticate;
   @override

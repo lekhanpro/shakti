@@ -101,7 +101,7 @@ class PinPadState extends State<PinPad> {
             key: k,
             color: onTap == null
                 ? Colors.transparent
-                : ShaktiColors.surfaceHigh.withValues(alpha: 0.7),
+                : context.shakti.surfaceHigh.withValues(alpha: 0.7),
             shape: const CircleBorder(),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -114,7 +114,10 @@ class PinPadState extends State<PinPad> {
     );
 
     Widget digit(int d) => key(
-      Text('$d', style: t.headlineLarge?.copyWith(color: ShaktiColors.textHi)),
+      Text(
+        '$d',
+        style: t.headlineLarge?.copyWith(color: context.shakti.textHi),
+      ),
       label: '$d',
       onTap: () => _tap(d),
       k: ValueKey('pin-$d'),
@@ -150,13 +153,13 @@ class PinPadState extends State<PinPad> {
                       shape: BoxShape.circle,
                       color: i < _pin.length
                           ? (hasError
-                                ? ShaktiColors.sosGlow
-                                : ShaktiColors.textHi)
+                                ? context.shakti.sosGlow
+                                : context.shakti.textHi)
                           : Colors.transparent,
                       border: Border.all(
                         color: hasError
-                            ? ShaktiColors.sosGlow
-                            : ShaktiColors.textLo,
+                            ? context.shakti.sosGlow
+                            : context.shakti.textLo,
                         width: 1.5,
                       ),
                     ),
@@ -174,17 +177,17 @@ class PinPadState extends State<PinPad> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline_rounded,
                           size: 18,
-                          color: ShaktiColors.sosGlow,
+                          color: context.shakti.sosGlow,
                         ),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
                             widget.errorText!,
                             style: t.bodyMedium?.copyWith(
-                              color: ShaktiColors.sosGlow,
+                              color: context.shakti.sosGlow,
                             ),
                           ),
                         ),
@@ -206,7 +209,7 @@ class PinPadState extends State<PinPad> {
               Icon(
                 Icons.check_rounded,
                 size: 30,
-                color: canSubmit ? ShaktiColors.safe : Colors.transparent,
+                color: canSubmit ? context.shakti.safe : Colors.transparent,
               ),
               label: widget.submitLabel,
               onTap: canSubmit ? _submit : null,
@@ -214,7 +217,7 @@ class PinPadState extends State<PinPad> {
             ),
             digit(_digits[9]),
             key(
-              const Icon(Icons.backspace_outlined, color: ShaktiColors.textMid),
+              Icon(Icons.backspace_outlined, color: context.shakti.textMid),
               label: 'Delete',
               onTap: _pin.isEmpty ? null : _delete,
               k: const ValueKey('pin-delete'),

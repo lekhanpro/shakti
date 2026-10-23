@@ -35,18 +35,33 @@ abstract final class AppTheme {
     required Color mid,
     required Color lo,
   }) {
+    final dark = brightness == Brightness.dark;
     final scheme = ColorScheme(
       brightness: brightness,
       primary: brightness == Brightness.dark
           ? ShaktiColors.lilac
           : ShaktiColors.actionDeep,
       onPrimary: brightness == Brightness.dark ? ShaktiColors.bg : Colors.white,
-      primaryContainer: ShaktiColors.action.withValues(alpha: 0.18),
+      primaryContainer: dark
+          ? ShaktiColors.darkAccentContainer
+          : ShaktiColors.lightAccentContainer,
       onPrimaryContainer: hi,
-      secondary: ShaktiColors.safe,
-      onSecondary: Colors.white,
-      tertiary: ShaktiColors.warn,
-      onTertiary: Colors.black,
+      secondary: dark ? ShaktiColors.darkSafe : ShaktiColors.lightSafe,
+      secondaryContainer: dark
+          ? ShaktiColors.darkSafeContainer
+          : ShaktiColors.lightSafeContainer,
+      onSecondaryContainer: dark
+          ? ShaktiColors.darkSafe
+          : ShaktiColors.lightSafe,
+      onSecondary: dark ? ShaktiColors.bg : Colors.white,
+      tertiary: dark ? ShaktiColors.darkWarn : ShaktiColors.lightWarn,
+      tertiaryContainer: dark
+          ? ShaktiColors.darkWarningContainer
+          : ShaktiColors.lightWarningContainer,
+      onTertiaryContainer: dark
+          ? ShaktiColors.darkWarn
+          : ShaktiColors.lightWarn,
+      onTertiary: dark ? ShaktiColors.bg : Colors.white,
       error: ShaktiColors.sos,
       onError: Colors.white,
       errorContainer: ShaktiColors.sos.withValues(alpha: 0.16),
@@ -59,8 +74,8 @@ abstract final class AppTheme {
       surfaceContainer: surface,
       surfaceContainerHigh: surfaceHigh,
       surfaceContainerHighest: surfaceHigh,
-      outline: outline,
-      outlineVariant: outline.withValues(alpha: 0.6),
+      outline: dark ? ShaktiColors.textLo : ShaktiColors.lightStrongOutline,
+      outlineVariant: outline,
     );
 
     TextStyle h(
@@ -93,8 +108,8 @@ abstract final class AppTheme {
       displayLarge: h(48, FontWeight.w700, height: 1.05, ls: -1),
       displayMedium: h(36, FontWeight.w700, height: 1.1, ls: -0.8),
       displaySmall: h(30, FontWeight.w700, ls: -0.5),
-      headlineLarge: h(28, FontWeight.w700),
-      headlineMedium: h(24, FontWeight.w600),
+      headlineLarge: h(26, FontWeight.w700),
+      headlineMedium: h(23, FontWeight.w600),
       headlineSmall: h(20, FontWeight.w600),
       titleLarge: h(18, FontWeight.w600, ls: 0),
       titleMedium: b(16, FontWeight.w700, color: hi),
@@ -116,19 +131,15 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: brightness == Brightness.dark
-          ? Colors.transparent
-          : bg,
+      scaffoldBackgroundColor: bg,
       canvasColor: bg,
       fontFamily: ShaktiFonts.body,
       textTheme: text,
       visualDensity: VisualDensity.standard,
       materialTapTargetSize: MaterialTapTargetSize.padded,
-      splashFactory: InkSparkle.splashFactory,
+      splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: brightness == Brightness.dark
-            ? Colors.transparent
-            : bg,
+        backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -191,11 +202,11 @@ abstract final class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ShaktiRadius.md),
-          borderSide: BorderSide(color: outline),
+          borderSide: BorderSide(color: scheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ShaktiRadius.md),
-          borderSide: BorderSide(color: outline),
+          borderSide: BorderSide(color: scheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ShaktiRadius.md),
@@ -211,7 +222,7 @@ abstract final class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: ShaktiColors.action.withValues(alpha: 0.22),
+        indicatorColor: scheme.primaryContainer,
         height: 72,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -232,9 +243,8 @@ abstract final class AppTheme {
           (s) => s.contains(WidgetState.selected) ? Colors.white : lo,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? ShaktiColors.brand
-              : surfaceHigh,
+          (s) =>
+              s.contains(WidgetState.selected) ? scheme.primary : surfaceHigh,
         ),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
@@ -295,8 +305,8 @@ abstract final class AppTheme {
         space: 1,
         thickness: 1,
       ),
-      sliderTheme: const SliderThemeData(
-        activeTrackColor: ShaktiColors.action,
+      sliderTheme: SliderThemeData(
+        activeTrackColor: scheme.primary,
         thumbColor: Colors.white,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primary),

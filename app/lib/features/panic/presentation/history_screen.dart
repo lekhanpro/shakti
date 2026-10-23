@@ -42,10 +42,10 @@ class HistoryScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.history_rounded,
                           size: 32,
-                          color: ShaktiColors.lilac,
+                          color: context.shakti.lilac,
                         ),
                         const SizedBox(height: ShaktiSpace.md),
                         Text(
@@ -91,22 +91,22 @@ class _IncidentRecord extends StatelessWidget {
     final (status, color, icon) = switch (i.status) {
       IncidentStatus.countdown => (
         'Countdown',
-        ShaktiColors.warn,
+        context.shakti.warn,
         Icons.timer_outlined,
       ),
       IncidentStatus.active => (
         'Active',
-        ShaktiColors.sosGlow,
+        context.shakti.sos,
         Icons.emergency_share_outlined,
       ),
       IncidentStatus.resolved => (
         'Resolved',
-        ShaktiColors.safe,
+        context.shakti.safe,
         Icons.check_circle_outline_rounded,
       ),
       IncidentStatus.falseAlarm => (
         'False alarm',
-        ShaktiColors.textMid,
+        context.shakti.textMid,
         Icons.check_circle_outline_rounded,
       ),
     };
@@ -165,7 +165,7 @@ class _DispatchLine extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Icon(icon, size: 18, color: ShaktiColors.textLo),
+      Icon(icon, size: 18, color: context.shakti.textLo),
       const SizedBox(width: ShaktiSpace.xs),
       Expanded(
         child: Text(label, style: Theme.of(context).textTheme.bodyMedium),

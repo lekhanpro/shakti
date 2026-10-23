@@ -6,15 +6,20 @@ import '../theme/tokens.dart';
 ///
 /// [badge] places a white mark on the indigo disc used across the brand kit.
 class ShaktiMark extends StatelessWidget {
-  const ShaktiMark({this.size = 48, this.color = ShaktiColors.textHi, this.badge = false, super.key});
+  const ShaktiMark({this.size = 48, this.color, this.badge = false, super.key});
 
   final double size;
-  final Color color;
+  final Color? color;
   final bool badge;
 
   @override
   Widget build(BuildContext context) {
-    final mark = CustomPaint(size: Size.square(badge ? size * 0.62 : size), painter: _MarkPainter(badge ? ShaktiColors.textHi : color));
+    final mark = CustomPaint(
+      size: Size.square(badge ? size * 0.62 : size),
+      painter: _MarkPainter(
+        badge ? context.shakti.onAccent : (color ?? context.shakti.accent),
+      ),
+    );
     return Semantics(
       label: 'Shakti',
       image: true,
@@ -23,7 +28,10 @@ class ShaktiMark extends StatelessWidget {
               width: size,
               height: size,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(shape: BoxShape.circle, color: ShaktiColors.brand),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.shakti.accent,
+              ),
               child: mark,
             )
           : mark,

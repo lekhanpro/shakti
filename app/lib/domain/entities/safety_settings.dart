@@ -1,8 +1,11 @@
+enum AppearancePreference { light, dark, system }
+
 /// All user-tunable behaviour. Persisted as JSON in the local key/value table.
 class SafetySettings {
   const SafetySettings({
     this.onboardingComplete = false,
     this.userName = '',
+    this.appearance = AppearancePreference.light,
     this.bloodGroup = '',
     this.medicalNotes = '',
     this.countdownSeconds = 5,
@@ -24,6 +27,7 @@ class SafetySettings {
 
   final bool onboardingComplete;
   final String userName;
+  final AppearancePreference appearance;
   final String bloodGroup;
   final String medicalNotes;
   final int countdownSeconds;
@@ -49,6 +53,7 @@ class SafetySettings {
   SafetySettings copyWith({
     bool? onboardingComplete,
     String? userName,
+    AppearancePreference? appearance,
     String? bloodGroup,
     String? medicalNotes,
     int? countdownSeconds,
@@ -66,50 +71,51 @@ class SafetySettings {
     String? telegramChatId,
     String? fakeCallerName,
     int? fakeCallDelaySeconds,
-  }) =>
-      SafetySettings(
-        onboardingComplete: onboardingComplete ?? this.onboardingComplete,
-        userName: userName ?? this.userName,
-        bloodGroup: bloodGroup ?? this.bloodGroup,
-        medicalNotes: medicalNotes ?? this.medicalNotes,
-        countdownSeconds: countdownSeconds ?? this.countdownSeconds,
-        sirenOnSos: sirenOnSos ?? this.sirenOnSos,
-        recordAudio: recordAudio ?? this.recordAudio,
-        shakeTrigger: shakeTrigger ?? this.shakeTrigger,
-        powerTrigger: powerTrigger ?? this.powerTrigger,
-        voiceTrigger: voiceTrigger ?? this.voiceTrigger,
-        voicePhrases: voicePhrases ?? this.voicePhrases,
-        stealthMode: stealthMode ?? this.stealthMode,
-        secureScreen: secureScreen ?? this.secureScreen,
-        biometricUnlock: biometricUnlock ?? this.biometricUnlock,
-        lockTimeoutSeconds: lockTimeoutSeconds ?? this.lockTimeoutSeconds,
-        cloudEnabled: cloudEnabled ?? this.cloudEnabled,
-        telegramChatId: telegramChatId ?? this.telegramChatId,
-        fakeCallerName: fakeCallerName ?? this.fakeCallerName,
-        fakeCallDelaySeconds: fakeCallDelaySeconds ?? this.fakeCallDelaySeconds,
-      );
+  }) => SafetySettings(
+    onboardingComplete: onboardingComplete ?? this.onboardingComplete,
+    userName: userName ?? this.userName,
+    appearance: appearance ?? this.appearance,
+    bloodGroup: bloodGroup ?? this.bloodGroup,
+    medicalNotes: medicalNotes ?? this.medicalNotes,
+    countdownSeconds: countdownSeconds ?? this.countdownSeconds,
+    sirenOnSos: sirenOnSos ?? this.sirenOnSos,
+    recordAudio: recordAudio ?? this.recordAudio,
+    shakeTrigger: shakeTrigger ?? this.shakeTrigger,
+    powerTrigger: powerTrigger ?? this.powerTrigger,
+    voiceTrigger: voiceTrigger ?? this.voiceTrigger,
+    voicePhrases: voicePhrases ?? this.voicePhrases,
+    stealthMode: stealthMode ?? this.stealthMode,
+    secureScreen: secureScreen ?? this.secureScreen,
+    biometricUnlock: biometricUnlock ?? this.biometricUnlock,
+    lockTimeoutSeconds: lockTimeoutSeconds ?? this.lockTimeoutSeconds,
+    cloudEnabled: cloudEnabled ?? this.cloudEnabled,
+    telegramChatId: telegramChatId ?? this.telegramChatId,
+    fakeCallerName: fakeCallerName ?? this.fakeCallerName,
+    fakeCallDelaySeconds: fakeCallDelaySeconds ?? this.fakeCallDelaySeconds,
+  );
 
   Map<String, Object?> toJson() => {
-        'onboardingComplete': onboardingComplete,
-        'userName': userName,
-        'bloodGroup': bloodGroup,
-        'medicalNotes': medicalNotes,
-        'countdownSeconds': countdownSeconds,
-        'sirenOnSos': sirenOnSos,
-        'recordAudio': recordAudio,
-        'shakeTrigger': shakeTrigger,
-        'powerTrigger': powerTrigger,
-        'voiceTrigger': voiceTrigger,
-        'voicePhrases': voicePhrases,
-        'stealthMode': stealthMode,
-        'secureScreen': secureScreen,
-        'biometricUnlock': biometricUnlock,
-        'lockTimeoutSeconds': lockTimeoutSeconds,
-        'cloudEnabled': cloudEnabled,
-        'telegramChatId': telegramChatId,
-        'fakeCallerName': fakeCallerName,
-        'fakeCallDelaySeconds': fakeCallDelaySeconds,
-      };
+    'onboardingComplete': onboardingComplete,
+    'userName': userName,
+    'appearance': appearance.name,
+    'bloodGroup': bloodGroup,
+    'medicalNotes': medicalNotes,
+    'countdownSeconds': countdownSeconds,
+    'sirenOnSos': sirenOnSos,
+    'recordAudio': recordAudio,
+    'shakeTrigger': shakeTrigger,
+    'powerTrigger': powerTrigger,
+    'voiceTrigger': voiceTrigger,
+    'voicePhrases': voicePhrases,
+    'stealthMode': stealthMode,
+    'secureScreen': secureScreen,
+    'biometricUnlock': biometricUnlock,
+    'lockTimeoutSeconds': lockTimeoutSeconds,
+    'cloudEnabled': cloudEnabled,
+    'telegramChatId': telegramChatId,
+    'fakeCallerName': fakeCallerName,
+    'fakeCallDelaySeconds': fakeCallDelaySeconds,
+  };
 
   /// Tolerant decoder: unknown, missing or mistyped keys fall back to defaults.
   factory SafetySettings.fromJson(Map<String, Object?> j) {
@@ -123,23 +129,38 @@ class SafetySettings {
     return SafetySettings(
       onboardingComplete: pick('onboardingComplete', d.onboardingComplete),
       userName: pick('userName', d.userName),
+      appearance: AppearancePreference.values.firstWhere(
+        (v) => v.name == j['appearance'],
+        orElse: () => AppearancePreference.light,
+      ),
       bloodGroup: pick('bloodGroup', d.bloodGroup),
       medicalNotes: pick('medicalNotes', d.medicalNotes),
-      countdownSeconds: pick<int>('countdownSeconds', d.countdownSeconds).clamp(3, 15),
+      countdownSeconds: pick<int>(
+        'countdownSeconds',
+        d.countdownSeconds,
+      ).clamp(3, 15),
       sirenOnSos: pick('sirenOnSos', d.sirenOnSos),
       recordAudio: pick('recordAudio', d.recordAudio),
       shakeTrigger: pick('shakeTrigger', d.shakeTrigger),
       powerTrigger: pick('powerTrigger', d.powerTrigger),
       voiceTrigger: pick('voiceTrigger', d.voiceTrigger),
-      voicePhrases: phrases is List ? phrases.whereType<String>().toList() : d.voicePhrases,
+      voicePhrases: phrases is List
+          ? phrases.whereType<String>().toList()
+          : d.voicePhrases,
       stealthMode: pick('stealthMode', d.stealthMode),
       secureScreen: pick('secureScreen', d.secureScreen),
       biometricUnlock: pick('biometricUnlock', d.biometricUnlock),
-      lockTimeoutSeconds: pick<int>('lockTimeoutSeconds', d.lockTimeoutSeconds).clamp(0, 3600),
+      lockTimeoutSeconds: pick<int>(
+        'lockTimeoutSeconds',
+        d.lockTimeoutSeconds,
+      ).clamp(0, 3600),
       cloudEnabled: pick('cloudEnabled', d.cloudEnabled),
       telegramChatId: pick('telegramChatId', d.telegramChatId),
       fakeCallerName: pick('fakeCallerName', d.fakeCallerName),
-      fakeCallDelaySeconds: pick<int>('fakeCallDelaySeconds', d.fakeCallDelaySeconds).clamp(0, 300),
+      fakeCallDelaySeconds: pick<int>(
+        'fakeCallDelaySeconds',
+        d.fakeCallDelaySeconds,
+      ).clamp(0, 300),
     );
   }
 }

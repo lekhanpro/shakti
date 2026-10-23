@@ -236,7 +236,7 @@ class _Progress extends StatelessWidget {
           Text(
             '${index + 1} of ${steps.length} · ${steps[index]}',
             style: Theme.of(context).textTheme.labelMedium
-                ?.copyWith(color: ShaktiColors.lilac),
+                ?.copyWith(color: context.shakti.lilac),
           ),
           const SizedBox(height: ShaktiSpace.sm),
           Row(
@@ -250,8 +250,8 @@ class _Progress extends StatelessWidget {
                     height: 3,
                     decoration: BoxDecoration(
                       color: i <= index
-                          ? ShaktiColors.lilac
-                          : ShaktiColors.glassEdge,
+                          ? context.shakti.lilac
+                          : context.shakti.glassEdge,
                       borderRadius: BorderRadius.circular(ShaktiRadius.pill),
                     ),
                   ),
@@ -280,6 +280,9 @@ class _StepScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    final compactHeading =
+        MediaQuery.sizeOf(context).width < 360 &&
+        MediaQuery.textScalerOf(context).scale(28) > 40;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         ShaktiSpace.lg,
@@ -288,12 +291,18 @@ class _StepScaffold extends StatelessWidget {
         ShaktiSpace.lg,
       ),
       children: [
-        Semantics(header: true, child: Text(title, style: t.headlineLarge)),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: compactHeading ? t.headlineSmall : t.headlineLarge,
+          ),
+        ),
         if (subtitle != null) ...[
           const SizedBox(height: ShaktiSpace.xs),
           Text(
             subtitle!,
-            style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+            style: t.bodyLarge?.copyWith(color: context.shakti.textMid),
           ),
         ],
         const SizedBox(height: ShaktiSpace.lg),
@@ -313,6 +322,9 @@ class _WelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    final compactHeading =
+        MediaQuery.sizeOf(context).width < 360 &&
+        MediaQuery.textScalerOf(context).scale(30) > 40;
     const features = [
       (
         Icons.people_outline_rounded,
@@ -340,25 +352,23 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _WelcomeLens(),
-          const SizedBox(height: ShaktiSpace.lg),
-          Text(
-            'Shakti',
-            style: t.titleMedium?.copyWith(color: ShaktiColors.lilac),
-          ),
-          const SizedBox(height: ShaktiSpace.xs),
+          const _WelcomeBrand(),
+          const SizedBox(height: ShaktiSpace.xl),
           Semantics(
             header: true,
-            child: Text('Your people.\nWithin reach.', style: t.displaySmall),
+            child: Text(
+              'Your people.\nWithin reach.',
+              style: compactHeading ? t.headlineSmall : t.displaySmall,
+            ),
           ),
           const SizedBox(height: ShaktiSpace.sm),
           Text(
             'A personal safety network, built around you.',
-            style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+            style: t.bodyLarge?.copyWith(color: context.shakti.textMid),
           ),
           const SizedBox(height: ShaktiSpace.lg),
-          GlassSurface(
-            padding: const EdgeInsets.all(ShaktiSpace.md),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
             child: Column(
               children: [
                 for (var i = 0; i < features.length; i++) ...[
@@ -370,7 +380,11 @@ class _WelcomeStep extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(features[i].$1, color: ShaktiColors.lilac, size: 24),
+                      Icon(
+                        features[i].$1,
+                        color: context.shakti.lilac,
+                        size: 24,
+                      ),
                       const SizedBox(width: ShaktiSpace.sm),
                       Expanded(
                         child: Column(
@@ -381,7 +395,7 @@ class _WelcomeStep extends StatelessWidget {
                             Text(
                               features[i].$3,
                               style: t.bodyMedium?.copyWith(
-                                color: ShaktiColors.textMid,
+                                color: context.shakti.textMid,
                               ),
                             ),
                           ],
@@ -396,7 +410,7 @@ class _WelcomeStep extends StatelessWidget {
           const SizedBox(height: ShaktiSpace.md),
           Text(
             'SMS can work without internet. It still needs cellular service, permission and a suitable plan.',
-            style: t.bodySmall?.copyWith(color: ShaktiColors.textLo),
+            style: t.bodySmall?.copyWith(color: context.shakti.textLo),
           ),
         ],
       ),
@@ -404,34 +418,34 @@ class _WelcomeStep extends StatelessWidget {
   }
 }
 
-/// A quiet, static lens: onboarding motion belongs to the page transition.
-class _WelcomeLens extends StatelessWidget {
-  const _WelcomeLens();
+/// The brand remains static; motion belongs to moving between setup steps.
+class _WelcomeBrand extends StatelessWidget {
+  const _WelcomeBrand();
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: Center(
-      child: Container(
-        width: 168,
-        height: 168,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              ShaktiColors.brand.withValues(alpha: 0.26),
-              ShaktiColors.ambient.withValues(alpha: 0.14),
-            ],
+  Widget build(BuildContext context) => Semantics(
+    label: 'Shakti',
+    image: true,
+    excludeSemantics: true,
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(ShaktiSpace.sm),
+          decoration: BoxDecoration(
+            color: context.shakti.accentContainer,
+            borderRadius: BorderRadius.circular(ShaktiRadius.md),
           ),
-          border: Border.all(color: ShaktiColors.lilac.withValues(alpha: 0.12)),
+          child: ShaktiMark(size: 40, color: context.shakti.accent),
         ),
-        child: GlassSurface(
-          radius: ShaktiRadius.pill,
-          padding: const EdgeInsets.all(28),
-          color: ShaktiColors.surfaceHigh,
-          child: const ShaktiMark(size: 72, color: ShaktiColors.lilac),
+        const SizedBox(width: ShaktiSpace.sm),
+        Expanded(
+          child: Text(
+            'Shakti',
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(color: context.shakti.accent),
+          ),
         ),
-      ),
+      ],
     ),
   );
 }
@@ -536,16 +550,16 @@ class _PermissionsStepState extends ConsumerState<_PermissionsStep> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
+              Icon(
                 Icons.warning_amber_rounded,
-                color: ShaktiColors.warn,
+                color: context.shakti.warn,
                 size: 20,
               ),
               const SizedBox(width: ShaktiSpace.xs),
               Expanded(
                 child: Text(
                   'Some protection is off: ${missing.map((p) => _info[p]!.$2).join(', ')}. You can grant these later from Settings.',
-                  style: t.bodyMedium?.copyWith(color: ShaktiColors.warn),
+                  style: t.bodyMedium?.copyWith(color: context.shakti.warn),
                 ),
               ),
             ],
@@ -583,12 +597,12 @@ class _PermissionTile extends StatelessWidget {
     final granted = status == PermissionOutcome.granted;
     final largeText = MediaQuery.textScalerOf(context).scale(14) > 20;
     final (stIcon, stColor, stText) = granted
-        ? (Icons.check_circle_rounded, ShaktiColors.safe, 'Allowed')
+        ? (Icons.check_circle_rounded, context.shakti.safe, 'Allowed')
         : skipped
-        ? (Icons.remove_circle_outline_rounded, ShaktiColors.warn, 'Skipped')
+        ? (Icons.remove_circle_outline_rounded, context.shakti.warn, 'Skipped')
         : (
             Icons.radio_button_unchecked_rounded,
-            ShaktiColors.textLo,
+            context.shakti.textLo,
             'Not yet',
           );
 
@@ -598,19 +612,10 @@ class _PermissionTile extends StatelessWidget {
           : ShaktiMotion.navigation,
       padding: const EdgeInsets.all(ShaktiSpace.md),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            expanded ? ShaktiColors.surfaceHigh : ShaktiColors.surface,
-            ShaktiColors.surface,
-          ],
-        ),
+        color: context.shakti.surface,
         borderRadius: BorderRadius.circular(ShaktiRadius.card),
         border: Border.all(
-          color: expanded
-              ? ShaktiColors.lilac.withValues(alpha: 0.45)
-              : ShaktiColors.glassEdge,
+          color: expanded ? context.shakti.accent : context.shakti.outline,
         ),
       ),
       child: Column(
@@ -624,7 +629,7 @@ class _PermissionTile extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(icon, color: ShaktiColors.textHi),
+                    Icon(icon, color: context.shakti.textHi),
                     const SizedBox(width: ShaktiSpace.sm),
                     Expanded(child: Text(name, style: t.titleMedium)),
                     if (!largeText) ...[
@@ -660,7 +665,7 @@ class _PermissionTile extends StatelessWidget {
             Text(
               skipped ? cost : why,
               style: t.bodyMedium?.copyWith(
-                color: skipped ? ShaktiColors.warn : ShaktiColors.textMid,
+                color: skipped ? context.shakti.warn : context.shakti.textMid,
               ),
             ),
           ],
@@ -823,11 +828,11 @@ class _PinStepState extends State<_PinStep> {
         title: 'PIN set',
         subtitle: 'You need it to open Shakti and to end an SOS.',
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.check_circle_rounded, color: ShaktiColors.safe),
-              SizedBox(width: ShaktiSpace.xs),
-              Expanded(child: Text('PIN confirmed')),
+              Icon(Icons.check_circle_rounded, color: context.shakti.safe),
+              const SizedBox(width: ShaktiSpace.xs),
+              const Expanded(child: Text('PIN confirmed')),
             ],
           ),
           const SizedBox(height: ShaktiSpace.lg),
@@ -853,9 +858,9 @@ class _PinStepState extends State<_PinStep> {
                 else
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.check_circle_rounded,
-                        color: ShaktiColors.safe,
+                        color: context.shakti.safe,
                         size: 20,
                       ),
                       const SizedBox(width: ShaktiSpace.xs),
@@ -914,7 +919,7 @@ class _PinStepState extends State<_PinStep> {
           confirm
               ? 'Enter it once more.'
               : '4 to 8 digits. Tap the tick when done.',
-          style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+          style: t.bodyLarge?.copyWith(color: context.shakti.textMid),
         ),
         const SizedBox(height: ShaktiSpace.sm),
         Center(

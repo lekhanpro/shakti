@@ -55,10 +55,10 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
               child: Container(
                 height: _height,
                 decoration: BoxDecoration(
-                  color: ShaktiColors.textHi.withValues(alpha: 0.10),
+                  color: context.shakti.textHi.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(ShaktiRadius.pill),
                   border: Border.all(
-                    color: ShaktiColors.textHi.withValues(alpha: 0.22),
+                    color: context.shakti.textHi.withValues(alpha: 0.22),
                   ),
                 ),
                 child: Stack(
@@ -78,13 +78,13 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
                                 Text(
                                   widget.label,
                                   style: t.titleMedium?.copyWith(
-                                    color: ShaktiColors.textHi,
+                                    color: context.shakti.textHi,
                                   ),
                                 ),
                                 const SizedBox(width: ShaktiSpace.xs),
-                                const Icon(
+                                Icon(
                                   Icons.keyboard_double_arrow_right_rounded,
-                                  color: ShaktiColors.textHi,
+                                  color: context.shakti.textHi,
                                 ),
                               ],
                             ),
@@ -114,8 +114,8 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
                         child: Container(
                           width: _thumb,
                           height: _thumb,
-                          decoration: const BoxDecoration(
-                            color: ShaktiColors.textHi,
+                          decoration: BoxDecoration(
+                            color: context.shakti.surface,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -142,7 +142,7 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
             key: const ValueKey('cancel-button'),
             onPressed: _fire,
             style: TextButton.styleFrom(
-              foregroundColor: ShaktiColors.textHi,
+              foregroundColor: context.shakti.textHi,
               minimumSize: const Size.fromHeight(ShaktiSize.minTap),
             ),
             child: const Text('Cancel'),

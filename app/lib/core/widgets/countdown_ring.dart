@@ -37,8 +37,14 @@ class CountdownRing extends StatelessWidget {
           tween: Tween(end: fraction),
           duration: reduced ? Duration.zero : const Duration(milliseconds: 950),
           curve: Curves.linear,
-          builder: (context, value, child) =>
-              CustomPaint(painter: _RingPainter(value), child: child),
+          builder: (context, value, child) => CustomPaint(
+            painter: _RingPainter(
+              value,
+              context.shakti.textHi,
+              context.shakti.warn,
+            ),
+            child: child,
+          ),
           child: Center(
             child: SizedBox(
               width: size * 0.65,
@@ -51,7 +57,7 @@ class CountdownRing extends StatelessWidget {
                   style: t.displayLarge?.copyWith(
                     fontSize: size * 0.42,
                     height: 1,
-                    color: ShaktiColors.textHi,
+                    color: context.shakti.textHi,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
@@ -65,7 +71,9 @@ class CountdownRing extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter(this.fraction);
+  _RingPainter(this.fraction, this.ink, this.arc);
+  final Color ink;
+  final Color arc;
 
   final double fraction;
 
@@ -83,7 +91,7 @@ class _RingPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
-        ..color = ShaktiColors.textHi.withValues(alpha: 0.10),
+        ..color = ink.withValues(alpha: 0.10),
     );
 
     if (fraction <= 0) return;
@@ -96,10 +104,11 @@ class _RingPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
         ..strokeCap = StrokeCap.round
-        ..color = ShaktiColors.warn,
+        ..color = arc,
     );
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) => old.fraction != fraction;
+  bool shouldRepaint(_RingPainter old) =>
+      old.fraction != fraction || old.ink != ink || old.arc != arc;
 }

@@ -33,27 +33,37 @@ class StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ink = color == ShaktiColors.safe
+        ? context.shakti.safe
+        : color == ShaktiColors.warn
+        ? context.shakti.warn
+        : color == ShaktiColors.info
+        ? context.shakti.info
+        : color;
+    final fill = Color.alphaBlend(
+      ink.withValues(alpha: 0.09),
+      context.shakti.surface,
+    );
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: ShaktiSpace.sm,
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(ShaktiRadius.pill),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        color: fill,
+        borderRadius: BorderRadius.circular(ShaktiRadius.sm),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
+          Icon(icon, size: 16, color: ink),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
               label,
               overflow: wrap ? null : TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelMedium
-                  ?.copyWith(color: color),
+                  ?.copyWith(color: ink),
             ),
           ),
         ],

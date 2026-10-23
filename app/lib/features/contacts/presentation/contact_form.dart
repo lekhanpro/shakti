@@ -136,12 +136,12 @@ class ContactFormState extends State<ContactForm> {
                   label: Text(r),
                   selected: _relationship == r,
                   onSelected: (_) => setState(() => _relationship = r),
-                  selectedColor: ShaktiColors.lilac.withValues(alpha: 0.18),
-                  checkmarkColor: ShaktiColors.lilac,
+                  selectedColor: context.shakti.accentContainer,
+                  checkmarkColor: context.shakti.accent,
                   side: BorderSide(
                     color: _relationship == r
-                        ? ShaktiColors.lilac.withValues(alpha: 0.5)
-                        : ShaktiColors.glassEdge,
+                        ? context.shakti.accent
+                        : context.shakti.outline,
                   ),
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                 ),

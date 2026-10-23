@@ -10,8 +10,9 @@ const shaktiUserAgent = 'Shakti/1.0 (VTU Project Shakti; personal safety app)';
 /// point via the OpenStreetMap Overpass API.
 class OverpassHavenService implements HavenService {
   OverpassHavenService({Dio? dio, List<String>? endpoints})
-      : _dio = dio ?? Dio(),
-        _endpoints = endpoints ?? const [primaryEndpoint, mirrorEndpoint];
+    : _dio =
+          dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 8))),
+      _endpoints = endpoints ?? const [primaryEndpoint, mirrorEndpoint];
 
   static const primaryEndpoint = 'https://overpass-api.de/api/interpreter';
   static const mirrorEndpoint = 'https://overpass.kumi.systems/api/interpreter';
@@ -22,7 +23,8 @@ class OverpassHavenService implements HavenService {
 
   /// Overpass QL for every haven category around [c] within [radiusM].
   static String buildQuery(GeoPoint c, double radiusM) {
-    final around = '(around:${radiusM.round()},${c.lat.toStringAsFixed(6)},${c.lng.toStringAsFixed(6)})';
+    final around =
+        '(around:${radiusM.round()},${c.lat.toStringAsFixed(6)},${c.lng.toStringAsFixed(6)})';
     const filters = [
       '["amenity"="police"]',
       '["amenity"="hospital"]',
@@ -33,12 +35,16 @@ class OverpassHavenService implements HavenService {
     for (final f in filters) {
       body.writeln('  node$f$around;');
       body.writeln('  way$f$around;');
+      body.writeln('  relation$f$around;');
     }
     return '[out:json][timeout:20];\n(\n$body);\nout center tags;';
   }
 
   @override
-  Future<Result<List<SafeHaven>>> nearby(GeoPoint center, {double radiusM = 5000}) async {
+  Future<Result<List<SafeHaven>>> nearby(
+    GeoPoint center, {
+    double radiusM = 5000,
+  }) async {
     final query = buildQuery(center, radiusM);
     Object? lastError;
     for (final url in _endpoints) {
@@ -55,7 +61,9 @@ class OverpassHavenService implements HavenService {
           ),
         );
         final data = res.data;
-        if (data is Map) return Ok(parse(data.cast<String, Object?>()));
+        if (data is Map && data['elements'] is List && data['remark'] == null) {
+          return Ok(parse(data.cast<String, Object?>()));
+        }
         lastError = 'Unexpected response';
       } catch (e) {
         lastError = e;
@@ -83,7 +91,9 @@ class OverpassHavenService implements HavenService {
     final type = e['type'];
     final id = e['id'];
     if (type is! String || id is! num) return null;
-    final tags = (e['tags'] is Map ? (e['tags'] as Map).cast<String, Object?>() : const <String, Object?>{});
+    final tags = (e['tags'] is Map
+        ? (e['tags'] as Map).cast<String, Object?>()
+        : const <String, Object?>{});
 
     double? lat, lng;
     if (e['lat'] is num && e['lon'] is num) {
@@ -96,7 +106,14 @@ class OverpassHavenService implements HavenService {
         lng = (c['lon'] as num).toDouble();
       }
     }
-    if (lat == null || lng == null) return null;
+    if (lat == null ||
+        lng == null ||
+        !lat.isFinite ||
+        !lng.isFinite ||
+        lat.abs() > 90 ||
+        lng.abs() > 180) {
+      return null;
+    }
 
     final category = _category(tags);
     if (category == null) return null;
@@ -114,11 +131,12 @@ class OverpassHavenService implements HavenService {
       point: GeoPoint(lat, lng),
       phone: tag('phone') ?? tag('contact:phone'),
       address: _address(tag),
-      open24h: opening == '24/7' || category == HavenCategory.police || category == HavenCategory.hospital,
+      open24h: opening == '24/7',
     );
   }
 
-  static HavenCategory? _category(Map<String, Object?> tags) => switch (tags['amenity']) {
+  static HavenCategory? _category(Map<String, Object?> tags) =>
+      switch (tags['amenity']) {
         'police' => HavenCategory.police,
         'hospital' => HavenCategory.hospital,
         'pharmacy' => HavenCategory.pharmacy,
@@ -129,7 +147,10 @@ class OverpassHavenService implements HavenService {
   static String? _address(String? Function(String) tag) {
     final full = tag('addr:full');
     if (full != null) return full;
-    final street = [tag('addr:housenumber'), tag('addr:street')].whereType<String>().join(' ');
+    final street = [
+      tag('addr:housenumber'),
+      tag('addr:street'),
+    ].whereType<String>().join(' ');
     final parts = [
       if (street.isNotEmpty) street,
       tag('addr:suburb'),

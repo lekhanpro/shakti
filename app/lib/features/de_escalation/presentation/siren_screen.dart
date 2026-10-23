@@ -91,18 +91,18 @@ class _SirenState extends ConsumerState<SirenScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _on
-                        ? ShaktiColors.sosDeep.withValues(alpha: 0.22)
-                        : ShaktiColors.surfaceHigh,
+                        ? context.shakti.sos.withValues(alpha: 0.08)
+                        : context.shakti.accentContainer,
                     border: Border.all(
                       color: _on
-                          ? ShaktiColors.sosGlow.withValues(alpha: 0.5)
-                          : ShaktiColors.glassEdge,
+                          ? context.shakti.sos.withValues(alpha: 0.35)
+                          : context.shakti.outline,
                     ),
                   ),
                   child: Icon(
                     _on ? Icons.volume_up_rounded : Icons.volume_up_outlined,
                     size: 64,
-                    color: _on ? ShaktiColors.sosGlow : ShaktiColors.lilac,
+                    color: _on ? context.shakti.sos : context.shakti.accent,
                   ),
                 ),
               ),
@@ -148,8 +148,8 @@ class _SirenState extends ConsumerState<SirenScreen> {
           child: FilledButton.icon(
             style: _on
                 ? FilledButton.styleFrom(
-                    backgroundColor: ShaktiColors.sos,
-                    foregroundColor: ShaktiColors.textHi,
+                    backgroundColor: context.shakti.sos,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
                   )
                 : null,
             onPressed: _busy ? null : _toggle,

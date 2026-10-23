@@ -13,6 +13,7 @@ import 'package:shakti/features/panic/application/panic_controller.dart';
 import 'package:shakti/features/panic/application/panic_view_state.dart';
 import 'package:shakti/features/panic/presentation/sos_screen.dart';
 import 'package:shakti/features/safety_map/presentation/safety_map_screen.dart';
+import 'package:shakti/features/safety_map/presentation/map_basemap.dart';
 
 import '../fakes/fakes.dart';
 
@@ -42,7 +43,11 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      final credit = find.text('© OpenStreetMap, © CARTO');
+      final credit = find.text(
+        MapBasemap.usesCarto
+            ? '© OpenStreetMap, © CARTO'
+            : '© OpenStreetMap contributors',
+      );
       expect(
         tester
             .getSize(
@@ -54,8 +59,13 @@ void main() {
       await tester.tap(credit);
       await tester.pumpAndSettle();
       expect(find.text('Map attributions'), findsOneWidget);
-      expect(find.text('© OpenStreetMap contributors'), findsOneWidget);
-      expect(find.text('© CARTO'), findsOneWidget);
+      expect(find.text('© OpenStreetMap contributors'), findsWidgets);
+      expect(
+        find.text('© CARTO'),
+        MapBasemap.usesCarto ? findsOneWidget : findsNothing,
+      );
+      expect(find.text('Routing: OSRM · FOSSGIS'), findsOneWidget);
+      expect(find.text('Report a map issue'), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
       expect(find.text('Map attributions'), findsNothing);

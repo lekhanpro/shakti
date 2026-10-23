@@ -139,23 +139,21 @@ class _SafePlacesState extends ConsumerState<SafePlacesScreen> {
                   title: 'Familiar destinations.',
                   subtitle: 'Arrival points for Walk with me.',
                 ),
-                GlassSurface(
-                  child: Column(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.near_me_outlined,
-                        color: ShaktiColors.lilac,
+                        color: context.shakti.lilac,
                         size: 28,
                       ),
-                      const SizedBox(height: ShaktiSpace.sm),
-                      Text(
-                        'A check-in when you arrive',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: ShaktiSpace.xs),
-                      const Text(
-                        'During Walk With Me, entering a 150 m radius prompts a PIN-protected arrival check. A saved place is not a guarantee of safety.',
+                      const SizedBox(width: ShaktiSpace.sm),
+                      const Expanded(
+                        child: Text(
+                          'During Walk with me, arriving within 150 m prompts a PIN check-in. A saved place is not a guarantee of safety.',
+                        ),
                       ),
                     ],
                   ),
@@ -172,9 +170,9 @@ class _SafePlacesState extends ConsumerState<SafePlacesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.bookmark_border_rounded,
-                          color: ShaktiColors.textLo,
+                          color: context.shakti.textLo,
                         ),
                         const SizedBox(height: ShaktiSpace.sm),
                         Text(
@@ -197,14 +195,14 @@ class _SafePlacesState extends ConsumerState<SafePlacesScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: ShaktiColors.lilac.withValues(alpha: 0.1),
+                            color: context.shakti.accentContainer,
                             borderRadius: BorderRadius.circular(
                               ShaktiRadius.md,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.place_outlined,
-                            color: ShaktiColors.lilac,
+                            color: context.shakti.lilac,
                           ),
                         ),
                         const SizedBox(width: ShaktiSpace.sm),

@@ -118,12 +118,13 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                       child: Column(
                         children: [
                           const SizedBox(height: ShaktiSpace.lg),
-                          const GlassSurface(
-                            radius: 28,
-                            padding: EdgeInsets.all(20),
+                          GlassSurface(
+                            radius: ShaktiRadius.md,
+                            color: context.shakti.accentContainer,
+                            padding: const EdgeInsets.all(20),
                             child: ShaktiMark(
                               size: 48,
-                              color: ShaktiColors.lilac,
+                              color: context.shakti.lilac,
                             ),
                           ),
                           const SizedBox(height: ShaktiSpace.lg),
@@ -139,7 +140,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           Text(
                             'Enter PIN',
                             style: t.bodyLarge?.copyWith(
-                              color: ShaktiColors.textMid,
+                              color: context.shakti.textMid,
                             ),
                           ),
                           const SizedBox(height: ShaktiSpace.md),
@@ -161,7 +162,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                             'Your emergency button is always available here.',
                             textAlign: TextAlign.center,
                             style: t.bodySmall?.copyWith(
-                              color: ShaktiColors.textLo,
+                              color: context.shakti.textLo,
                             ),
                           ),
                           const SizedBox(height: ShaktiSpace.lg),
@@ -212,10 +213,10 @@ class _EmergencyButton extends StatelessWidget {
         key: const ValueKey('lock-emergency'),
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: ShaktiColors.sosGlow,
-          backgroundColor: ShaktiColors.surface,
+          foregroundColor: context.shakti.sos,
+          backgroundColor: context.shakti.surface,
           side: BorderSide(
-            color: ShaktiColors.sos.withValues(alpha: 0.7),
+            color: context.shakti.sos.withValues(alpha: 0.7),
             width: 1.5,
           ),
           minimumSize: const Size.fromHeight(56),

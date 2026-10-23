@@ -230,16 +230,16 @@ class _FakeCallScreenState extends ConsumerState<FakeCallScreen> {
                         Text(
                           'Call preview',
                           style: t.bodySmall?.copyWith(
-                            color: ShaktiColors.textLo,
+                            color: context.shakti.textLo,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: ShaktiSpace.xs),
-                  const Icon(
+                  Icon(
                     Icons.phone_callback_outlined,
-                    color: ShaktiColors.lilac,
+                    color: context.shakti.lilac,
                   ),
                 ],
               ),
@@ -326,9 +326,9 @@ class _FakeCallScreenState extends ConsumerState<FakeCallScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.phone_callback_outlined,
-                        color: ShaktiColors.lilac,
+                        color: context.shakti.lilac,
                         size: 40,
                       ),
                       const SizedBox(height: ShaktiSpace.lg),
@@ -343,7 +343,7 @@ class _FakeCallScreenState extends ConsumerState<FakeCallScreen> {
                               child: Text(
                                 '$_waitLeft',
                                 style: t.displayLarge?.copyWith(
-                                  color: ShaktiColors.lilac,
+                                  color: context.shakti.lilac,
                                   fontFeatures: const [
                                     FontFeature.tabularFigures(),
                                   ],
@@ -362,7 +362,7 @@ class _FakeCallScreenState extends ConsumerState<FakeCallScreen> {
                       Text(
                         'Your simulated call is scheduled. Keep Shakti open until it rings.',
                         style: t.bodyLarge?.copyWith(
-                          color: ShaktiColors.textMid,
+                          color: context.shakti.textMid,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -404,15 +404,15 @@ class _Avatar extends StatelessWidget {
         width: size,
         height: size,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          color: ShaktiColors.surfaceHigh,
+        decoration: BoxDecoration(
+          color: context.shakti.surfaceHigh,
           shape: BoxShape.circle,
         ),
         child: Text(
           initial,
           style: TextStyle(
             fontSize: size * 0.42,
-            color: ShaktiColors.textHi,
+            color: context.shakti.textHi,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -438,7 +438,7 @@ class _Incoming extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: ShaktiColors.bg,
+        backgroundColor: context.shakti.bg,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
@@ -472,7 +472,7 @@ class _Incoming extends StatelessWidget {
                           'Mobile · Incoming call',
                           textAlign: TextAlign.center,
                           style: t.bodyLarge?.copyWith(
-                            color: ShaktiColors.textLo,
+                            color: context.shakti.textLo,
                           ),
                         ),
                       ],
@@ -493,7 +493,7 @@ class _Incoming extends StatelessWidget {
                                 child: _RoundAction(
                                   label: 'Decline',
                                   icon: Icons.call_end_rounded,
-                                  color: ShaktiColors.sos,
+                                  color: context.shakti.sos,
                                   onTap: onDecline,
                                 ),
                               ),
@@ -502,7 +502,7 @@ class _Incoming extends StatelessWidget {
                                 child: _RoundAction(
                                   label: 'Answer',
                                   icon: Icons.call_rounded,
-                                  color: ShaktiColors.safe,
+                                  color: context.shakti.safe,
                                   onTap: onAnswer,
                                   onSwipeUp: onAnswer,
                                 ),
@@ -568,7 +568,7 @@ class _SlideHintState extends State<_SlideHint>
     final t = Theme.of(context).textTheme;
     final hint = Column(
       children: [
-        const Icon(Icons.keyboard_arrow_up_rounded, color: ShaktiColors.textLo),
+        Icon(Icons.keyboard_arrow_up_rounded, color: context.shakti.textLo),
         Text(
           'Swipe up to answer',
           style: t.bodySmall,
@@ -625,7 +625,15 @@ class _RoundAction extends StatelessWidget {
                 onTap: onTap,
                 child: SizedBox.square(
                   dimension: 72,
-                  child: Icon(icon, color: ShaktiColors.textHi, size: 32),
+                  child: Icon(
+                    icon,
+                    color:
+                        ThemeData.estimateBrightnessForColor(color) ==
+                            Brightness.dark
+                        ? ShaktiColors.lightSurface
+                        : ShaktiColors.stealthInk,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
@@ -677,7 +685,9 @@ class _InCallState extends State<_InCall> {
         child: Column(
           children: [
             Material(
-              color: on ? ShaktiColors.textHi : ShaktiColors.surfaceHigh,
+              color: on
+                  ? context.shakti.accentContainer
+                  : context.shakti.surfaceHigh,
               shape: const CircleBorder(),
               child: InkWell(
                 customBorder: const CircleBorder(),
@@ -686,7 +696,7 @@ class _InCallState extends State<_InCall> {
                   dimension: 64,
                   child: Icon(
                     icon,
-                    color: on ? ShaktiColors.bg : ShaktiColors.textHi,
+                    color: on ? context.shakti.accent : context.shakti.textHi,
                   ),
                 ),
               ),
@@ -703,7 +713,7 @@ class _InCallState extends State<_InCall> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: ShaktiColors.bg,
+        backgroundColor: context.shakti.bg,
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
@@ -739,7 +749,7 @@ class _InCallState extends State<_InCall> {
                             _clock,
                             key: const ValueKey('fake-call-timer'),
                             style: t.titleMedium?.copyWith(
-                              color: ShaktiColors.textLo,
+                              color: context.shakti.textLo,
                               fontFeatures: const [
                                 FontFeature.tabularFigures(),
                               ],
@@ -789,17 +799,19 @@ class _InCallState extends State<_InCall> {
                             onTap: widget.onEnd,
                             excludeSemantics: true,
                             child: Material(
-                              color: ShaktiColors.sos,
+                              color: context.shakti.sos,
                               shape: const CircleBorder(),
                               child: InkWell(
                                 key: const ValueKey('fake-call-end'),
                                 customBorder: const CircleBorder(),
                                 onTap: widget.onEnd,
-                                child: const SizedBox.square(
+                                child: SizedBox.square(
                                   dimension: 72,
                                   child: Icon(
                                     Icons.call_end_rounded,
-                                    color: ShaktiColors.textHi,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onError,
                                     size: 32,
                                   ),
                                 ),

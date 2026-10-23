@@ -224,6 +224,7 @@ Use the same Supabase project for the app, functions, and web tracker. Set the f
 | Variable | Used by | Meaning |
 | --- | --- | --- |
 | `SUPABASE_URL` | Flutter build defines | Target Supabase project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | Flutter build defines | Public publishable key; preferred for new projects |
 | `SUPABASE_ANON_KEY` | Flutter build defines | Public anon key; database access still depends on policies |
 | `TRACK_BASE_URL` | Flutter build defines | Origin used to construct guardian links |
 | `NEXT_PUBLIC_SUPABASE_URL` | Next.js environment | Supabase project used by the tracker |
@@ -236,14 +237,17 @@ The app has a fallback tracker URL in source. Set `TRACK_BASE_URL` explicitly fo
 
 | Variable | Purpose |
 | --- | --- |
-| `GROQ_API_KEY` | AI provider access for `ai-guard` |
+| `GEMINI_API_KEY` | Google Gemini access for `ai-guard`; default AI provider |
+| `GEMINI_MODEL` | Optional model override; defaults to stable `gemini-3.8-flash` |
+| `AI_PROVIDER` | Defaults to `gemini`; explicit `groq` enables the legacy adapter |
+| `GROQ_API_KEY`, `GROQ_MODEL` | Legacy AI configuration when `AI_PROVIDER=groq` |
 | `TELEGRAM_BOT_TOKEN` | Telegram alert delivery |
 | `TELEGRAM_DEFAULT_CHAT_ID` | Default Telegram destination configuration |
 | `PUBLIC_TRACK_BASE_URL` | Public tracker origin included in cloud alerts |
 | `FCM_SERVICE_ACCOUNT` | Optional service-account JSON for FCM HTTP v1 |
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged server-side database access; provided by the hosted Supabase environment |
 
-The current AI handler selects `llama-3.3-70b-versatile` in source. Provider/model availability must be checked when configuring a deployment; this README does not certify an active provider account.
+The AI handler uses Google Gemini by default. Follow [the Gemini setup and live-check guide](ai-setup.md) for public build configuration, server secrets and an authenticated synthetic smoke check. Provider/model availability must be checked when configuring a deployment; these instructions do not certify an active provider account.
 
 ## Testing and validation
 

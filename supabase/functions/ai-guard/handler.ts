@@ -1,4 +1,4 @@
-// ai-guard: authenticated, rate-limited proxy to Groq for safety chat and FIR drafts.
+// ai-guard: authenticated, rate-limited Gemini proxy for safety chat and FIR drafts.
 //
 // Request  POST { mode: 'chat'|'fir', messages: [{role:'user'|'assistant', content}],
 //                 location?: {lat, lng}, fir?: {...} }
@@ -8,6 +8,12 @@
 import { corsHeaders, preflight } from "../_shared/cors.ts";
 import { HttpError, json, requireMethod, toErrorResponse } from "../_shared/http.ts";
 import type { BaseDeps } from "../_shared/types.ts";
+import {
+  type AiProvider,
+  aiProviderContent,
+  aiProviderRequest,
+  resolveAiProvider,
+} from "../_shared/ai_provider.ts";
 import {
   bad,
   clampString,
@@ -21,11 +27,10 @@ import {
 import { formatIst } from "../_shared/time.ts";
 import { CHAT_SYSTEM_PROMPT, FIR_SYSTEM_PROMPT } from "./prompts.ts";
 
-export type AiGuardDeps = BaseDeps;
+export type AiGuardDeps = BaseDeps & { upstreamTimeoutMs?: number };
 
-export const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-export const GROQ_MODEL = "llama-3.3-70b-versatile";
-export const GROQ_TIMEOUT_MS = 20_000;
+export { GROQ_MODEL, GROQ_URL } from "../_shared/ai_provider.ts";
+export const AI_TIMEOUT_MS = 20_000;
 export const MAX_MESSAGES = 20;
 export const MAX_CONTENT_CHARS = 2000;
 export const RATE_LIMIT = { bucket: "ai-guard", limit: 20, windowSec: 60 } as const;
@@ -153,7 +158,7 @@ function firUserMessage(f: FirFields): string {
   ].join("\n");
 }
 
-export function buildGroqMessages(r: AiGuardRequest): Array<{ role: string; content: string }> {
+export function buildAiMessages(r: AiGuardRequest): Array<{ role: string; content: string }> {
   const out: Array<{ role: string; content: string }> = [];
   if (r.mode === "fir") {
     out.push({ role: "system", content: FIR_SYSTEM_PROMPT });
@@ -173,48 +178,49 @@ export function buildGroqMessages(r: AiGuardRequest): Array<{ role: string; cont
   return out;
 }
 
-async function callGroq(
+async function callAi(
   deps: AiGuardDeps,
-  apiKey: string,
+  provider: AiProvider,
   messages: Array<{ role: string; content: string }>,
+  mode: AiGuardRequest["mode"],
 ): Promise<string> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), GROQ_TIMEOUT_MS);
-  let res: Response;
+  const timer = setTimeout(() => ctrl.abort(), deps.upstreamTimeoutMs ?? AI_TIMEOUT_MS);
+  const request = aiProviderRequest(provider, messages, mode);
   try {
-    res = await deps.fetch(GROQ_URL, {
+    const res = await deps.fetch(request.url, {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        temperature: 0.4,
-        max_tokens: 700,
-        messages,
-      }),
+      headers: request.headers,
+      body: JSON.stringify(request.body),
       signal: ctrl.signal,
     });
+    if (!res.ok) {
+      await res.body?.cancel();
+      console.error(`[ai-guard] ${provider.name} HTTP ${res.status}`);
+      if (res.status === 429) {
+        const seconds = Number(res.headers.get("Retry-After"));
+        const retryAfter = Number.isFinite(seconds) && seconds > 0 ? Math.min(120, Math.ceil(seconds)) : 60;
+        throw new HttpError(429, "The assistant is busy. Please wait before trying again.", "RATE_LIMITED", {
+          "Retry-After": String(retryAfter),
+        });
+      }
+      throw new HttpError(502, "The assistant is unavailable right now. If you are in danger, call 112.");
+    }
+    // Keep the timeout active while reading the response body as well as headers.
+    const content = aiProviderContent(provider, await res.json());
+    if (!content) {
+      console.error(`[ai-guard] ${provider.name} returned empty or incomplete content`);
+      throw new HttpError(502, "The assistant is unavailable right now. If you are in danger, call 112.");
+    }
+    return content.trim();
   } catch (e) {
+    if (e instanceof HttpError) throw e;
     const name = e instanceof Error ? e.name : "error";
-    console.error(`[ai-guard] groq request failed: ${name}`);
+    console.error(`[ai-guard] ${provider.name} request failed: ${name}`);
     throw new HttpError(502, "The assistant is unavailable right now. If you are in danger, call 112.");
   } finally {
     clearTimeout(timer);
   }
-
-  if (!res.ok) {
-    await res.body?.cancel();
-    console.error(`[ai-guard] groq HTTP ${res.status}`);
-    throw new HttpError(502, "The assistant is unavailable right now. If you are in danger, call 112.");
-  }
-  const body = await res.json().catch(() => null) as
-    | { choices?: Array<{ message?: { content?: unknown } }> }
-    | null;
-  const content = body?.choices?.[0]?.message?.content;
-  if (typeof content !== "string" || !content.trim()) {
-    console.error("[ai-guard] groq returned no content");
-    throw new HttpError(502, "The assistant is unavailable right now. If you are in danger, call 112.");
-  }
-  return content.trim();
 }
 
 export async function handle(req: Request, deps: AiGuardDeps): Promise<Response> {
@@ -236,13 +242,8 @@ export async function handle(req: Request, deps: AiGuardDeps): Promise<Response>
       });
     }
 
-    const apiKey = deps.env("GROQ_API_KEY");
-    if (!apiKey) {
-      console.error("[ai-guard] GROQ_API_KEY is not set");
-      throw new HttpError(503, "The assistant is not configured.");
-    }
-
-    const content = await callGroq(deps, apiKey, buildGroqMessages(parsed));
+    const provider = resolveAiProvider(deps.env);
+    const content = await callAi(deps, provider, buildAiMessages(parsed), parsed.mode);
     return json({ content }, 200, cors);
   } catch (e) {
     return toErrorResponse(e, cors, "ai-guard");

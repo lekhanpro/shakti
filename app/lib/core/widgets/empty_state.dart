@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({required this.icon, required this.title, this.message, this.action, super.key});
+  const EmptyState({
+    required this.icon,
+    required this.title,
+    this.message,
+    this.action,
+    super.key,
+  });
 
   final IconData icon;
   final String title;
@@ -24,10 +30,10 @@ class EmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: ShaktiColors.action.withValues(alpha: 0.14),
+                color: context.shakti.action.withValues(alpha: 0.14),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 32, color: ShaktiColors.action),
+              child: Icon(icon, size: 32, color: context.shakti.action),
             ),
             const SizedBox(height: ShaktiSpace.md),
             Text(title, style: t.titleLarge, textAlign: TextAlign.center),
@@ -35,7 +41,10 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: ShaktiSpace.xs),
               Text(message!, style: t.bodyMedium, textAlign: TextAlign.center),
             ],
-            if (action != null) ...[const SizedBox(height: ShaktiSpace.lg), action!],
+            if (action != null) ...[
+              const SizedBox(height: ShaktiSpace.lg),
+              action!,
+            ],
           ],
         ),
       ),

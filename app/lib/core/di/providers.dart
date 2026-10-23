@@ -34,6 +34,9 @@ final geocodingServiceProvider = Provider<GeocodingService>((_) => _missing('Geo
 final cloudDispatchServiceProvider = Provider<CloudDispatchService>((_) => _missing('CloudDispatchService'));
 final syncServiceProvider = Provider<SyncService>((_) => _missing('SyncService'));
 final aiServiceProvider = Provider<AiService>((_) => _missing('AiService'));
+
+/// Client configuration only; a configured backend may still be unreachable.
+final aiBackendConfiguredProvider = Provider<bool>((_) => false);
 final havenServiceProvider = Provider<HavenService>((_) => _missing('HavenService'));
 final routingServiceProvider = Provider<RoutingService>((_) => _missing('RoutingService'));
 final secureStoreProvider = Provider<SecureStore>((_) => _missing('SecureStore'));

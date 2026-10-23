@@ -95,23 +95,22 @@ class EvidenceScreen extends ConsumerWidget {
                   subtitle:
                       'Encrypted on this phone. Shared only when you choose.',
                 ),
-                GlassSurface(
-                  child: Column(
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xs),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.enhanced_encryption_outlined,
-                        color: ShaktiColors.lilac,
+                        color: context.shakti.lilac,
                         size: 28,
                       ),
-                      const SizedBox(height: ShaktiSpace.sm),
-                      Text(
-                        'A private record',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: ShaktiSpace.xs),
-                      const Text(
-                        'Encrypted on this phone. Sharing exports a decrypted copy.',
+                      const SizedBox(width: ShaktiSpace.sm),
+                      Expanded(
+                        child: Text(
+                          'Sharing exports a decrypted copy. Your original stays encrypted on this phone.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
                     ],
                   ),
@@ -122,9 +121,9 @@ class EvidenceScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.graphic_eq_rounded,
-                          color: ShaktiColors.textLo,
+                          color: context.shakti.textLo,
                           size: 32,
                         ),
                         const SizedBox(height: ShaktiSpace.sm),
@@ -148,14 +147,14 @@ class EvidenceScreen extends ConsumerWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: ShaktiColors.lilac.withValues(alpha: 0.1),
+                            color: context.shakti.accentContainer,
                             borderRadius: BorderRadius.circular(
                               ShaktiRadius.md,
                             ),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.graphic_eq_rounded,
-                            color: ShaktiColors.lilac,
+                            color: context.shakti.lilac,
                           ),
                         ),
                         const SizedBox(width: ShaktiSpace.sm),

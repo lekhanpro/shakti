@@ -38,6 +38,7 @@ class _FirScreenState extends ConsumerState<FirScreen> {
   String? _incidentId;
   bool _drafting = false;
   bool _exporting = false;
+  bool _aiConsent = false;
   String? _note;
 
   @override
@@ -75,7 +76,9 @@ class _FirScreenState extends ConsumerState<FirScreen> {
     var crumbs = const <Breadcrumb>[];
     if (match.isNotEmpty) {
       try {
-        crumbs = await ref.read(incidentRepositoryProvider).breadcrumbs(incident.id);
+        crumbs = await ref
+            .read(incidentRepositoryProvider)
+            .breadcrumbs(incident.id);
       } catch (_) {}
     }
     return FirInput(
@@ -94,15 +97,22 @@ class _FirScreenState extends ConsumerState<FirScreen> {
       _note = null;
     });
     final input = await _input(incidents);
+    if (!mounted) return;
     String text;
     String? note;
     if (ai) {
-      final res = await ref.read(aiServiceProvider).draftFir(input).catchError((Object e) => Err<String>('$e'));
+      final res = await ref
+          .read(aiServiceProvider)
+          .draftFir(input)
+          .catchError((Object e) => Err<String>('$e'));
       text = res.when(
         ok: (v) => v,
-        err: (_) => FirTemplate.render(input, now: ref.read(clockProvider).now()),
+        err: (_) =>
+            FirTemplate.render(input, now: ref.read(clockProvider).now()),
       );
-      if (!res.isOk) note = 'AI drafting is unavailable, so the offline template was used.';
+      if (!res.isOk) {
+        note = 'AI drafting is unavailable, so the offline template was used.';
+      }
     } else {
       text = FirTemplate.render(input, now: ref.read(clockProvider).now());
     }
@@ -127,8 +137,9 @@ class _FirScreenState extends ConsumerState<FirScreen> {
       await Printing.sharePdf(bytes: bytes, filename: 'shakti-fir-draft.pdf');
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Could not create the PDF. Try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not create the PDF. Try again.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -139,6 +150,7 @@ class _FirScreenState extends ConsumerState<FirScreen> {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final incidents = ref.watch(_incidentsProvider);
+    final aiConfigured = ref.watch(aiBackendConfiguredProvider);
     final list = incidents.value ?? const <Incident>[];
 
     return Scaffold(
@@ -147,24 +159,39 @@ class _FirScreenState extends ConsumerState<FirScreen> {
         child: Form(
           key: _form,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, 0, ShaktiSpace.lg, ShaktiSpace.xxl),
+            padding: const EdgeInsets.fromLTRB(
+              ShaktiSpace.lg,
+              0,
+              ShaktiSpace.lg,
+              ShaktiSpace.xxl,
+            ),
             children: [
               const ShaktiPageHeader(
                 title: 'Build your statement',
-                subtitle: 'Your words, clearly recorded. Review before sharing.',
+                subtitle:
+                    'Your words, clearly recorded. Review before sharing.',
               ),
               _Disclaimer(),
               const SectionHeader('Incident'),
               incidents.when(
                 loading: () => const LinearProgressIndicator(),
-                error: (_, _) =>
-                    Text('Could not load incidents. You can still write one manually.', style: t.bodyMedium),
+                error: (_, _) => Text(
+                  'Could not load incidents. You can still write one manually.',
+                  style: t.bodyMedium,
+                ),
                 data: (items) => DropdownButtonFormField<String?>(
-                  initialValue: items.any((i) => i.id == _incidentId) ? _incidentId : null,
+                  initialValue: items.any((i) => i.id == _incidentId)
+                      ? _incidentId
+                      : null,
                   isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Link to a recorded incident'),
+                  decoration: const InputDecoration(
+                    labelText: 'Link to a recorded incident',
+                  ),
                   items: [
-                    const DropdownMenuItem<String?>(value: null, child: Text('No incident, write manually')),
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('No incident, write manually'),
+                    ),
                     for (final i in items)
                       DropdownMenuItem<String?>(
                         value: i.id,
@@ -184,9 +211,12 @@ class _FirScreenState extends ConsumerState<FirScreen> {
                     TextFormField(
                       controller: _name,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Your full name'),
-                      validator: (v) =>
-                          (v ?? '').trim().isEmpty ? 'Enter your name as it should appear on the FIR' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Your full name',
+                      ),
+                      validator: (v) => (v ?? '').trim().isEmpty
+                          ? 'Enter your name as it should appear on the FIR'
+                          : null,
                     ),
                     const SizedBox(height: ShaktiSpace.sm),
                     TextFormField(
@@ -200,8 +230,9 @@ class _FirScreenState extends ConsumerState<FirScreen> {
                         helperText: 'Where, when, and what was said or done, in your own words.',
                         helperMaxLines: 4,
                       ),
-                      validator: (v) =>
-                          (v ?? '').trim().length < 10 ? 'Describe what happened in a sentence or two' : null,
+                      validator: (v) => (v ?? '').trim().length < 10
+                          ? 'Describe what happened in a sentence or two'
+                          : null,
                     ),
                     const SizedBox(height: ShaktiSpace.sm),
                     TextFormField(
@@ -220,19 +251,48 @@ class _FirScreenState extends ConsumerState<FirScreen> {
                 ),
               ),
               const SizedBox(height: ShaktiSpace.lg),
+              if (aiConfigured)
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text('Use AI for this statement'),
+                  subtitle: const Text(
+                    'Sends your statement, name and linked incident details to the online AI service to create a draft.',
+                  ),
+                  value: _aiConsent,
+                  onChanged: _drafting
+                      ? null
+                      : (value) => setState(() => _aiConsent = value ?? false),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: ShaktiSpace.md),
+                  child: Text(
+                    'Online AI is not configured. You can create and edit an offline draft on this phone.',
+                    style: t.bodyMedium,
+                  ),
+                ),
               Wrap(
                 spacing: ShaktiSpace.sm,
                 runSpacing: ShaktiSpace.sm,
                 children: [
-                  FilledButton.icon(
-                    onPressed: _drafting ? null : () => _generate(list, ai: true),
-                    icon: _drafting
-                        ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.auto_awesome_rounded),
-                    label: const Text('Draft with AI'),
-                  ),
+                  if (aiConfigured)
+                    FilledButton.icon(
+                      onPressed: _drafting || !_aiConsent
+                          ? null
+                          : () => _generate(list, ai: true),
+                      icon: _drafting
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.auto_awesome_rounded),
+                      label: const Text('Draft with AI'),
+                    ),
                   OutlinedButton.icon(
-                    onPressed: _drafting ? null : () => _generate(list, ai: false),
+                    onPressed: _drafting
+                        ? null
+                        : () => _generate(list, ai: false),
                     icon: const Icon(Icons.article_outlined),
                     label: const Text('Use offline template'),
                   ),
@@ -243,7 +303,7 @@ class _FirScreenState extends ConsumerState<FirScreen> {
                 Semantics(
                   liveRegion: true,
                   child: GlassSurface(
-                    borderColor: ShaktiColors.warn.withValues(alpha: 0.5),
+                    borderColor: context.shakti.warn.withValues(alpha: 0.5),
                     child: Text(_note!, style: t.bodyMedium),
                   ),
                 ),
@@ -255,14 +315,23 @@ class _FirScreenState extends ConsumerState<FirScreen> {
                   controller: _draft,
                   minLines: 10,
                   maxLines: null,
-                  style: t.bodyMedium?.copyWith(color: ShaktiColors.textHi, height: 1.55),
-                  decoration: const InputDecoration(labelText: 'FIR draft', alignLabelWithHint: true),
+                  style: t.bodyMedium?.copyWith(
+                    color: context.shakti.textHi,
+                    height: 1.55,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'FIR draft',
+                    alignLabelWithHint: true,
+                  ),
                 ),
                 const SizedBox(height: ShaktiSpace.md),
                 FilledButton.icon(
                   onPressed: _exporting ? null : () => _export(list),
                   icon: _exporting
-                      ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.picture_as_pdf_rounded),
                   label: const Text('Export PDF'),
                 ),
@@ -280,12 +349,12 @@ class _Disclaimer extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return GlassSurface(
-      borderColor: ShaktiColors.lilac.withValues(alpha: 0.35),
-      color: ShaktiColors.ambient,
+      borderColor: context.shakti.lilac.withValues(alpha: 0.35),
+      color: context.shakti.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.gavel_rounded, color: ShaktiColors.lilac),
+          Icon(Icons.gavel_rounded, color: context.shakti.lilac),
           const SizedBox(width: ShaktiSpace.sm),
           Expanded(
             child: Text(

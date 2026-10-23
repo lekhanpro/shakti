@@ -138,9 +138,9 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(width: ShaktiSpace.xs),
-          const Icon(
+          Icon(
             Icons.chevron_right_rounded,
-            color: ShaktiColors.textLo,
+            color: context.shakti.textLo,
             size: 20,
           ),
         ],
@@ -188,6 +188,12 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
                             s.userName,
                             (v) => _save(s.copyWith(userName: v)),
                           ),
+                  ),
+                  const SectionHeader('Appearance'),
+                  _AppearanceChoices(
+                    value: s.appearance,
+                    enabled: !_busy,
+                    onChanged: (value) => _save(s.copyWith(appearance: value)),
                   ),
                   const SectionHeader('Your safety network'),
                   _Group(
@@ -377,7 +383,7 @@ class _Profile extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.edit_outlined, color: ShaktiColors.lilac),
+          Icon(Icons.edit_outlined, color: context.shakti.lilac),
         ],
       ),
     );
@@ -422,10 +428,61 @@ class _TileIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: ShaktiColors.brand.withValues(alpha: 0.18),
+        color: context.shakti.accentContainer,
         borderRadius: BorderRadius.circular(ShaktiRadius.sm),
       ),
-      child: Icon(icon, color: ShaktiColors.lilac, size: 20),
+      child: Icon(icon, color: context.shakti.lilac, size: 20),
     );
   }
+}
+
+class _AppearanceChoices extends StatelessWidget {
+  const _AppearanceChoices({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final AppearancePreference value;
+  final bool enabled;
+  final ValueChanged<AppearancePreference> onChanged;
+
+  @override
+  Widget build(BuildContext context) => RadioGroup<AppearancePreference>(
+    groupValue: value,
+    onChanged: (next) {
+      if (enabled && next != null) onChanged(next);
+    },
+    child: _Group(
+      children: [
+        for (final (choice, label, icon) in const [
+          (AppearancePreference.light, 'Light', Icons.light_mode_outlined),
+          (AppearancePreference.dark, 'Dark', Icons.dark_mode_outlined),
+          (
+            AppearancePreference.system,
+            'System',
+            Icons.brightness_auto_outlined,
+          ),
+        ])
+          RadioListTile<AppearancePreference>(
+            key: ValueKey('appearance-${choice.name}'),
+            value: choice,
+            enabled: enabled,
+            selected: choice == value,
+            selectedTileColor: context.shakti.accentContainer,
+            activeColor: context.shakti.accent,
+            secondary: Icon(icon, color: context.shakti.accent),
+            controlAffinity: ListTileControlAffinity.trailing,
+            title: Text(label),
+            subtitle: choice == AppearancePreference.system
+                ? const Text('Follow your device setting')
+                : null,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: ShaktiSpace.md,
+              vertical: ShaktiSpace.xs,
+            ),
+          ),
+      ],
+    ),
+  );
 }

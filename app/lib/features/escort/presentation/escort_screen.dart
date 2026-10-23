@@ -30,7 +30,11 @@ class EscortScreen extends ConsumerWidget {
     ref.listen(escortControllerProvider.select((v) => v.warned), (prev, next) {
       if (next && prev == false && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('2 minutes left. Check in or add time, or your contacts get an SOS.')),
+          const SnackBar(
+            content: Text(
+              '2 minutes left. Check in or add time, or your contacts get an SOS.',
+            ),
+          ),
         );
       }
     });
@@ -38,11 +42,20 @@ class EscortScreen extends ConsumerWidget {
       body: ShaktiBackdrop(
         child: SafeArea(
           child: AnimatedSwitcher(
-            duration: ShaktiMotion.reduced(context) ? Duration.zero : ShaktiMotion.navigation,
+            duration: ShaktiMotion.reduced(context)
+                ? Duration.zero
+                : ShaktiMotion.navigation,
             child: switch (s.status) {
-              EscortStatus.running => const _RunningView(key: ValueKey('running')),
-              EscortStatus.checkedIn => _DoneView(key: const ValueKey('done'), state: s),
-              EscortStatus.expired => const _ExpiredView(key: ValueKey('expired')),
+              EscortStatus.running => const _RunningView(
+                key: ValueKey('running'),
+              ),
+              EscortStatus.checkedIn => _DoneView(
+                key: const ValueKey('done'),
+                state: s,
+              ),
+              EscortStatus.expired => const _ExpiredView(
+                key: ValueKey('expired'),
+              ),
               EscortStatus.idle => const _SetupView(key: ValueKey('setup')),
             },
           ),
@@ -68,27 +81,36 @@ class _SetupViewState extends ConsumerState<_SetupView> {
   int _minutes = 15;
   SafePlace? _dest;
 
-  void _step(int by) => setState(() => _minutes = (_minutes + by).clamp(1, 180));
+  void _step(int by) =>
+      setState(() => _minutes = (_minutes + by).clamp(1, 180));
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final places = ref.watch(_safePlacesProvider);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xs, ShaktiSpace.lg, ShaktiSpace.dockClearance),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        ShaktiSpace.xs,
+        ShaktiSpace.lg,
+        ShaktiSpace.dockClearance,
+      ),
       children: [
-        const ShaktiPageHeader(title: 'Walk with me', subtitle: 'A little company. All the way home.'),
+        const ShaktiPageHeader(
+          title: 'Walk with me',
+          subtitle: 'A little company. All the way home.',
+        ),
         GlassSurface(
-          color: ShaktiColors.ambient,
+          color: context.shakti.surface,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.directions_walk_rounded, color: ShaktiColors.lilac),
+              Icon(Icons.directions_walk_rounded, color: context.shakti.lilac),
               const SizedBox(width: ShaktiSpace.sm),
               Expanded(
                 child: Text(
                   'Choose your time. If you do not check in with your PIN before it ends, Shakti sends an SOS for you.',
-                  style: t.bodyMedium?.copyWith(color: ShaktiColors.textMid),
+                  style: t.bodyMedium?.copyWith(color: context.shakti.textMid),
                 ),
               ),
             ],
@@ -110,7 +132,10 @@ class _SetupViewState extends ConsumerState<_SetupView> {
         ),
         const SizedBox(height: ShaktiSpace.md),
         ShaktiCard(
-          padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.xs, vertical: ShaktiSpace.xs),
+          padding: const EdgeInsets.symmetric(
+            horizontal: ShaktiSpace.xs,
+            vertical: ShaktiSpace.xs,
+          ),
           child: Row(
             children: [
               IconButton(
@@ -142,7 +167,8 @@ class _SetupViewState extends ConsumerState<_SetupView> {
         const SectionHeader('Where to (optional)'),
         places.when(
           loading: () => const LinearProgressIndicator(),
-          error: (_, _) => Text('Could not load your places.', style: t.bodyMedium),
+          error: (_, _) =>
+              Text('Could not load your places.', style: t.bodyMedium),
           data: (list) => list.isEmpty
               ? Text(
                   'Add Home or College in Settings, Places, and Shakti will notice when you arrive.',
@@ -169,8 +195,9 @@ class _SetupViewState extends ConsumerState<_SetupView> {
         ),
         const SizedBox(height: ShaktiSpace.lg),
         FilledButton.icon(
-          onPressed: () =>
-              ref.read(escortControllerProvider.notifier).start(Duration(minutes: _minutes), destination: _dest),
+          onPressed: () => ref
+              .read(escortControllerProvider.notifier)
+              .start(Duration(minutes: _minutes), destination: _dest),
           icon: const Icon(Icons.directions_walk_rounded),
           label: Text('Start $_minutes min walk'),
         ),
@@ -192,7 +219,11 @@ class _SetupViewState extends ConsumerState<_SetupView> {
 class _RunningView extends ConsumerWidget {
   const _RunningView({super.key});
 
-  Future<void> _checkIn(BuildContext context, WidgetRef ref, {required bool ending}) async {
+  Future<void> _checkIn(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool ending,
+  }) async {
     final ctrl = ref.read(escortControllerProvider.notifier);
     await showPinCheckSheet(
       context,
@@ -210,27 +241,40 @@ class _RunningView extends ConsumerWidget {
     final s = ref.watch(escortControllerProvider);
     final t = Theme.of(context).textTheme;
     final ctrl = ref.read(escortControllerProvider.notifier);
-    final color = s.warned ? ShaktiColors.warn : ShaktiColors.lilac;
+    final color = s.warned ? context.shakti.warn : context.shakti.lilac;
 
     return LayoutBuilder(
       builder: (context, box) {
         final ring = math.min(264.0, box.maxWidth - ShaktiSpace.xxl);
         return ListView(
-          padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xs, ShaktiSpace.lg, ShaktiSpace.dockClearance),
+          padding: const EdgeInsets.fromLTRB(
+            ShaktiSpace.lg,
+            ShaktiSpace.xs,
+            ShaktiSpace.lg,
+            ShaktiSpace.dockClearance,
+          ),
           children: [
-            const ShaktiPageHeader(title: 'Walk with me', subtitle: 'Your walk, at your pace.'),
+            const ShaktiPageHeader(
+              title: 'Walk with me',
+              subtitle: 'Your walk, at your pace.',
+            ),
             if (s.arrivedAt != null && !s.arrivalHandled) ...[
               _ArrivalCard(place: s.arrivedAt!),
               const SizedBox(height: ShaktiSpace.md),
             ],
             Center(
               child: Semantics(
-                label: 'Time left ${s.remaining.inMinutes} minutes ${s.remaining.inSeconds % 60} seconds',
+                label:
+                    'Time left ${s.remaining.inMinutes} minutes ${s.remaining.inSeconds % 60} seconds',
                 excludeSemantics: true,
                 child: SizedBox.square(
                   dimension: ring,
                   child: CustomPaint(
-                    painter: _RingPainter(progress: 1 - s.progress, color: color),
+                    painter: _RingPainter(
+                      progress: 1 - s.progress,
+                      color: color,
+                      trackColor: context.shakti.outline,
+                    ),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(ShaktiSpace.xl),
@@ -242,8 +286,10 @@ class _RunningView extends ConsumerWidget {
                               Text(
                                 formatEscort(s.remaining),
                                 style: t.displayLarge?.copyWith(
-                                  fontFeatures: const [FontFeature.tabularFigures()],
-                                  color: ShaktiColors.textHi,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                  color: context.shakti.textHi,
                                 ),
                               ),
                               Text(
@@ -264,18 +310,28 @@ class _RunningView extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(s.destination != null ? Icons.place_rounded : Icons.directions_walk_rounded, color: color),
+                  Icon(
+                    s.destination != null
+                        ? Icons.place_rounded
+                        : Icons.directions_walk_rounded,
+                    color: color,
+                  ),
                   const SizedBox(width: ShaktiSpace.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          s.destination != null ? 'Walking to ${s.destination!.name}' : 'Walk in progress',
+                          s.destination != null
+                              ? 'Walking to ${s.destination!.name}'
+                              : 'Walk in progress',
                           style: t.titleMedium,
                         ),
                         const SizedBox(height: ShaktiSpace.xxs),
-                        Text('Check in before the timer ends to prevent an SOS.', style: t.bodyMedium),
+                        Text(
+                          'Check in before the timer ends to prevent an SOS.',
+                          style: t.bodyMedium,
+                        ),
                       ],
                     ),
                   ),
@@ -284,7 +340,10 @@ class _RunningView extends ConsumerWidget {
             ),
             const SizedBox(height: ShaktiSpace.xl),
             FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: ShaktiColors.safeDeep),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.shakti.safeContainer,
+                foregroundColor: context.shakti.safe,
+              ),
               onPressed: () => _checkIn(context, ref, ending: false),
               icon: const Icon(Icons.verified_user_rounded),
               label: const Text("Check in, I'm safe"),
@@ -328,37 +387,50 @@ class _ArrivalCard extends ConsumerWidget {
     return Semantics(
       liveRegion: true,
       child: ShaktiCard(
-        borderColor: ShaktiColors.safe,
-        color: ShaktiColors.safe.withValues(alpha: 0.1),
+        borderColor: context.shakti.safe,
+        color: context.shakti.safe.withValues(alpha: 0.1),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.where_to_vote_rounded, color: ShaktiColors.safe),
+                Icon(Icons.where_to_vote_rounded, color: context.shakti.safe),
                 const SizedBox(width: ShaktiSpace.sm),
-                Expanded(child: Text('Arrived at ${place.name}', style: t.titleLarge)),
+                Expanded(
+                  child: Text('Arrived at ${place.name}', style: t.titleLarge),
+                ),
               ],
             ),
             const SizedBox(height: ShaktiSpace.xs),
-            Text('End the walk and text your contacts "I reached ${place.name} safely"?', style: t.bodyMedium),
+            Text(
+              'End the walk and text your contacts "I reached ${place.name} safely"?',
+              style: t.bodyMedium,
+            ),
             const SizedBox(height: ShaktiSpace.sm),
             Wrap(
               spacing: ShaktiSpace.xs,
               runSpacing: ShaktiSpace.xs,
               children: [
                 FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: ShaktiColors.safeDeep),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: context.shakti.safeContainer,
+                    foregroundColor: context.shakti.safe,
+                  ),
                   onPressed: () => showPinCheckSheet(
                     context,
                     title: 'Confirm safe arrival',
-                    message: 'Enter your PIN to end the walk and notify contacts.',
+                    message:
+                        'Enter your PIN to end the walk and notify contacts.',
                     submitLabel: 'Check in',
-                    verify: (pin) => ctrl.answerArrival(checkIn: true, pin: pin),
+                    verify: (pin) =>
+                        ctrl.answerArrival(checkIn: true, pin: pin),
                   ),
                   child: const Text('Check in and tell them'),
                 ),
-                TextButton(onPressed: () => ctrl.answerArrival(checkIn: false), child: const Text('Not yet')),
+                TextButton(
+                  onPressed: () => ctrl.answerArrival(checkIn: false),
+                  child: const Text('Not yet'),
+                ),
               ],
             ),
           ],
@@ -369,11 +441,16 @@ class _ArrivalCard extends ConsumerWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.progress, required this.color});
+  _RingPainter({
+    required this.progress,
+    required this.color,
+    required this.trackColor,
+  });
 
   /// Fraction of time remaining, 1 → 0.
   final double progress;
   final Color color;
+  final Color trackColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -388,7 +465,7 @@ class _RingPainter extends CustomPainter {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = stroke
-        ..color = ShaktiColors.surfaceHigh,
+        ..color = trackColor,
     );
     canvas.drawArc(
       r,
@@ -404,7 +481,10 @@ class _RingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) => old.progress != progress || old.color != color;
+  bool shouldRepaint(_RingPainter old) =>
+      old.progress != progress ||
+      old.color != color ||
+      old.trackColor != trackColor;
 }
 
 // ---------------------------------------------------------------------------

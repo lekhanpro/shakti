@@ -10,7 +10,7 @@ class GlassSurface extends StatefulWidget {
   const GlassSurface({
     required this.child,
     this.padding = const EdgeInsets.all(ShaktiSpace.md),
-    this.radius = 24,
+    this.radius = ShaktiRadius.card,
     this.blur = false,
     this.onTap,
     this.color,
@@ -40,33 +40,18 @@ class _GlassSurfaceState extends State<GlassSurface> {
     final solid =
         MediaQuery.highContrastOf(context) ||
         MediaQuery.accessibleNavigationOf(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final base =
-        widget.color ??
-        (dark ? ShaktiColors.surface : ShaktiColors.lightSurface);
-    final edge =
-        widget.borderColor ??
-        (dark ? ShaktiColors.glassEdge : ShaktiColors.lightOutline);
+    final base = widget.color ?? context.shakti.surface;
+    final edge = widget.borderColor ?? context.shakti.outline;
     final radius = BorderRadius.circular(widget.radius);
-    final opaque = Color.alphaBlend(
-      base,
-      dark ? ShaktiColors.surface : ShaktiColors.lightSurface,
-    );
+    final opaque = Color.alphaBlend(base, context.shakti.surface);
     Widget content = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: widget.color != null
-              ? [solid ? opaque : base, solid ? opaque : base]
-              : [
-                  base.withValues(alpha: solid ? 1 : 0.90),
-                  base.withValues(alpha: solid ? 1 : 0.70),
-                ],
-        ),
+        color: solid || !widget.blur ? opaque : base.withValues(alpha: 0.94),
         border: Border.all(
-          color: _pressed ? ShaktiColors.lilac.withValues(alpha: 0.55) : edge,
+          color: _pressed
+              ? context.shakti.accent.withValues(alpha: 0.55)
+              : edge,
         ),
       ),
       child: Material(
@@ -77,15 +62,15 @@ class _GlassSurfaceState extends State<GlassSurface> {
               ? null
               : (value) => setState(() => _pressed = value),
           borderRadius: radius,
-          splashColor: ShaktiColors.lilac.withValues(alpha: 0.08),
-          highlightColor: ShaktiColors.lilac.withValues(alpha: 0.06),
+          splashColor: context.shakti.accent.withValues(alpha: 0.08),
+          highlightColor: context.shakti.accent.withValues(alpha: 0.06),
           child: Padding(padding: widget.padding, child: widget.child),
         ),
       ),
     );
     if (widget.blur && !solid) {
       content = BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: content,
       );
     }
@@ -108,16 +93,8 @@ class ShaktiBackdrop extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [ShaktiColors.ambient, ShaktiColors.bg, ShaktiColors.bg],
-      ),
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      ColoredBox(color: context.shakti.bg, child: child);
 }
 
 class ShaktiPageHeader extends StatelessWidget {
