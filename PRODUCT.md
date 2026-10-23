@@ -28,9 +28,12 @@ Console rollout or physical-device safety certification has been completed.
 
 ## Brand commitments
 
-Retain the Shakti shield/flame and indigo identity. On 22 October 2026 the owner
-requested a complete app UI revamp with fluid, Apple-style liquid glass, new
-typography and layouts, and selected dark glass with lilac highlights.
+Retain the Shakti shield/flame and emergency rose. On 23 October 2026 the owner
+replaced the earlier dark-first treatment with warm ivory and deep plum, then
+requested clear Liquid Glass inspired by current iOS references. Light is the
+default; Dark and System remain saved appearance choices. Optical material belongs
+to floating controls, with solid content surfaces, bundled Manrope/Inter type and
+native Android behavior. The reference does not imply Apple rendering parity.
 
 ## Accessibility
 
@@ -42,4 +45,6 @@ surfaces where translucency would impair clarity.
 
 Implementation lives in `app/`, requirements in `docs/specs/`, and the identity in
 `brand/`. Automated verification is documented under `docs/verification/`.
-The website has separate product and design records in `web/`.
+The current light/glass revision and its remaining device/service checks are
+recorded in `docs/ui/light-glass-verification-2026-10-23.md`. The website has
+separate product and design records in `web/`.

@@ -1,37 +1,67 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23",
+  "generatedAt": "2026-10-23T20:44:48+05:30",
   "title": "Design System: Shakti Android",
   "extensions": {
     "colorMeta": {
       "primary": {
         "role": "primary",
-        "displayName": "Primary",
-        "canonical": "#B6AAFF",
+        "displayName": "Deep plum",
+        "canonical": "#6C3B5D",
         "tonalRamp": [
-          "oklch(15% 0.1200 289.79)",
-          "oklch(25% 0.1200 289.79)",
-          "oklch(35% 0.1200 289.79)",
-          "oklch(45% 0.1200 289.79)",
-          "oklch(55% 0.1200 289.79)",
-          "oklch(65% 0.1200 289.79)",
-          "oklch(80% 0.1200 289.79)",
-          "oklch(95% 0.1200 289.79)"
+          "oklch(15% 0.0835 339.58)",
+          "oklch(25% 0.0835 339.58)",
+          "oklch(35% 0.0835 339.58)",
+          "oklch(45% 0.0835 339.58)",
+          "oklch(55% 0.0835 339.58)",
+          "oklch(65% 0.0835 339.58)",
+          "oklch(80% 0.0835 339.58)",
+          "oklch(95% 0.0835 339.58)"
         ]
       },
       "identity": {
         "role": "primary",
-        "displayName": "Identity",
-        "canonical": "#4F46E5",
+        "displayName": "Shield plum",
+        "canonical": "#6C3B5D",
         "tonalRamp": [
-          "oklch(15% 0.2301 276.97)",
-          "oklch(25% 0.2301 276.97)",
-          "oklch(35% 0.2301 276.97)",
-          "oklch(45% 0.2301 276.97)",
-          "oklch(55% 0.2301 276.97)",
-          "oklch(65% 0.2301 276.97)",
-          "oklch(80% 0.2301 276.97)",
-          "oklch(95% 0.2301 276.97)"
+          "oklch(15% 0.0835 339.58)",
+          "oklch(25% 0.0835 339.58)",
+          "oklch(35% 0.0835 339.58)",
+          "oklch(45% 0.0835 339.58)",
+          "oklch(55% 0.0835 339.58)",
+          "oklch(65% 0.0835 339.58)",
+          "oklch(80% 0.0835 339.58)",
+          "oklch(95% 0.0835 339.58)"
+        ]
+      },
+      "on-primary": {
+        "role": "neutral",
+        "displayName": "White control ink",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(25% 0.0000 0.00)",
+          "oklch(35% 0.0000 0.00)",
+          "oklch(45% 0.0000 0.00)",
+          "oklch(55% 0.0000 0.00)",
+          "oklch(65% 0.0000 0.00)",
+          "oklch(80% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "accent-container": {
+        "role": "primary",
+        "displayName": "Pale plum container",
+        "canonical": "#EFE1E8",
+        "tonalRamp": [
+          "oklch(15% 0.0178 345.64)",
+          "oklch(25% 0.0178 345.64)",
+          "oklch(35% 0.0178 345.64)",
+          "oklch(45% 0.0178 345.64)",
+          "oklch(55% 0.0178 345.64)",
+          "oklch(65% 0.0178 345.64)",
+          "oklch(80% 0.0178 345.64)",
+          "oklch(95% 0.0178 345.64)"
         ]
       },
       "emergency": {
@@ -82,181 +112,376 @@
       "safe": {
         "role": "semantic",
         "displayName": "Safe",
-        "canonical": "#10B981",
+        "canonical": "#176A4E",
         "tonalRamp": [
-          "oklch(15% 0.1491 162.48)",
-          "oklch(25% 0.1491 162.48)",
-          "oklch(35% 0.1491 162.48)",
-          "oklch(45% 0.1491 162.48)",
-          "oklch(55% 0.1491 162.48)",
-          "oklch(65% 0.1491 162.48)",
-          "oklch(80% 0.1491 162.48)",
-          "oklch(95% 0.1491 162.48)"
+          "oklch(15% 0.0896 165.29)",
+          "oklch(25% 0.0896 165.29)",
+          "oklch(35% 0.0896 165.29)",
+          "oklch(45% 0.0896 165.29)",
+          "oklch(55% 0.0896 165.29)",
+          "oklch(65% 0.0896 165.29)",
+          "oklch(80% 0.0896 165.29)",
+          "oklch(95% 0.0896 165.29)"
         ]
       },
       "warning": {
         "role": "semantic",
         "displayName": "Warning",
-        "canonical": "#F59E0B",
+        "canonical": "#855900",
         "tonalRamp": [
-          "oklch(15% 0.1647 70.08)",
-          "oklch(25% 0.1647 70.08)",
-          "oklch(35% 0.1647 70.08)",
-          "oklch(45% 0.1647 70.08)",
-          "oklch(55% 0.1647 70.08)",
-          "oklch(65% 0.1647 70.08)",
-          "oklch(80% 0.1647 70.08)",
-          "oklch(95% 0.1647 70.08)"
+          "oklch(15% 0.1051 75.60)",
+          "oklch(25% 0.1051 75.60)",
+          "oklch(35% 0.1051 75.60)",
+          "oklch(45% 0.1051 75.60)",
+          "oklch(55% 0.1051 75.60)",
+          "oklch(65% 0.1051 75.60)",
+          "oklch(80% 0.1051 75.60)",
+          "oklch(95% 0.1051 75.60)"
         ]
       },
       "info": {
         "role": "semantic",
         "displayName": "Info",
-        "canonical": "#38BDF8",
+        "canonical": "#286683",
         "tonalRamp": [
-          "oklch(15% 0.1390 232.66)",
-          "oklch(25% 0.1390 232.66)",
-          "oklch(35% 0.1390 232.66)",
-          "oklch(45% 0.1390 232.66)",
-          "oklch(55% 0.1390 232.66)",
-          "oklch(65% 0.1390 232.66)",
-          "oklch(80% 0.1390 232.66)",
-          "oklch(95% 0.1390 232.66)"
+          "oklch(15% 0.0781 231.91)",
+          "oklch(25% 0.0781 231.91)",
+          "oklch(35% 0.0781 231.91)",
+          "oklch(45% 0.0781 231.91)",
+          "oklch(55% 0.0781 231.91)",
+          "oklch(65% 0.0781 231.91)",
+          "oklch(80% 0.0781 231.91)",
+          "oklch(95% 0.0781 231.91)"
         ]
       },
       "ground": {
         "role": "neutral",
-        "displayName": "Ground",
-        "canonical": "#080B15",
+        "displayName": "Warm ivory",
+        "canonical": "#F8F5EF",
         "tonalRamp": [
-          "oklch(15% 0.0222 270.30)",
-          "oklch(25% 0.0222 270.30)",
-          "oklch(35% 0.0222 270.30)",
-          "oklch(45% 0.0222 270.30)",
-          "oklch(55% 0.0222 270.30)",
-          "oklch(65% 0.0222 270.30)",
-          "oklch(80% 0.0222 270.30)",
-          "oklch(95% 0.0222 270.30)"
+          "oklch(15% 0.0086 84.57)",
+          "oklch(25% 0.0086 84.57)",
+          "oklch(35% 0.0086 84.57)",
+          "oklch(45% 0.0086 84.57)",
+          "oklch(55% 0.0086 84.57)",
+          "oklch(65% 0.0086 84.57)",
+          "oklch(80% 0.0086 84.57)",
+          "oklch(95% 0.0086 84.57)"
         ]
       },
       "ambient": {
         "role": "neutral",
-        "displayName": "Ambient",
-        "canonical": "#25203F",
+        "displayName": "Static warm ivory",
+        "canonical": "#F8F5EF",
         "tonalRamp": [
-          "oklch(15% 0.0567 289.36)",
-          "oklch(25% 0.0567 289.36)",
-          "oklch(35% 0.0567 289.36)",
-          "oklch(45% 0.0567 289.36)",
-          "oklch(55% 0.0567 289.36)",
-          "oklch(65% 0.0567 289.36)",
-          "oklch(80% 0.0567 289.36)",
-          "oklch(95% 0.0567 289.36)"
+          "oklch(15% 0.0086 84.57)",
+          "oklch(25% 0.0086 84.57)",
+          "oklch(35% 0.0086 84.57)",
+          "oklch(45% 0.0086 84.57)",
+          "oklch(55% 0.0086 84.57)",
+          "oklch(65% 0.0086 84.57)",
+          "oklch(80% 0.0086 84.57)",
+          "oklch(95% 0.0086 84.57)"
         ]
       },
       "surface": {
         "role": "neutral",
-        "displayName": "Surface",
-        "canonical": "#151A2B",
+        "displayName": "Warm white",
+        "canonical": "#FFFDFA",
         "tonalRamp": [
-          "oklch(15% 0.0342 270.90)",
-          "oklch(25% 0.0342 270.90)",
-          "oklch(35% 0.0342 270.90)",
-          "oklch(45% 0.0342 270.90)",
-          "oklch(55% 0.0342 270.90)",
-          "oklch(65% 0.0342 270.90)",
-          "oklch(80% 0.0342 270.90)",
-          "oklch(95% 0.0342 270.90)"
+          "oklch(15% 0.0045 78.30)",
+          "oklch(25% 0.0045 78.30)",
+          "oklch(35% 0.0045 78.30)",
+          "oklch(45% 0.0045 78.30)",
+          "oklch(55% 0.0045 78.30)",
+          "oklch(65% 0.0045 78.30)",
+          "oklch(80% 0.0045 78.30)",
+          "oklch(95% 0.0045 78.30)"
         ]
       },
       "surface-high": {
         "role": "neutral",
-        "displayName": "Surface High",
-        "canonical": "#20263D",
+        "displayName": "Pale stone",
+        "canonical": "#F0EAE4",
         "tonalRamp": [
-          "oklch(15% 0.0436 272.11)",
-          "oklch(25% 0.0436 272.11)",
-          "oklch(35% 0.0436 272.11)",
-          "oklch(45% 0.0436 272.11)",
-          "oklch(55% 0.0436 272.11)",
-          "oklch(65% 0.0436 272.11)",
-          "oklch(80% 0.0436 272.11)",
-          "oklch(95% 0.0436 272.11)"
+          "oklch(15% 0.0103 67.70)",
+          "oklch(25% 0.0103 67.70)",
+          "oklch(35% 0.0103 67.70)",
+          "oklch(45% 0.0103 67.70)",
+          "oklch(55% 0.0103 67.70)",
+          "oklch(65% 0.0103 67.70)",
+          "oklch(80% 0.0103 67.70)",
+          "oklch(95% 0.0103 67.70)"
         ]
       },
       "outline": {
         "role": "neutral",
         "displayName": "Outline",
-        "canonical": "#363B55",
+        "canonical": "#E1D7D4",
         "tonalRamp": [
-          "oklch(15% 0.0456 275.49)",
-          "oklch(25% 0.0456 275.49)",
-          "oklch(35% 0.0456 275.49)",
-          "oklch(45% 0.0456 275.49)",
-          "oklch(55% 0.0456 275.49)",
-          "oklch(65% 0.0456 275.49)",
-          "oklch(80% 0.0456 275.49)",
-          "oklch(95% 0.0456 275.49)"
+          "oklch(15% 0.0118 37.42)",
+          "oklch(25% 0.0118 37.42)",
+          "oklch(35% 0.0118 37.42)",
+          "oklch(45% 0.0118 37.42)",
+          "oklch(55% 0.0118 37.42)",
+          "oklch(65% 0.0118 37.42)",
+          "oklch(80% 0.0118 37.42)",
+          "oklch(95% 0.0118 37.42)"
+        ]
+      },
+      "field-outline": {
+        "role": "neutral",
+        "displayName": "Strong field outline",
+        "canonical": "#94818C",
+        "tonalRamp": [
+          "oklch(15% 0.0280 342.24)",
+          "oklch(25% 0.0280 342.24)",
+          "oklch(35% 0.0280 342.24)",
+          "oklch(45% 0.0280 342.24)",
+          "oklch(55% 0.0280 342.24)",
+          "oklch(65% 0.0280 342.24)",
+          "oklch(80% 0.0280 342.24)",
+          "oklch(95% 0.0280 342.24)"
         ]
       },
       "glass-edge": {
         "role": "neutral",
         "displayName": "Glass Edge",
-        "canonical": "#E7E0FF26",
+        "canonical": "#E1D7D4",
         "tonalRamp": [
-          "oklch(15% 0.0424 295.90)",
-          "oklch(25% 0.0424 295.90)",
-          "oklch(35% 0.0424 295.90)",
-          "oklch(45% 0.0424 295.90)",
-          "oklch(55% 0.0424 295.90)",
-          "oklch(65% 0.0424 295.90)",
-          "oklch(80% 0.0424 295.90)",
-          "oklch(95% 0.0424 295.90)"
+          "oklch(15% 0.0118 37.42)",
+          "oklch(25% 0.0118 37.42)",
+          "oklch(35% 0.0118 37.42)",
+          "oklch(45% 0.0118 37.42)",
+          "oklch(55% 0.0118 37.42)",
+          "oklch(65% 0.0118 37.42)",
+          "oklch(80% 0.0118 37.42)",
+          "oklch(95% 0.0118 37.42)"
         ]
       },
       "text-primary": {
         "role": "neutral",
         "displayName": "Text Primary",
-        "canonical": "#F7F6FF",
+        "canonical": "#29232A",
         "tonalRamp": [
-          "oklch(15% 0.0120 291.29)",
-          "oklch(25% 0.0120 291.29)",
-          "oklch(35% 0.0120 291.29)",
-          "oklch(45% 0.0120 291.29)",
-          "oklch(55% 0.0120 291.29)",
-          "oklch(65% 0.0120 291.29)",
-          "oklch(80% 0.0120 291.29)",
-          "oklch(95% 0.0120 291.29)"
+          "oklch(15% 0.0155 321.43)",
+          "oklch(25% 0.0155 321.43)",
+          "oklch(35% 0.0155 321.43)",
+          "oklch(45% 0.0155 321.43)",
+          "oklch(55% 0.0155 321.43)",
+          "oklch(65% 0.0155 321.43)",
+          "oklch(80% 0.0155 321.43)",
+          "oklch(95% 0.0155 321.43)"
         ]
       },
       "text-secondary": {
         "role": "neutral",
         "displayName": "Text Secondary",
-        "canonical": "#D0CDE3",
+        "canonical": "#615760",
         "tonalRamp": [
-          "oklch(15% 0.0304 292.01)",
-          "oklch(25% 0.0304 292.01)",
-          "oklch(35% 0.0304 292.01)",
-          "oklch(45% 0.0304 292.01)",
-          "oklch(55% 0.0304 292.01)",
-          "oklch(65% 0.0304 292.01)",
-          "oklch(80% 0.0304 292.01)",
-          "oklch(95% 0.0304 292.01)"
+          "oklch(15% 0.0191 329.03)",
+          "oklch(25% 0.0191 329.03)",
+          "oklch(35% 0.0191 329.03)",
+          "oklch(45% 0.0191 329.03)",
+          "oklch(55% 0.0191 329.03)",
+          "oklch(65% 0.0191 329.03)",
+          "oklch(80% 0.0191 329.03)",
+          "oklch(95% 0.0191 329.03)"
         ]
       },
       "text-muted": {
         "role": "neutral",
         "displayName": "Text Muted",
-        "canonical": "#AAA7C0",
+        "canonical": "#756A73",
         "tonalRamp": [
-          "oklch(15% 0.0358 291.00)",
-          "oklch(25% 0.0358 291.00)",
-          "oklch(35% 0.0358 291.00)",
-          "oklch(45% 0.0358 291.00)",
-          "oklch(55% 0.0358 291.00)",
-          "oklch(65% 0.0358 291.00)",
-          "oklch(80% 0.0358 291.00)",
-          "oklch(95% 0.0358 291.00)"
+          "oklch(15% 0.0193 331.85)",
+          "oklch(25% 0.0193 331.85)",
+          "oklch(35% 0.0193 331.85)",
+          "oklch(45% 0.0193 331.85)",
+          "oklch(55% 0.0193 331.85)",
+          "oklch(65% 0.0193 331.85)",
+          "oklch(80% 0.0193 331.85)",
+          "oklch(95% 0.0193 331.85)"
+        ]
+      },
+      "dark-primary": {
+        "role": "primary",
+        "displayName": "Pale plum",
+        "canonical": "#D8B9D0",
+        "tonalRamp": [
+          "oklch(15% 0.0468 335.14)",
+          "oklch(25% 0.0468 335.14)",
+          "oklch(35% 0.0468 335.14)",
+          "oklch(45% 0.0468 335.14)",
+          "oklch(55% 0.0468 335.14)",
+          "oklch(65% 0.0468 335.14)",
+          "oklch(80% 0.0468 335.14)",
+          "oklch(95% 0.0468 335.14)"
+        ]
+      },
+      "dark-accent-container": {
+        "role": "primary",
+        "displayName": "Dark Accent Container",
+        "canonical": "#473244",
+        "tonalRamp": [
+          "oklch(15% 0.0419 331.44)",
+          "oklch(25% 0.0419 331.44)",
+          "oklch(35% 0.0419 331.44)",
+          "oklch(45% 0.0419 331.44)",
+          "oklch(55% 0.0419 331.44)",
+          "oklch(65% 0.0419 331.44)",
+          "oklch(80% 0.0419 331.44)",
+          "oklch(95% 0.0419 331.44)"
+        ]
+      },
+      "dark-ground": {
+        "role": "neutral",
+        "displayName": "Warm charcoal",
+        "canonical": "#17131C",
+        "tonalRamp": [
+          "oklch(15% 0.0188 304.95)",
+          "oklch(25% 0.0188 304.95)",
+          "oklch(35% 0.0188 304.95)",
+          "oklch(45% 0.0188 304.95)",
+          "oklch(55% 0.0188 304.95)",
+          "oklch(65% 0.0188 304.95)",
+          "oklch(80% 0.0188 304.95)",
+          "oklch(95% 0.0188 304.95)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark Surface",
+        "canonical": "#231E29",
+        "tonalRamp": [
+          "oklch(15% 0.0218 305.49)",
+          "oklch(25% 0.0218 305.49)",
+          "oklch(35% 0.0218 305.49)",
+          "oklch(45% 0.0218 305.49)",
+          "oklch(55% 0.0218 305.49)",
+          "oklch(65% 0.0218 305.49)",
+          "oklch(80% 0.0218 305.49)",
+          "oklch(95% 0.0218 305.49)"
+        ]
+      },
+      "dark-surface-high": {
+        "role": "neutral",
+        "displayName": "Dark Surface High",
+        "canonical": "#302837",
+        "tonalRamp": [
+          "oklch(15% 0.0289 308.80)",
+          "oklch(25% 0.0289 308.80)",
+          "oklch(35% 0.0289 308.80)",
+          "oklch(45% 0.0289 308.80)",
+          "oklch(55% 0.0289 308.80)",
+          "oklch(65% 0.0289 308.80)",
+          "oklch(80% 0.0289 308.80)",
+          "oklch(95% 0.0289 308.80)"
+        ]
+      },
+      "dark-outline": {
+        "role": "neutral",
+        "displayName": "Dark Outline",
+        "canonical": "#514451",
+        "tonalRamp": [
+          "oklch(15% 0.0273 326.07)",
+          "oklch(25% 0.0273 326.07)",
+          "oklch(35% 0.0273 326.07)",
+          "oklch(45% 0.0273 326.07)",
+          "oklch(55% 0.0273 326.07)",
+          "oklch(65% 0.0273 326.07)",
+          "oklch(80% 0.0273 326.07)",
+          "oklch(95% 0.0273 326.07)"
+        ]
+      },
+      "dark-text-primary": {
+        "role": "neutral",
+        "displayName": "Dark Text Primary",
+        "canonical": "#F8F2F5",
+        "tonalRamp": [
+          "oklch(15% 0.0075 345.35)",
+          "oklch(25% 0.0075 345.35)",
+          "oklch(35% 0.0075 345.35)",
+          "oklch(45% 0.0075 345.35)",
+          "oklch(55% 0.0075 345.35)",
+          "oklch(65% 0.0075 345.35)",
+          "oklch(80% 0.0075 345.35)",
+          "oklch(95% 0.0075 345.35)"
+        ]
+      },
+      "dark-text-secondary": {
+        "role": "neutral",
+        "displayName": "Dark Text Secondary",
+        "canonical": "#D4C7D1",
+        "tonalRamp": [
+          "oklch(15% 0.0198 333.52)",
+          "oklch(25% 0.0198 333.52)",
+          "oklch(35% 0.0198 333.52)",
+          "oklch(45% 0.0198 333.52)",
+          "oklch(55% 0.0198 333.52)",
+          "oklch(65% 0.0198 333.52)",
+          "oklch(80% 0.0198 333.52)",
+          "oklch(95% 0.0198 333.52)"
+        ]
+      },
+      "dark-text-muted": {
+        "role": "neutral",
+        "displayName": "Dark Text Muted",
+        "canonical": "#BDAEBA",
+        "tonalRamp": [
+          "oklch(15% 0.0238 332.46)",
+          "oklch(25% 0.0238 332.46)",
+          "oklch(35% 0.0238 332.46)",
+          "oklch(45% 0.0238 332.46)",
+          "oklch(55% 0.0238 332.46)",
+          "oklch(65% 0.0238 332.46)",
+          "oklch(80% 0.0238 332.46)",
+          "oklch(95% 0.0238 332.46)"
+        ]
+      },
+      "dark-safe": {
+        "role": "semantic",
+        "displayName": "Dark Safe",
+        "canonical": "#8ED0B3",
+        "tonalRamp": [
+          "oklch(15% 0.0789 165.27)",
+          "oklch(25% 0.0789 165.27)",
+          "oklch(35% 0.0789 165.27)",
+          "oklch(45% 0.0789 165.27)",
+          "oklch(55% 0.0789 165.27)",
+          "oklch(65% 0.0789 165.27)",
+          "oklch(80% 0.0789 165.27)",
+          "oklch(95% 0.0789 165.27)"
+        ]
+      },
+      "dark-warning": {
+        "role": "semantic",
+        "displayName": "Dark Warning",
+        "canonical": "#E6B963",
+        "tonalRamp": [
+          "oklch(15% 0.1166 82.02)",
+          "oklch(25% 0.1166 82.02)",
+          "oklch(35% 0.1166 82.02)",
+          "oklch(45% 0.1166 82.02)",
+          "oklch(55% 0.1166 82.02)",
+          "oklch(65% 0.1166 82.02)",
+          "oklch(80% 0.1166 82.02)",
+          "oklch(95% 0.1166 82.02)"
+        ]
+      },
+      "dark-info": {
+        "role": "semantic",
+        "displayName": "Dark Info",
+        "canonical": "#89C6DB",
+        "tonalRamp": [
+          "oklch(15% 0.0691 221.46)",
+          "oklch(25% 0.0691 221.46)",
+          "oklch(35% 0.0691 221.46)",
+          "oklch(45% 0.0691 221.46)",
+          "oklch(55% 0.0691 221.46)",
+          "oklch(65% 0.0691 221.46)",
+          "oklch(80% 0.0691 221.46)",
+          "oklch(95% 0.0691 221.46)"
         ]
       }
     },
@@ -267,7 +492,7 @@
       },
       "headline": {
         "displayName": "Page headline",
-        "purpose": "28dp ordinarily;20dp role on narrow large-text layouts."
+        "purpose": "26dp ordinarily; 20dp role on narrow layouts with large text."
       },
       "body": {
         "displayName": "Body",
@@ -276,16 +501,21 @@
     },
     "shadows": [
       {
+        "name": "glass-depth",
+        "value": "0 8px 24px -4px rgba(41,35,42,0.10)",
+        "purpose": "Catalog approximation of the light outside-only cast shadow. Runtime clips out the pane interior and paints a 4dp-deflated shape at (0,8) with blur sigma 12; dark ink opacity is 12%."
+      },
+      {
         "name": "sos-depth",
-        "value": "0 12px 32px #BE123C59, 0 8px 12px #BE123C99",
-        "purpose": "SOS orb only; ordinary groups use tonal depth."
+        "value": "0 10px 24px rgba(190,18,60,0.16)",
+        "purpose": "Solid SOS circle; ordinary content uses tonal separation."
       }
     ],
     "motion": [
       {
         "name": "press",
         "value": "140ms; scale 0.985",
-        "purpose": "Glass press feedback."
+        "purpose": "Pressable surface feedback and local touch-light response; static when reduced motion is requested."
       },
       {
         "name": "navigation",
@@ -320,8 +550,7 @@
     ],
     "native": {
       "source": "app/lib/core/theme/tokens.dart",
-      "units": "logical dp;sp for scaled text",
-      "blurSigma": 16,
+      "units": "Flutter logical dp; text follows system scaling up to the app cap",
       "dockClearanceDp": 128,
       "minimumTapDp": 48,
       "maximumTextScale": 2,
@@ -330,9 +559,10 @@
         "accessibleNavigation"
       ],
       "reducedMotion": "MediaQuery.disableAnimations",
-      "sheetTiming": "Flutter platform defaults"
+      "sheetTiming": "Flutter platform defaults",
+      "blurSigma": 7
     },
-    "referenceNotes": "Generated tonal ramps are catalog references, not extra runtime palette tokens. CSS snippets are documentation equivalents of native Flutter components; Flutter source and DESIGN.md primitives are normative."
+    "referenceNotes": "Tonal ramps are catalog references, not extra runtime tokens. CSS snippets are light-mode Flutter catalog approximations, not shader reproductions. Runtime source and DESIGN.md primitives are normative. Text-rich optical overlays use an 88% veil; explicit clear controls use 57% light / 76% dark, contrast gradients and a specular rim. The dock protectText veil grades from clear rim opacity to 94% centrally at stops 0/0.22/0.8/1; home clear controls retain the uniform veil. Dark touch light peaks at 6% white, light at 38%. Bounded shader refraction uses 25 Gaussian samples at approximately 3dp sigma and up to 2.5dp rim displacement, with sigma-7 blur fallback. Host Impeller tests exercised the active shader filter; Android rendering and physical GPU profiling remain separate."
   },
   "components": [
     {
@@ -341,7 +571,7 @@
       "refersTo": "button-primary",
       "description": "Catalog equivalent of Flutter FilledButton; runtime Flutter is normative.",
       "html": "<button class=\"ds-primary\">Start walk</button>",
-      "css": ".ds-primary { min-height:56px; padding:0 24px; border:0; border-radius:16px; background:#B6AAFF; color:#080B15; font:700 15px/1.2 Inter,sans-serif; cursor:pointer; } .ds-primary:hover { filter:brightness(1.05); } .ds-primary:active { transform:scale(.985); } .ds-primary:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; }"
+      "css": ".ds-primary { min-height:56px; padding:0 24px; border:0; border-radius:16px; background:#6C3B5D; color:#fff; font:700 15px/1.2 Inter,sans-serif; cursor:pointer; } .ds-primary:hover { background:#7F4A70; } .ds-primary:active { filter:brightness(.95); } .ds-primary:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; } .ds-primary:disabled { opacity:.45; cursor:default; }"
     },
     {
       "name": "Outlined button",
@@ -349,7 +579,7 @@
       "refersTo": "button-outlined",
       "description": "Secondary task control.",
       "html": "<button class=\"ds-outlined\">Close</button>",
-      "css": ".ds-outlined { min-height:56px; padding:0 24px; border:1px solid #E7E0FF26; border-radius:16px; background:transparent; color:#F7F6FF; font:700 15px/1.2 Inter,sans-serif; cursor:pointer; } .ds-outlined:hover { background:#20263D; } .ds-outlined:active { transform:scale(.985); } .ds-outlined:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; }"
+      "css": ".ds-outlined { min-height:56px; padding:0 24px; border:1px solid #E1D7D4; border-radius:16px; background:transparent; color:#29232A; font:700 15px/1.2 Inter,sans-serif; cursor:pointer; } .ds-outlined:hover { background:#F0EAE4; } .ds-outlined:active { background:#EFE1E8; } .ds-outlined:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; } .ds-outlined:disabled { opacity:.45; cursor:default; }"
     },
     {
       "name": "Input",
@@ -357,49 +587,49 @@
       "refersTo": "input",
       "description": "Raised field with explicit label and focus border.",
       "html": "<label class=\"ds-field\">Your name<input class=\"ds-input\" placeholder=\"Enter your name\"></label>",
-      "css": ".ds-field { display:grid; gap:8px; color:#D0CDE3; font:400 14px/1.5 Inter,sans-serif; } .ds-input { min-height:48px; padding:18px 16px; color:#F7F6FF; background:#20263DB3; border:1px solid #363B55; border-radius:16px; font:400 16px/1.5 Inter,sans-serif; caret-color:#B6AAFF; } .ds-input::placeholder { color:#AAA7C0; } .ds-input:hover { border-color:#AAA7C0; } .ds-input:focus-visible { outline:none; border:1.5px solid #B6AAFF; }"
+      "css": ".ds-field { display:grid; gap:8px; color:#615760; font:400 14px/1.5 Inter,sans-serif; } .ds-input { min-height:48px; padding:18px 16px; color:#29232A; background:#F0EAE4; border:1px solid #94818C; border-radius:16px; font:400 16px/1.5 Inter,sans-serif; caret-color:#6C3B5D; } .ds-input::placeholder { color:#756A73; } .ds-input:hover { border-color:#615760; } .ds-input:focus-visible { outline:none; border:1.5px solid #6C3B5D; } .ds-input:disabled { opacity:.45; }"
     },
     {
       "name": "Selected choice chip",
       "kind": "chip",
       "refersTo": "chip-selected",
-      "description": "Selected duration/caller; dark text on lilac.",
+      "description": "Selected duration/caller; white text on plum in light mode.",
       "html": "<button class=\"ds-chip\" aria-pressed=\"true\">15 min</button>",
-      "css": ".ds-chip { min-height:48px; padding:8px 12px; background:#B6AAFF; color:#080B15; border:1px solid #363B55; border-radius:999px; font:600 13px/1.2 Inter,sans-serif; cursor:pointer; } .ds-chip:hover { filter:brightness(1.05); } .ds-chip:active { transform:scale(.985); } .ds-chip:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; }"
+      "css": ".ds-chip { min-height:48px; padding:8px 12px; background:#6C3B5D; color:#fff; border:1px solid #E1D7D4; border-radius:999px; font:600 13px/1.2 Inter,sans-serif; cursor:pointer; } .ds-chip:hover { background:#7F4A70; } .ds-chip:active { filter:brightness(.95); } .ds-chip:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; }"
     },
     {
-      "name": "Glass surface",
+      "name": "Content surface",
       "kind": "card",
       "refersTo": "glass-surface",
-      "description": "Default content material without a backdrop filter.",
+      "description": "Solid default content material. Optical refraction is reserved for floating controls.",
       "html": "<button class=\"ds-glass\">Walk with me</button>",
-      "css": ".ds-glass { min-height:80px; padding:16px; border:1px solid #E7E0FF26; border-radius:24px; color:#F7F6FF; background:linear-gradient(135deg,#151A2BE6,#151A2BB3); font:700 16px/1.5 Inter,sans-serif; text-align:left; cursor:pointer; transition:transform 140ms ease-out; } .ds-glass:hover { border-color:#B6AAFF8C; } .ds-glass:active { transform:scale(.985); } .ds-glass:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; } @media (prefers-reduced-motion:reduce) { .ds-glass { transition:none; } .ds-glass:active { transform:none; } }"
+      "css": ".ds-glass { min-height:80px; padding:16px; border:1px solid #E1D7D4; border-radius:20px; color:#29232A; background:#FFFDFA; font:700 16px/1.5 Inter,sans-serif; text-align:left; cursor:pointer; transition:transform 140ms ease-out; } .ds-glass:hover { border-color:#6C3B5D; } .ds-glass:active { transform:scale(.985); } .ds-glass:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; } @media (prefers-reduced-motion:reduce) { .ds-glass { transition:none; } .ds-glass:active { transform:none; } }"
     },
     {
       "name": "Floating dock",
       "kind": "nav",
       "refersTo": "navigation-dock",
-      "description": "Static catalog selection; Flutter implements the 240ms gliding lens.",
+      "description": "Light catalog approximation of the graded text-protection veil. Flutter adds bounded refraction, local touch light and the 240ms selection glide; this CSS does not reproduce its shader.",
       "html": "<nav class=\"ds-dock\" aria-label=\"Shakti\"><button aria-current=\"page\">Shield</button><button>Map</button><button>Escort</button><button>Guardian</button><button>Settings</button></nav>",
-      "css": ".ds-dock { display:flex; padding:6px; border:1px solid #E7E0FF26; border-radius:32px; background:#20263DC2; backdrop-filter:blur(16px); } .ds-dock button { flex:1; min-width:48px; min-height:64px; padding:4px; border:0; border-radius:26px; background:transparent; color:#AAA7C0; font:500 11px/1.2 Inter,sans-serif; cursor:pointer; } .ds-dock button[aria-current] { background:linear-gradient(135deg,#B6AAFF42,#B6AAFF1A); color:#F7F6FF; font-weight:700; } .ds-dock button:hover { color:#F7F6FF; } .ds-dock button:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; }"
+      "css": ".ds-dock { display:flex; padding:6px; border:1.25px solid rgba(255,255,255,.78); border-radius:24px; background:linear-gradient(135deg,rgba(255,255,255,.32),rgba(255,255,255,.01) 55%,rgba(255,255,255,.10)),linear-gradient(to bottom,rgba(255,253,250,.57),rgba(255,253,250,.94) 22%,rgba(255,253,250,.94) 80%,rgba(255,253,250,.57)); backdrop-filter:blur(7px); box-shadow:0 8px 24px -4px rgba(41,35,42,.10); } .ds-dock button { flex:1; min-width:48px; min-height:64px; padding:4px; border:0; border-radius:18px; background:transparent; color:#29232A; font:500 11px/1.2 Inter,sans-serif; cursor:pointer; } .ds-dock button[aria-current] { background:rgba(239,225,232,.78); color:#6C3B5D; font-weight:700; } .ds-dock button:hover { background:rgba(239,225,232,.5); } .ds-dock button:active { background:#EFE1E8; } .ds-dock button:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; } @media (prefers-contrast:more) { .ds-dock { background:#FFFDFA; backdrop-filter:none; border-color:#94818C; } }"
     },
     {
-      "name": "SOS lens",
+      "name": "SOS control",
       "kind": "custom",
       "refersTo": "sos",
-      "description": "Visual catalog sample; this button sends no alert.",
+      "description": "Solid rose visual sample; this catalog button sends no alert.",
       "html": "<button class=\"ds-sos\" aria-label=\"SOS visual example\">SOS</button>",
-      "css": ".ds-sos { width:220px; height:220px; border:1.5px solid #F7F6FF2E; border-radius:50%; background:radial-gradient(circle at 35% 30%,#FB7185,#E11D48 55%,#BE123C); color:#F7F6FF; font:700 55px/1 Manrope,sans-serif; box-shadow:0 12px 32px #BE123C59,0 8px 12px #BE123C99; cursor:pointer; transition:transform 150ms ease-out; } .ds-sos:hover { filter:brightness(1.03); } .ds-sos:active { transform:scale(.94); } .ds-sos:focus-visible { outline: 3px solid #B6AAFF; outline-offset: 3px; } @media (prefers-reduced-motion:reduce) { .ds-sos { transition:none; } .ds-sos:active { transform:none; } }"
+      "css": ".ds-sos { width:220px; height:220px; border:0; border-radius:50%; background:linear-gradient(135deg,#E11D48,#BE123C); color:#fff; font:700 55px/1 Manrope,sans-serif; letter-spacing:4.4px; box-shadow:0 10px 24px rgba(190,18,60,.16); cursor:pointer; transition:transform 150ms ease-out; } .ds-sos:hover { filter:brightness(1.03); } .ds-sos:active { transform:scale(.94); } .ds-sos:focus-visible { outline:3px solid #6C3B5D; outline-offset:3px; } @media (prefers-reduced-motion:reduce) { .ds-sos { transition:none; } .ds-sos:active { transform:none; } }"
     }
   ],
   "narrative": {
-    "northStar": "Dark liquid glass with lilac highlights",
-    "overview": "The owner selectedthis direction on 22 October 2026. Quiet graphite content\nsurfaces sit beneath reflective floating controls. Lilac carries ordinary actions;\nthe Shakti shield and indigo identity connect the app to its existing brand.\nEmergency rose gives SOS a clear, separate priority.\n\nThis is an Android task interface built in Flutter. The design supports night use,\nstress and large text through clear hierarchy, readable labels and restrained\nmotion. Scope is `app/`; `web/DESIGN.md` governs the website. Runtime source is\nnormative, while this file and `.impeccable/design.json` record its reusable rules.\nFrontmatter pixel values correspond to Flutter logical dp; OS text scaling applies.",
+    "northStar": "Warm ivory, deep plum, clear glass",
+    "overview": "On 23 October 2026 the owner replaced the earlier dark-first direction with warm\nivory and deep plum, then requested the clear Liquid Glass appearance seen in\ncurrent iOS references. The Android app retains this light layout and uses optical\nglass for floating controls. Plum carries ordinary actions; rose keeps SOS distinct.\nThe shield-and-flame mark and bundled typography retain the Shakti identity.\n\nThis is a Flutter Android task interface. Material 3 controls, system navigation,\nsafe areas and readable instructions govern its behavior. Apple materials inform\nits optical treatment; the Flutter rendering is a project implementation with a\nblur fallback. It does not establish Apple rendering parity or handset performance.\nRuntime source is normative. This file and `.impeccable/design.json` describe\n`app/`; `web/DESIGN.md` governs the website. Frontmatter pixel values represent\nFlutter logical dp, with system text scaling applied separately.",
     "keyCharacteristics": [
-      "Dark graphite with a static lilac ambient field.",
-      "Bounded translucent chrome and reflective grouped content.",
-      "Bundled Manrope headings and Inter controls/body text.",
-      "A gliding five-destination dock and immediate emergency activation."
+      "Warm ivory light mode by default, with persisted Light, Dark and System choices.",
+      "Clear floating navigation and map controls above solid, quiet content surfaces.",
+      "Bundled Manrope headings and Inter body text, with restrained hierarchy.",
+      "Immediate safety actions, readable state labels and reduced-motion alternatives."
     ],
     "rules": [
       {
@@ -409,23 +639,23 @@
       },
       {
         "name": "The Bounded Material Rule",
-        "body": "Keep backdrop filters clipped to the controls that need separation from moving content; content rows use the reflective material without a filter by default.",
+        "body": "Keep refraction and blur clipped to floating controls; ordinary content groups stay solid, and accessibility fallbacks stay opaque.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do use bundled fonts, shared tokens and the existing shield mark.",
+      "Do resolve feature colors through semantic roles in both appearances.",
       "Do preserve 48 dp targets, semantic actions and the visible SOS cancellation control.",
-      "Do keep ordinary content legible when glass becomes opaque.",
-      "Do test narrow screens, 200% text and real populated data.",
-      "Do distinguish Flutter-rendered checks from native-device performance evidence."
+      "Do keep content ink opaque and accessibility glass fallbacks solid.",
+      "Do verify narrow screens, 200% text, dark appearance and real populated data.",
+      "Do distinguish software fallback renders, host Impeller renders and Android device verification."
     ],
     "donts": [
       "Don't delay emergency actions for animation, network access or optional preferences.",
-      "Don't add backdrop blur to every content row.",
-      "Don't invent contacts, readiness, delivery confirmations or map results.",
+      "Don't extend backdrop refraction or blur to ordinary content rows or the whole page.",
+      "Don't invent contacts, readiness, delivery confirmations or live service results.",
       "Don't reintroduce the removed volume/accessibility trigger.",
-      "Don't treat static screenshots as proof of handset smoothness or Play Protect approval."
+      "Don't treat static screenshots as proof of smoothness, Apple parity or Play Protect approval."
     ]
   }
 }

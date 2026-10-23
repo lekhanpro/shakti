@@ -126,18 +126,21 @@ Sync: the `sync_queue` rows (op, table, payload, attempts) drain on connectivity
 
 ## 9. UI/UX design system
 
-Updated 22 October 2026 for the owner's approved dark liquid-glass redesign.
-Root `DESIGN.md` and `.impeccable/design.json` record the current Android system;
-the website retains its separate design record.
+Updated 23 October 2026 for the owner's warm ivory/deep plum light layout and
+subsequent clear Liquid Glass request. This replaces the earlier dark-first UI
+direction. Root `DESIGN.md` and `.impeccable/design.json` record the current Android
+system; the website retains its separate design record.
 
-- Tone: calm, confident, and dark-first. It will be used at night and under stress.
-- Palette tokens: Rose `#E11D48` for SOS, indigo `#4F46E5` identity and lilac `#B6AAFF` primary controls. Emerald `#10B981` for safe states and amber `#F59E0B` for caution/countdown. Graphite ground `#080B15`, reflective surfaces `#151A2B`/`#20263D`, and legible bright text.
-- Type: Manrope headings and Inter body/controls, bundled offline with OFL licenses (no runtime font fetch).
-- Scale: a 4-pt grid, 24 dp grouped surfaces, 24 dp page inset, and a minimum tap target of 48 dp (the SOS button is 220 dp).
-- Motion: 140 ms press feedback, 240 ms navigation, 300 ms state changes with ease-out. The SOS breathes over 1.6 s. Everything respects `MediaQuery.disableAnimations`; high-contrast/accessibility settings use opaque glass fallbacks.
-- Accessibility: Semantics on every control, text scaling up to 200% without clipping, no information conveyed by colour alone (always an icon or label too), and haptics that mirror visual state.
-- Stress-mode UX: during the countdown and an active incident, the screen strips down to one primary action and large type, and shows a live channel checklist.
-- Stealth theme: the decoy UI uses a neutral grey "Notes" look.
+- Tone and appearance: calm, readable and light by default. Settings persists Light, Dark or System; existing installations without this preference start in Light. Dark mode uses warm charcoal and pale plum.
+- Palette: light ground `#F8F5EF`, warm white `#FFFDFA`, pale stone `#F0EAE4`, deep plum `#6C3B5D` and opaque ink `#29232A`. Rose `#E11D48` remains the solid SOS fill. Safe, caution and information colors resolve by appearance through Material roles and `context.shakti`.
+- Type: bundled Manrope headings and Inter body/controls, with offline OFL licenses. The current headline scale is 26/23/20 dp; body is 16/14/12 dp. Narrow layouts use smaller heading roles at large text sizes.
+- Structure: Material 3 controls, a 4-pt spacing grid, 20 dp grouped content, 24 dp page inset and minimum 48 dp targets. Five navigation branches retain state; the phone dock becomes a rail at 760 dp and yields to the keyboard.
+- Material: ordinary content groups are solid. Floating controls may opt into clipped refraction/blur. Text-rich glass overlays use an 88% surface veil; explicit clear controls use 57% in light mode and 76% in dark mode, with additional contrast gradients and a specular rim. The dock grades its rim veil to a 94% central text-protection band at stops 0/0.22/0.8/1. The Impeller shader uses a bounded 25-tap Gaussian and rim refraction, with a sigma-7 blur fallback and an outside-only cast shadow. Host GPU tests have exercised the shader; Android device rendering and physical frame profiling remain separate checks.
+- Motion: 140 ms press/touch-light feedback, 240 ms navigation, 300 ms shared state changes and a local 1.6 s SOS breathing cycle. There is no full-screen optical animation. Reduced motion removes scale, spatial transitions and lensing; high contrast or accessible navigation uses opaque material.
+- Accessibility: semantic actions and visible selected states, system text scaling up to the app's 200% cap, readable labels, and status conveyed by text/icons as well as color. Decorative initials may fit their fixed avatar shapes without changing body-text scaling.
+- Emergency UX: starting SOS immediately enters its existing cancellable countdown. Optical effects and transitions never delay alert callbacks. Countdown and active incident screens keep their primary action and dispatch status clear.
+- Stealth: the decoy uses a neutral Notes interface. Fake-call ringing starts before optional preference saving and retains a believable dialer.
+- Verification: `docs/ui/light-glass-verification-2026-10-23.md` distinguishes automated tests, software fallback renders, host Impeller renders, live HTTP checks and pending device/hosted-service checks. Static renders do not certify smoothness, delivery or Apple parity.
 
 ## 10. Web (guardian tracker + landing)
 
