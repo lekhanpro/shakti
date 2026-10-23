@@ -118,9 +118,9 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
                             color: context.shakti.surface,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close_rounded,
-                            color: ShaktiColors.sosDeep,
+                            color: context.shakti.sosGlow,
                             size: 30,
                           ),
                         ),

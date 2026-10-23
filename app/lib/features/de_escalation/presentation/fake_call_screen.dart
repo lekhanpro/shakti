@@ -408,12 +408,20 @@ class _Avatar extends StatelessWidget {
           color: context.shakti.surfaceHigh,
           shape: BoxShape.circle,
         ),
-        child: Text(
-          initial,
-          style: TextStyle(
-            fontSize: size * 0.42,
-            color: context.shakti.textHi,
-            fontWeight: FontWeight.w400,
+        child: Padding(
+          padding: EdgeInsets.all(size * 0.16),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              initial,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: size * 0.42,
+                height: 1,
+                color: context.shakti.textHi,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ),
         ),
       ),

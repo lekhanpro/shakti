@@ -139,9 +139,9 @@ class _ContactTile extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.delete_outline_rounded, color: context.shakti.sos),
+            Icon(Icons.delete_outline_rounded, color: context.shakti.sosGlow),
             const SizedBox(width: 6),
-            Text('Remove', style: TextStyle(color: context.shakti.sos)),
+            Text('Remove', style: TextStyle(color: context.shakti.sosGlow)),
           ],
         ),
       ),

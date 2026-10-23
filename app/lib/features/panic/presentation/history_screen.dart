@@ -96,7 +96,7 @@ class _IncidentRecord extends StatelessWidget {
       ),
       IncidentStatus.active => (
         'Active',
-        context.shakti.sos,
+        context.shakti.sosGlow,
         Icons.emergency_share_outlined,
       ),
       IncidentStatus.resolved => (

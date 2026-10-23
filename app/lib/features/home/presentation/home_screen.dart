@@ -312,6 +312,8 @@ class _QuickActions extends ConsumerWidget {
       onTap: onTap,
       excludeSemantics: true,
       child: GlassSurface(
+        blur: true,
+        clear: true,
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,7 +322,10 @@ class _QuickActions extends ConsumerWidget {
             const SizedBox(height: ShaktiSpace.sm),
             Text(label, style: t.titleSmall),
             const SizedBox(height: ShaktiSpace.xxs),
-            Text(hint, style: t.bodySmall),
+            Text(
+              hint,
+              style: t.bodySmall?.copyWith(color: context.shakti.textHi),
+            ),
           ],
         ),
       ),

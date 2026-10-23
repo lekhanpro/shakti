@@ -213,7 +213,7 @@ class _EmergencyButton extends StatelessWidget {
         key: const ValueKey('lock-emergency'),
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: context.shakti.sos,
+          foregroundColor: context.shakti.sosGlow,
           backgroundColor: context.shakti.surface,
           side: BorderSide(
             color: context.shakti.sos.withValues(alpha: 0.7),

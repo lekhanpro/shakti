@@ -170,7 +170,7 @@ class _Orb extends StatelessWidget {
               Text(
                 'Tap for help',
                 style: t.labelMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: Colors.white,
                 ),
               ),
             ],

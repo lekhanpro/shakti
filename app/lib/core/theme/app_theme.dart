@@ -192,6 +192,9 @@ abstract final class AppTheme {
         style: IconButton.styleFrom(minimumSize: minSize),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        errorStyle: TextStyle(
+          color: dark ? ShaktiColors.sosGlow : ShaktiColors.sosDeep,
+        ),
         filled: true,
         fillColor: surfaceHigh.withValues(
           alpha: brightness == Brightness.dark ? 0.7 : 1,
@@ -240,7 +243,7 @@ abstract final class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? Colors.white : lo,
+          (s) => s.contains(WidgetState.selected) ? scheme.onPrimary : lo,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) =>

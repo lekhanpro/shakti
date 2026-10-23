@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 ///
 /// Palette intent:
 ///  * [sos] (rose) is reserved for emergency affordances only.
-///  * [action] (indigo) for primary non-emergency actions.
+///  * [action] (plum) for primary non-emergency actions.
 ///  * [safe] (emerald) for protected / resolved states.
 ///  * [warn] (amber) for the countdown and caution.
 abstract final class ShaktiColors {
@@ -23,7 +23,7 @@ abstract final class ShaktiColors {
   static const warn = Color(0xFFF59E0B);
   static const info = Color(0xFF38BDF8);
 
-  // Dark surfaces (default theme; used at night and under stress)
+  // Optional dark surfaces for night use; the default appearance is light.
   static const bg = Color(0xFF17131C);
   static const ambient = Color(0xFF211A26);
   static const surface = Color(0xFF231E29);

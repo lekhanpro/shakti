@@ -30,6 +30,7 @@ class AppShell extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(ShaktiSpace.md),
                   child: GlassSurface(
+                    blur: true,
                     padding: EdgeInsets.zero,
                     child: NavigationRail(
                       backgroundColor: Colors.transparent,
@@ -89,6 +90,8 @@ class ShaktiDock extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GlassSurface(
     blur: true,
+    clear: true,
+    protectText: true,
     radius: 24,
     padding: const EdgeInsets.all(6),
     color: context.shakti.surface,
@@ -116,7 +119,12 @@ class ShaktiDock extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      color: context.shakti.accentContainer,
+                      color: context.shakti.accentContainer.withValues(
+                        alpha: 0.78,
+                      ),
+                      border: Border.all(
+                        color: context.shakti.accent.withValues(alpha: 0.12),
+                      ),
                     ),
                   ),
                 ),
@@ -157,7 +165,7 @@ class ShaktiDock extends StatelessWidget {
                                       size: 24,
                                       color: selectedIndex == i
                                           ? context.shakti.accent
-                                          : context.shakti.textLo,
+                                          : context.shakti.textHi,
                                     ),
                                   ),
                                   if (labels) ...[
@@ -175,7 +183,7 @@ class ShaktiDock extends StatelessWidget {
                                                 : FontWeight.w500,
                                             color: selectedIndex == i
                                                 ? context.shakti.accent
-                                                : context.shakti.textLo,
+                                                : context.shakti.textHi,
                                           ),
                                     ),
                                   ],
