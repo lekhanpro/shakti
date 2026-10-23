@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/tokens.dart';
+import 'core/widgets/glass_surface.dart';
 import 'features/home/application/startup.dart';
 
 class ShaktiApp extends ConsumerWidget {
@@ -23,13 +24,21 @@ class ShaktiApp extends ConsumerWidget {
       themeMode: ThemeMode.dark,
       routerConfig: ref.watch(appRouterProvider),
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      supportedLocales: const [Locale('en', 'IN'), Locale('hi', 'IN'), Locale('kn', 'IN')],
+      supportedLocales: const [
+        Locale('en', 'IN'),
+        Locale('hi', 'IN'),
+        Locale('kn', 'IN'),
+      ],
       builder: (context, child) {
         // Cap text scaling at 2x so layouts stay usable without clipping.
         final mq = MediaQuery.of(context);
         return MediaQuery(
-          data: mq.copyWith(textScaler: mq.textScaler.clamp(maxScaleFactor: 2.0)),
-          child: startup.isLoading ? const _Splash() : child!,
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(maxScaleFactor: 2.0),
+          ),
+          child: ShaktiBackdrop(
+            child: startup.isLoading ? const _Splash() : child!,
+          ),
         );
       },
     );
@@ -41,15 +50,18 @@ class _Splash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: ShaktiColors.bg,
-        child: Center(
-          child: Semantics(
-            label: 'Shakti is starting',
-            child: const SizedBox.square(
-              dimension: 28,
-              child: CircularProgressIndicator(strokeWidth: 2.5, color: ShaktiColors.sosGlow),
-            ),
+    color: ShaktiColors.bg,
+    child: Center(
+      child: Semantics(
+        label: 'Shakti is starting',
+        child: const SizedBox.square(
+          dimension: 28,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: ShaktiColors.sosGlow,
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

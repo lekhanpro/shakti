@@ -66,7 +66,15 @@ flutter:
   generate: true
   assets:
     - assets/audio/
+    - assets/fonts/OFL-Manrope.txt
+    - assets/fonts/OFL-Inter.txt
   fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Variable.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-SemiBold.ttf

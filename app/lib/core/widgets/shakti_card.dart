@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'glass_surface.dart';
 
 /// Base surface for grouped content. Tappable when [onTap] is set, in which
 /// case [semanticLabel] should describe the action.
@@ -24,21 +25,14 @@ class ShaktiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final radius = BorderRadius.circular(ShaktiRadius.card);
-    final card = Material(
-      color: color ?? scheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: BorderSide(color: borderColor ?? scheme.outline.withValues(alpha: 0.7)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(padding: padding, child: child),
-      ),
+    return GlassSurface(
+      color: color,
+      borderColor: borderColor,
+      radius: ShaktiRadius.card,
+      padding: padding,
+      onTap: onTap,
+      semanticLabel: semanticLabel,
+      child: child,
     );
-    if (onTap == null) return card;
-    return Semantics(button: true, label: semanticLabel, child: card);
   }
 }

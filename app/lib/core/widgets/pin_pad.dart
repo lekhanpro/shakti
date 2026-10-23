@@ -80,34 +80,45 @@ class PinPadState extends State<PinPad> {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final hasError = widget.errorText != null;
-    final canSubmit = _pin.length >= widget.minLength && widget.minLength != widget.maxLength;
+    final canSubmit =
+        _pin.length >= widget.minLength && widget.minLength != widget.maxLength;
 
-    Widget key(Widget child, {required String label, VoidCallback? onTap, Key? k}) => Padding(
-          padding: const EdgeInsets.all(ShaktiSpace.xs),
-          child: Semantics(
-            button: true,
-            label: label,
-            excludeSemantics: true,
-            onTap: widget.enabled ? onTap : null,
-            child: SizedBox.square(
-              dimension: 72,
-              child: Material(
-                key: k,
-                color: onTap == null ? Colors.transparent : ShaktiColors.surfaceHigh.withValues(alpha: 0.7),
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(onTap: widget.enabled ? onTap : null, child: Center(child: child)),
-              ),
+    Widget key(
+      Widget child, {
+      required String label,
+      VoidCallback? onTap,
+      Key? k,
+    }) => Padding(
+      padding: const EdgeInsets.all(ShaktiSpace.xs),
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        onTap: widget.enabled ? onTap : null,
+        child: SizedBox.square(
+          dimension: 72,
+          child: Material(
+            key: k,
+            color: onTap == null
+                ? Colors.transparent
+                : ShaktiColors.surfaceHigh.withValues(alpha: 0.7),
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: widget.enabled ? onTap : null,
+              child: Center(child: child),
             ),
           ),
-        );
+        ),
+      ),
+    );
 
     Widget digit(int d) => key(
-          Text('$d', style: t.headlineLarge?.copyWith(color: ShaktiColors.textHi)),
-          label: '$d',
-          onTap: () => _tap(d),
-          k: ValueKey('pin-$d'),
-        );
+      Text('$d', style: t.headlineLarge?.copyWith(color: ShaktiColors.textHi)),
+      label: '$d',
+      onTap: () => _tap(d),
+      k: ValueKey('pin-$d'),
+    );
 
     final rows = [
       [_digits[0], _digits[1], _digits[2]],
@@ -129,22 +140,33 @@ class PinPadState extends State<PinPad> {
               children: [
                 for (var i = 0; i < max(widget.minLength, _pin.length); i++)
                   AnimatedContainer(
-                    duration: ShaktiMotion.fast,
+                    duration: ShaktiMotion.reduced(context)
+                        ? Duration.zero
+                        : ShaktiMotion.fast,
                     margin: const EdgeInsets.symmetric(horizontal: 7),
                     width: 14,
                     height: 14,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: i < _pin.length ? (hasError ? ShaktiColors.sosGlow : ShaktiColors.textHi) : Colors.transparent,
-                      border: Border.all(color: hasError ? ShaktiColors.sosGlow : ShaktiColors.textLo, width: 1.5),
+                      color: i < _pin.length
+                          ? (hasError
+                                ? ShaktiColors.sosGlow
+                                : ShaktiColors.textHi)
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: hasError
+                            ? ShaktiColors.sosGlow
+                            : ShaktiColors.textLo,
+                        width: 1.5,
+                      ),
                     ),
                   ),
               ],
             ),
           ),
         ),
-        SizedBox(
-          height: 44,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
           child: Center(
             child: hasError
                 ? Semantics(
@@ -152,10 +174,19 @@ class PinPadState extends State<PinPad> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.error_outline_rounded, size: 18, color: ShaktiColors.sosGlow),
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          size: 18,
+                          color: ShaktiColors.sosGlow,
+                        ),
                         const SizedBox(width: 6),
                         Flexible(
-                          child: Text(widget.errorText!, style: t.bodyMedium?.copyWith(color: ShaktiColors.sosGlow)),
+                          child: Text(
+                            widget.errorText!,
+                            style: t.bodyMedium?.copyWith(
+                              color: ShaktiColors.sosGlow,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -163,12 +194,20 @@ class PinPadState extends State<PinPad> {
                 : null,
           ),
         ),
-        for (final r in rows) Row(mainAxisSize: MainAxisSize.min, children: [for (final d in r) digit(d)]),
+        for (final r in rows)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [for (final d in r) digit(d)],
+          ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             key(
-              Icon(Icons.check_rounded, size: 30, color: canSubmit ? ShaktiColors.safe : Colors.transparent),
+              Icon(
+                Icons.check_rounded,
+                size: 30,
+                color: canSubmit ? ShaktiColors.safe : Colors.transparent,
+              ),
               label: widget.submitLabel,
               onTap: canSubmit ? _submit : null,
               k: const ValueKey('pin-submit'),

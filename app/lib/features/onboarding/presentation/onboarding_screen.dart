@@ -11,6 +11,7 @@ import '../../../domain/entities/entities.dart';
 import '../../contacts/presentation/contact_form.dart';
 import '../../home/application/home_providers.dart';
 import '../../../core/widgets/shakti_mark.dart';
+import '../../../core/widgets/glass_surface.dart';
 import '../application/permission_gateway.dart';
 
 /// Four steps: welcome, permissions, you + a trusted contact, PIN.
@@ -48,7 +49,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (ShaktiMotion.reduced(context)) {
       _page.jumpToPage(i);
     } else {
-      _page.animateToPage(i, duration: ShaktiMotion.base, curve: ShaktiMotion.curve);
+      _page.animateToPage(
+        i,
+        duration: ShaktiMotion.navigation,
+        curve: ShaktiMotion.curve,
+      );
     }
     FocusScope.of(context).unfocus();
   }
@@ -77,87 +82,138 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       } else {
         await store.delete(PinKeys.decoy);
       }
-      await ref.read(contactRepositoryProvider).upsert(EmergencyContact(
-            id: const Uuid().v4(),
-            name: contact.name,
-            phone: contact.phone,
-            relationship: contact.relationship,
-            priority: 1,
-          ));
+      await ref
+          .read(contactRepositoryProvider)
+          .upsert(
+            EmergencyContact(
+              id: const Uuid().v4(),
+              name: contact.name,
+              phone: contact.phone,
+              relationship: contact.relationship,
+              priority: 1,
+            ),
+          );
       final repo = ref.read(settingsRepositoryProvider);
       final current = await repo.load();
-      await repo.save(current.copyWith(userName: _name.text.trim(), onboardingComplete: true));
+      await repo.save(
+        current.copyWith(userName: _name.text.trim(), onboardingComplete: true),
+      );
       if (!mounted) return;
       ref.read(appGateProvider.notifier).set(AppGate.unlocked);
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save your setup. Try again. ($e)')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save your setup. Try again. ($e)')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
     final last = _index == _steps.length - 1;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.md, ShaktiSpace.lg, 0),
-              child: _Progress(index: _index, steps: _steps),
-            ),
-            Expanded(
-              child: PageView(
-                controller: _page,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  const _WelcomeStep(),
-                  const _PermissionsStep(),
-                  _CircleStep(nameController: _name, nameKey: _nameKey, formKey: _contactForm, initial: _contact),
-                  _PinStep(
-                    onChanged: (pin, decoy) => setState(() {
-                      _pin = pin;
-                      _decoyPin = decoy;
-                    }),
-                  ),
-                ],
+      body: ShaktiBackdrop(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  ShaktiSpace.lg,
+                  ShaktiSpace.md,
+                  ShaktiSpace.lg,
+                  0,
+                ),
+                child: _Progress(index: _index, steps: _steps),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xs, ShaktiSpace.lg, ShaktiSpace.lg),
-              child: Row(
-                children: [
-                  if (_index > 0)
-                    TextButton.icon(
-                      key: const ValueKey('onb-back'),
-                      onPressed: _saving ? null : () => _go(_index - 1),
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      label: const Text('Back'),
+              Expanded(
+                child: PageView(
+                  controller: _page,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    const _WelcomeStep(),
+                    const _PermissionsStep(),
+                    _CircleStep(
+                      nameController: _name,
+                      nameKey: _nameKey,
+                      formKey: _contactForm,
+                      initial: _contact,
                     ),
-                  const Spacer(),
-                  // Flexible lets the label shrink at 200% text instead of overflowing.
-                  Flexible(
-                    child: FilledButton(
-                      key: const ValueKey('onb-next'),
-                      onPressed: _saving || (last && _pin == null) ? null : (last ? _finish : _next),
-                      child: _saving
-                          ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text(
-                              switch (_index) { 0 => 'Get started', 3 => 'Finish setup', _ => 'Next' },
-                              style: t.labelLarge,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                    _PinStep(
+                      onChanged: (pin, decoy) => setState(() {
+                        _pin = pin;
+                        _decoyPin = decoy;
+                      }),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  ShaktiSpace.lg,
+                  ShaktiSpace.xs,
+                  ShaktiSpace.lg,
+                  ShaktiSpace.lg,
+                ),
+                child: _OnboardingActions(
+                  back: _index > 0
+                      ? TextButton.icon(
+                          key: const ValueKey('onb-back'),
+                          onPressed: _saving ? null : () => _go(_index - 1),
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          label: const Text('Back'),
+                        )
+                      : null,
+                  next: FilledButton(
+                    key: const ValueKey('onb-next'),
+                    onPressed: _saving || (last && _pin == null)
+                        ? null
+                        : (last ? _finish : _next),
+                    child: _saving
+                        ? const SizedBox.square(
+                            dimension: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(switch (_index) {
+                            0 => 'Get started',
+                            3 => 'Finish setup',
+                            _ => 'Next',
+                          }),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _OnboardingActions extends StatelessWidget {
+  const _OnboardingActions({required this.next, this.back});
+  final Widget? back;
+  final Widget next;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.textScalerOf(context).scale(14) > 20) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (back != null)
+            Align(alignment: Alignment.centerLeft, child: back!),
+          next,
+        ],
+      );
+    }
+    return Row(
+      children: [
+        ?back,
+        const Spacer(),
+        Flexible(child: next),
+      ],
     );
   }
 }
@@ -174,21 +230,36 @@ class _Progress extends StatelessWidget {
       label: 'Step ${index + 1} of ${steps.length}, ${steps[index]}',
       liveRegion: true,
       excludeSemantics: true,
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < steps.length; i++) ...[
-            Expanded(
-              child: AnimatedContainer(
-                duration: ShaktiMotion.base,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: i <= index ? ShaktiColors.action : ShaktiColors.surfaceHigh,
-                  borderRadius: BorderRadius.circular(ShaktiRadius.pill),
+          Text(
+            '${index + 1} of ${steps.length} · ${steps[index]}',
+            style: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(color: ShaktiColors.lilac),
+          ),
+          const SizedBox(height: ShaktiSpace.sm),
+          Row(
+            children: [
+              for (var i = 0; i < steps.length; i++) ...[
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: ShaktiMotion.reduced(context)
+                        ? Duration.zero
+                        : ShaktiMotion.navigation,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: i <= index
+                          ? ShaktiColors.lilac
+                          : ShaktiColors.glassEdge,
+                      borderRadius: BorderRadius.circular(ShaktiRadius.pill),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            if (i < steps.length - 1) const SizedBox(width: 6),
-          ],
+                if (i < steps.length - 1) const SizedBox(width: 6),
+              ],
+            ],
+          ),
         ],
       ),
     );
@@ -196,7 +267,11 @@ class _Progress extends StatelessWidget {
 }
 
 class _StepScaffold extends StatelessWidget {
-  const _StepScaffold({required this.title, required this.children, this.subtitle});
+  const _StepScaffold({
+    required this.title,
+    required this.children,
+    this.subtitle,
+  });
 
   final String title;
   final String? subtitle;
@@ -206,12 +281,20 @@ class _StepScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xl, ShaktiSpace.lg, ShaktiSpace.lg),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        ShaktiSpace.xl,
+        ShaktiSpace.lg,
+        ShaktiSpace.lg,
+      ),
       children: [
         Semantics(header: true, child: Text(title, style: t.headlineLarge)),
         if (subtitle != null) ...[
           const SizedBox(height: ShaktiSpace.xs),
-          Text(subtitle!, style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid)),
+          Text(
+            subtitle!,
+            style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+          ),
         ],
         const SizedBox(height: ShaktiSpace.lg),
         ...children,
@@ -230,41 +313,127 @@ class _WelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    const lines = [
-      (Icons.touch_app_rounded, 'One tap, or three presses of the power button, sends an SOS.'),
-      (Icons.signal_cellular_alt_rounded, 'Your contacts get your location by SMS, even with no internet.'),
-      (Icons.lock_outline_rounded, 'Everything stays on your phone, behind your PIN.'),
+    const features = [
+      (
+        Icons.people_outline_rounded,
+        'Alert your circle',
+        'Send your location to the people you trust.',
+      ),
+      (
+        Icons.route_rounded,
+        'Walk with company',
+        'Set a check-in timer for your journey.',
+      ),
+      (
+        Icons.lock_outline_rounded,
+        'Choose what you share',
+        'Your PIN protects access. You control permissions.',
+      ),
     ];
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xxl, ShaktiSpace.lg, ShaktiSpace.lg),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        ShaktiSpace.xl,
+        ShaktiSpace.lg,
+        ShaktiSpace.lg,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ShaktiMark(size: 72),
-          const SizedBox(height: ShaktiSpace.xl),
-          Semantics(
-            header: true,
-            child: Text('Shakti', style: t.displayLarge),
+          const _WelcomeLens(),
+          const SizedBox(height: ShaktiSpace.lg),
+          Text(
+            'Shakti',
+            style: t.titleMedium?.copyWith(color: ShaktiColors.lilac),
           ),
           const SizedBox(height: ShaktiSpace.xs),
-          Text('Help that works when nothing else does.', style: t.titleLarge?.copyWith(color: ShaktiColors.textMid)),
-          const SizedBox(height: ShaktiSpace.xl),
-          for (final (icon, text) in lines)
-            Padding(
-              padding: const EdgeInsets.only(bottom: ShaktiSpace.md),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(icon, color: ShaktiColors.sosGlow, size: 24),
-                  const SizedBox(width: ShaktiSpace.md),
-                  Expanded(child: Text(text, style: t.bodyLarge)),
+          Semantics(
+            header: true,
+            child: Text('Your people.\nWithin reach.', style: t.displaySmall),
+          ),
+          const SizedBox(height: ShaktiSpace.sm),
+          Text(
+            'A personal safety network, built around you.',
+            style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+          ),
+          const SizedBox(height: ShaktiSpace.lg),
+          GlassSurface(
+            padding: const EdgeInsets.all(ShaktiSpace.md),
+            child: Column(
+              children: [
+                for (var i = 0; i < features.length; i++) ...[
+                  if (i > 0)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: ShaktiSpace.sm),
+                      child: Divider(height: 1),
+                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(features[i].$1, color: ShaktiColors.lilac, size: 24),
+                      const SizedBox(width: ShaktiSpace.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(features[i].$2, style: t.titleSmall),
+                            const SizedBox(height: ShaktiSpace.xxs),
+                            Text(
+                              features[i].$3,
+                              style: t.bodyMedium?.copyWith(
+                                color: ShaktiColors.textMid,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-              ),
+              ],
             ),
+          ),
+          const SizedBox(height: ShaktiSpace.md),
+          Text(
+            'SMS can work without internet. It still needs cellular service, permission and a suitable plan.',
+            style: t.bodySmall?.copyWith(color: ShaktiColors.textLo),
+          ),
         ],
       ),
     );
   }
+}
+
+/// A quiet, static lens: onboarding motion belongs to the page transition.
+class _WelcomeLens extends StatelessWidget {
+  const _WelcomeLens();
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: Center(
+      child: Container(
+        width: 168,
+        height: 168,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              ShaktiColors.brand.withValues(alpha: 0.26),
+              ShaktiColors.ambient.withValues(alpha: 0.14),
+            ],
+          ),
+          border: Border.all(color: ShaktiColors.lilac.withValues(alpha: 0.12)),
+        ),
+        child: GlassSurface(
+          radius: ShaktiRadius.pill,
+          padding: const EdgeInsets.all(28),
+          color: ShaktiColors.surfaceHigh,
+          child: const ShaktiMark(size: 72, color: ShaktiColors.lilac),
+        ),
+      ),
+    ),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -342,7 +511,9 @@ class _PermissionsStepState extends ConsumerState<_PermissionsStep> {
       (p) => _status[p] != PermissionOutcome.granted && !_skipped.contains(p),
       orElse: () => AppPermission.values.last,
     );
-    final missing = AppPermission.values.where((p) => _status[p] != PermissionOutcome.granted).toList();
+    final missing = AppPermission.values
+        .where((p) => _status[p] != PermissionOutcome.granted)
+        .toList();
 
     return _StepScaffold(
       title: 'A few permissions',
@@ -365,7 +536,11 @@ class _PermissionsStepState extends ConsumerState<_PermissionsStep> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.warning_amber_rounded, color: ShaktiColors.warn, size: 20),
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: ShaktiColors.warn,
+                size: 20,
+              ),
               const SizedBox(width: ShaktiSpace.xs),
               Expanded(
                 child: Text(
@@ -406,19 +581,37 @@ class _PermissionTile extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final (icon, name, why, cost) = info;
     final granted = status == PermissionOutcome.granted;
+    final largeText = MediaQuery.textScalerOf(context).scale(14) > 20;
     final (stIcon, stColor, stText) = granted
         ? (Icons.check_circle_rounded, ShaktiColors.safe, 'Allowed')
         : skipped
-            ? (Icons.remove_circle_outline_rounded, ShaktiColors.warn, 'Skipped')
-            : (Icons.radio_button_unchecked_rounded, ShaktiColors.textLo, 'Not yet');
+        ? (Icons.remove_circle_outline_rounded, ShaktiColors.warn, 'Skipped')
+        : (
+            Icons.radio_button_unchecked_rounded,
+            ShaktiColors.textLo,
+            'Not yet',
+          );
 
     return AnimatedContainer(
-      duration: ShaktiMotion.base,
+      duration: ShaktiMotion.reduced(context)
+          ? Duration.zero
+          : ShaktiMotion.navigation,
       padding: const EdgeInsets.all(ShaktiSpace.md),
       decoration: BoxDecoration(
-        color: expanded ? ShaktiColors.surfaceHigh : ShaktiColors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            expanded ? ShaktiColors.surfaceHigh : ShaktiColors.surface,
+            ShaktiColors.surface,
+          ],
+        ),
         borderRadius: BorderRadius.circular(ShaktiRadius.card),
-        border: Border.all(color: expanded ? ShaktiColors.action.withValues(alpha: 0.6) : ShaktiColors.outline.withValues(alpha: 0.7)),
+        border: Border.all(
+          color: expanded
+              ? ShaktiColors.lilac.withValues(alpha: 0.45)
+              : ShaktiColors.glassEdge,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,33 +619,68 @@ class _PermissionTile extends StatelessWidget {
           Semantics(
             label: '$name, $stText',
             excludeSemantics: true,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: ShaktiColors.textHi),
-                const SizedBox(width: ShaktiSpace.sm),
-                Expanded(child: Text(name, style: t.titleMedium)),
-                Icon(stIcon, color: stColor, size: 18),
-                const SizedBox(width: 4),
-                Text(stText, style: t.labelMedium?.copyWith(color: stColor)),
+                Row(
+                  children: [
+                    Icon(icon, color: ShaktiColors.textHi),
+                    const SizedBox(width: ShaktiSpace.sm),
+                    Expanded(child: Text(name, style: t.titleMedium)),
+                    if (!largeText) ...[
+                      Icon(stIcon, color: stColor, size: 18),
+                      const SizedBox(width: ShaktiSpace.xxs),
+                      Text(
+                        stText,
+                        style: t.labelMedium?.copyWith(color: stColor),
+                      ),
+                    ],
+                  ],
+                ),
+                if (largeText) ...[
+                  const SizedBox(height: ShaktiSpace.xs),
+                  Row(
+                    children: [
+                      Icon(stIcon, color: stColor, size: 18),
+                      const SizedBox(width: ShaktiSpace.xxs),
+                      Expanded(
+                        child: Text(
+                          stText,
+                          style: t.labelMedium?.copyWith(color: stColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
           if (expanded || (skipped && !granted)) ...[
             const SizedBox(height: ShaktiSpace.xs),
-            Text(skipped ? cost : why, style: t.bodyMedium?.copyWith(color: skipped ? ShaktiColors.warn : ShaktiColors.textMid)),
+            Text(
+              skipped ? cost : why,
+              style: t.bodyMedium?.copyWith(
+                color: skipped ? ShaktiColors.warn : ShaktiColors.textMid,
+              ),
+            ),
           ],
           if (expanded || (skipped && !granted)) ...[
             const SizedBox(height: ShaktiSpace.sm),
-            Row(
+            Wrap(
+              spacing: ShaktiSpace.xs,
+              runSpacing: ShaktiSpace.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 FilledButton(
                   onPressed: onGrant,
-                  child: Text(status == PermissionOutcome.permanentlyDenied ? 'Open settings' : 'Allow $name'),
+                  child: Text(
+                    status == PermissionOutcome.permanentlyDenied
+                        ? 'Open settings'
+                        : 'Allow $name',
+                  ),
                 ),
-                if (!skipped) ...[
-                  const SizedBox(width: ShaktiSpace.xs),
+                if (!skipped)
                   TextButton(onPressed: onSkip, child: const Text('Skip')),
-                ],
               ],
             ),
           ],
@@ -467,7 +695,12 @@ class _PermissionTile extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _CircleStep extends StatelessWidget {
-  const _CircleStep({required this.nameController, required this.nameKey, required this.formKey, this.initial});
+  const _CircleStep({
+    required this.nameController,
+    required this.nameKey,
+    required this.formKey,
+    this.initial,
+  });
 
   final TextEditingController nameController;
   final GlobalKey<FormFieldState<String>> nameKey;
@@ -480,7 +713,8 @@ class _CircleStep extends StatelessWidget {
     final init = initial;
     return _StepScaffold(
       title: 'Who should we tell?',
-      subtitle: 'Your SOS goes to this person first. You can add up to 5 later.',
+      subtitle:
+          'Your SOS goes to this person first. You can add up to 5 later.',
       children: [
         TextFormField(
           key: nameKey,
@@ -490,18 +724,28 @@ class _CircleStep extends StatelessWidget {
           decoration: const InputDecoration(
             labelText: 'Your name',
             helperText: 'Shown in the SOS message so they know it is you',
+            helperMaxLines: 3,
             prefixIcon: Icon(Icons.badge_outlined),
           ),
-          validator: (v) => (v?.trim().isEmpty ?? true) ? 'Enter your name' : null,
+          validator: (v) =>
+              (v?.trim().isEmpty ?? true) ? 'Enter your name' : null,
         ),
         const SizedBox(height: ShaktiSpace.lg),
-        Semantics(header: true, child: Text('Trusted contact', style: t.titleMedium)),
+        Semantics(
+          header: true,
+          child: Text('Trusted contact', style: t.titleMedium),
+        ),
         const SizedBox(height: ShaktiSpace.sm),
         ContactForm(
           key: formKey,
           initial: init == null
               ? null
-              : EmergencyContact(id: 'draft', name: init.name, phone: init.phone, relationship: init.relationship),
+              : EmergencyContact(
+                  id: 'draft',
+                  name: init.name,
+                  phone: init.phone,
+                  relationship: init.relationship,
+                ),
         ),
       ],
     );
@@ -544,13 +788,17 @@ class _PinStepState extends State<_PinStep> {
             _error = 'The decoy PIN must differ from your real PIN';
           } else {
             _first = v;
-            _stage = _stage == _PinStage.enter ? _PinStage.confirm : _PinStage.decoyConfirm;
+            _stage = _stage == _PinStage.enter
+                ? _PinStage.confirm
+                : _PinStage.decoyConfirm;
           }
         case _PinStage.confirm:
         case _PinStage.decoyConfirm:
           if (v != _first) {
             _error = "PINs don't match. Start again";
-            _stage = _stage == _PinStage.confirm ? _PinStage.enter : _PinStage.decoyEnter;
+            _stage = _stage == _PinStage.confirm
+                ? _PinStage.enter
+                : _PinStage.decoyEnter;
           } else if (_stage == _PinStage.confirm) {
             _pin = v;
             _stage = _PinStage.done;
@@ -575,19 +823,16 @@ class _PinStepState extends State<_PinStep> {
         title: 'PIN set',
         subtitle: 'You need it to open Shakti and to end an SOS.',
         children: [
-          const Row(children: [
-            Icon(Icons.check_circle_rounded, color: ShaktiColors.safe),
-            SizedBox(width: ShaktiSpace.xs),
-            Text('PIN confirmed'),
-          ]),
+          const Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: ShaktiColors.safe),
+              SizedBox(width: ShaktiSpace.xs),
+              Expanded(child: Text('PIN confirmed')),
+            ],
+          ),
           const SizedBox(height: ShaktiSpace.lg),
-          Container(
+          GlassSurface(
             padding: const EdgeInsets.all(ShaktiSpace.md),
-            decoration: BoxDecoration(
-              color: ShaktiColors.surface,
-              borderRadius: BorderRadius.circular(ShaktiRadius.card),
-              border: Border.all(color: ShaktiColors.outline.withValues(alpha: 0.7)),
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -601,22 +846,29 @@ class _PinStepState extends State<_PinStep> {
                 if (_decoy == null)
                   OutlinedButton(
                     key: const ValueKey('onb-add-decoy'),
-                    onPressed: () => setState(() => _stage = _PinStage.decoyEnter),
+                    onPressed: () =>
+                        setState(() => _stage = _PinStage.decoyEnter),
                     child: const Text('Set a decoy PIN'),
                   )
                 else
-                  Row(children: [
-                    const Icon(Icons.check_circle_rounded, color: ShaktiColors.safe, size: 20),
-                    const SizedBox(width: ShaktiSpace.xs),
-                    const Expanded(child: Text('Decoy PIN set')),
-                    TextButton(
-                      onPressed: () {
-                        setState(() => _decoy = null);
-                        widget.onChanged(_pin, null);
-                      },
-                      child: const Text('Remove'),
-                    ),
-                  ]),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: ShaktiColors.safe,
+                        size: 20,
+                      ),
+                      const SizedBox(width: ShaktiSpace.xs),
+                      const Expanded(child: Text('Decoy PIN set')),
+                      TextButton(
+                        onPressed: () {
+                          setState(() => _decoy = null);
+                          widget.onChanged(_pin, null);
+                        },
+                        child: const Text('Remove'),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -636,21 +888,32 @@ class _PinStepState extends State<_PinStep> {
       );
     }
 
-    final decoy = _stage == _PinStage.decoyEnter || _stage == _PinStage.decoyConfirm;
-    final confirm = _stage == _PinStage.confirm || _stage == _PinStage.decoyConfirm;
+    final decoy =
+        _stage == _PinStage.decoyEnter || _stage == _PinStage.decoyConfirm;
+    final confirm =
+        _stage == _PinStage.confirm || _stage == _PinStage.decoyConfirm;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.lg, ShaktiSpace.lg, ShaktiSpace.md),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        ShaktiSpace.lg,
+        ShaktiSpace.lg,
+        ShaktiSpace.md,
+      ),
       children: [
         Semantics(
           header: true,
           child: Text(
-            confirm ? (decoy ? 'Confirm decoy PIN' : 'Confirm your PIN') : (decoy ? 'Choose a decoy PIN' : 'Create a PIN'),
+            confirm
+                ? (decoy ? 'Confirm decoy PIN' : 'Confirm your PIN')
+                : (decoy ? 'Choose a decoy PIN' : 'Create a PIN'),
             style: t.headlineLarge,
           ),
         ),
         const SizedBox(height: ShaktiSpace.xs),
         Text(
-          confirm ? 'Enter it once more.' : '4 to 8 digits. Tap the tick when done.',
+          confirm
+              ? 'Enter it once more.'
+              : '4 to 8 digits. Tap the tick when done.',
           style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
         ),
         const SizedBox(height: ShaktiSpace.sm),

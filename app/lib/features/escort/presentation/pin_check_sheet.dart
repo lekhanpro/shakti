@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/pin_pad.dart';
+import '../../../core/widgets/widgets.dart';
 
 /// Bottom sheet that asks for the PIN and resolves `true` once [verify]
 /// accepts it. Wrong entries stay in the sheet with an inline error.
@@ -16,6 +17,7 @@ Future<bool> showPinCheckSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    showDragHandle: true,
     builder: (_) => _PinCheck(title: title, message: message, verify: verify, submitLabel: submitLabel),
   );
   return ok ?? false;
@@ -60,21 +62,29 @@ class _PinCheckState extends State<_PinCheck> {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, ShaktiSpace.lg),
+      padding: EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        0,
+        ShaktiSpace.lg,
+        ShaktiSpace.lg + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Semantics(header: true, child: Text(widget.title, style: t.headlineSmall, textAlign: TextAlign.center)),
+          const GlassSurface(
+            padding: EdgeInsets.all(ShaktiSpace.sm),
+            radius: ShaktiRadius.md,
+            child: Icon(Icons.lock_outline_rounded, color: ShaktiColors.lilac),
+          ),
+          const SizedBox(height: ShaktiSpace.md),
+          Semantics(
+            header: true,
+            child: Text(widget.title, style: t.headlineSmall, textAlign: TextAlign.center),
+          ),
           const SizedBox(height: ShaktiSpace.xs),
           Text(widget.message, style: t.bodyMedium, textAlign: TextAlign.center),
           const SizedBox(height: ShaktiSpace.lg),
-          PinPad(
-            key: _pad,
-            onSubmit: _submit,
-            enabled: !_busy,
-            errorText: _error,
-            submitLabel: widget.submitLabel,
-          ),
+          PinPad(key: _pad, onSubmit: _submit, enabled: !_busy, errorText: _error, submitLabel: widget.submitLabel),
         ],
       ),
     );

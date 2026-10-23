@@ -4,26 +4,26 @@ import 'tokens.dart';
 
 abstract final class AppTheme {
   static ThemeData dark() => _build(
-        brightness: Brightness.dark,
-        bg: ShaktiColors.bg,
-        surface: ShaktiColors.surface,
-        surfaceHigh: ShaktiColors.surfaceHigh,
-        outline: ShaktiColors.outline,
-        hi: ShaktiColors.textHi,
-        mid: ShaktiColors.textMid,
-        lo: ShaktiColors.textLo,
-      );
+    brightness: Brightness.dark,
+    bg: ShaktiColors.bg,
+    surface: ShaktiColors.surface,
+    surfaceHigh: ShaktiColors.surfaceHigh,
+    outline: ShaktiColors.outline,
+    hi: ShaktiColors.textHi,
+    mid: ShaktiColors.textMid,
+    lo: ShaktiColors.textLo,
+  );
 
   static ThemeData light() => _build(
-        brightness: Brightness.light,
-        bg: ShaktiColors.lightBg,
-        surface: ShaktiColors.lightSurface,
-        surfaceHigh: ShaktiColors.lightSurfaceHigh,
-        outline: ShaktiColors.lightOutline,
-        hi: ShaktiColors.lightTextHi,
-        mid: ShaktiColors.lightTextMid,
-        lo: ShaktiColors.lightTextLo,
-      );
+    brightness: Brightness.light,
+    bg: ShaktiColors.lightBg,
+    surface: ShaktiColors.lightSurface,
+    surfaceHigh: ShaktiColors.lightSurfaceHigh,
+    outline: ShaktiColors.lightOutline,
+    hi: ShaktiColors.lightTextHi,
+    mid: ShaktiColors.lightTextMid,
+    lo: ShaktiColors.lightTextLo,
+  );
 
   static ThemeData _build({
     required Brightness brightness,
@@ -37,8 +37,10 @@ abstract final class AppTheme {
   }) {
     final scheme = ColorScheme(
       brightness: brightness,
-      primary: ShaktiColors.actionDeep,
-      onPrimary: Colors.white,
+      primary: brightness == Brightness.dark
+          ? ShaktiColors.lilac
+          : ShaktiColors.actionDeep,
+      onPrimary: brightness == Brightness.dark ? ShaktiColors.bg : Colors.white,
       primaryContainer: ShaktiColors.action.withValues(alpha: 0.18),
       onPrimaryContainer: hi,
       secondary: ShaktiColors.safe,
@@ -61,10 +63,31 @@ abstract final class AppTheme {
       outlineVariant: outline.withValues(alpha: 0.6),
     );
 
-    TextStyle h(double size, FontWeight w, {double height = 1.2, double ls = -0.2}) =>
-        TextStyle(fontFamily: ShaktiFonts.heading, fontSize: size, fontWeight: w, height: height, letterSpacing: ls, color: hi);
-    TextStyle b(double size, FontWeight w, {Color? color, double height = 1.45}) =>
-        TextStyle(fontFamily: ShaktiFonts.body, fontSize: size, fontWeight: w, height: height, color: color ?? mid);
+    TextStyle h(
+      double size,
+      FontWeight w, {
+      double height = 1.18,
+      double ls = -0.4,
+    }) => TextStyle(
+      fontFamily: ShaktiFonts.heading,
+      fontSize: size,
+      fontWeight: w,
+      height: height,
+      letterSpacing: ls,
+      color: hi,
+    );
+    TextStyle b(
+      double size,
+      FontWeight w, {
+      Color? color,
+      double height = 1.5,
+    }) => TextStyle(
+      fontFamily: ShaktiFonts.body,
+      fontSize: size,
+      fontWeight: w,
+      height: height,
+      color: color ?? mid,
+    );
 
     final text = TextTheme(
       displayLarge: h(48, FontWeight.w700, height: 1.05, ls: -1),
@@ -84,14 +107,18 @@ abstract final class AppTheme {
       labelSmall: b(11, FontWeight.w700, color: lo, height: 1.2),
     );
 
-    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(ShaktiRadius.md));
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(ShaktiRadius.md),
+    );
     const minSize = Size(ShaktiSize.minTap, ShaktiSize.minTap);
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: bg,
+      scaffoldBackgroundColor: brightness == Brightness.dark
+          ? Colors.transparent
+          : bg,
       canvasColor: bg,
       fontFamily: ShaktiFonts.body,
       textTheme: text,
@@ -99,10 +126,13 @@ abstract final class AppTheme {
       materialTapTargetSize: MaterialTapTargetSize.padded,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: bg,
+        backgroundColor: brightness == Brightness.dark
+            ? Colors.transparent
+            : bg,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        toolbarHeight: 64,
         centerTitle: false,
         titleTextStyle: text.titleLarge,
         foregroundColor: hi,
@@ -119,6 +149,9 @@ abstract final class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(ShaktiSize.minTap, 56),
+          elevation: 0,
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
           shape: shape,
           textStyle: text.labelLarge,
           padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.lg),
@@ -128,24 +161,45 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(ShaktiSize.minTap, 56),
           shape: shape,
-          side: BorderSide(color: outline),
+          side: BorderSide(
+            color: brightness == Brightness.dark
+                ? ShaktiColors.glassEdge
+                : outline,
+          ),
           foregroundColor: hi,
           textStyle: text.labelLarge,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: minSize, textStyle: text.labelLarge, shape: shape),
+        style: TextButton.styleFrom(
+          minimumSize: minSize,
+          textStyle: text.labelLarge,
+          shape: shape,
+        ),
       ),
-      iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(minimumSize: minSize)),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(minimumSize: minSize),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceHigh.withValues(alpha: brightness == Brightness.dark ? 0.6 : 1),
-        contentPadding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.md, vertical: 18),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(ShaktiRadius.md), borderSide: BorderSide(color: outline)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(ShaktiRadius.md), borderSide: BorderSide(color: outline)),
+        fillColor: surfaceHigh.withValues(
+          alpha: brightness == Brightness.dark ? 0.7 : 1,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: ShaktiSpace.md,
+          vertical: 18,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+          borderSide: BorderSide(color: outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+          borderSide: BorderSide(color: outline),
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ShaktiRadius.md),
-          borderSide: const BorderSide(color: ShaktiColors.action, width: 2),
+          borderSide: BorderSide(color: scheme.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ShaktiRadius.md),
@@ -167,13 +221,20 @@ abstract final class AppTheme {
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
-          (s) => IconThemeData(color: s.contains(WidgetState.selected) ? hi : lo, size: 24),
+          (s) => IconThemeData(
+            color: s.contains(WidgetState.selected) ? hi : lo,
+            size: 24,
+          ),
         ),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Colors.white : lo),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Colors.white : lo,
+        ),
         trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? ShaktiColors.actionDeep : surfaceHigh,
+          (s) => s.contains(WidgetState.selected)
+              ? ShaktiColors.brand
+              : surfaceHigh,
         ),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
@@ -182,35 +243,63 @@ abstract final class AppTheme {
         iconColor: mid,
         titleTextStyle: text.titleSmall,
         subtitleTextStyle: text.bodySmall,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ShaktiRadius.md)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+        ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: surfaceHigh,
+        selectedColor: scheme.primary,
+        secondarySelectedColor: scheme.primary,
+        checkmarkColor: scheme.onPrimary,
         side: BorderSide(color: outline),
         labelStyle: text.labelMedium,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ShaktiRadius.pill)),
-        padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.sm, vertical: ShaktiSpace.xs),
+        secondaryLabelStyle: text.labelMedium?.copyWith(
+          color: scheme.onPrimary,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.pill),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: ShaktiSpace.sm,
+          vertical: ShaktiSpace.xs,
+        ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: surfaceHigh,
         contentTextStyle: text.bodyMedium?.copyWith(color: hi),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ShaktiRadius.md)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.md),
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(ShaktiRadius.lg))),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(ShaktiRadius.lg),
+          ),
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ShaktiRadius.lg)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ShaktiRadius.lg),
+        ),
       ),
-      dividerTheme: DividerThemeData(color: outline.withValues(alpha: 0.6), space: 1, thickness: 1),
-      sliderTheme: const SliderThemeData(activeTrackColor: ShaktiColors.action, thumbColor: Colors.white),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(color: ShaktiColors.action),
+      dividerTheme: DividerThemeData(
+        color: outline.withValues(alpha: 0.6),
+        space: 1,
+        thickness: 1,
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: ShaktiColors.action,
+        thumbColor: Colors.white,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: scheme.primary),
     );
   }
 }

@@ -10,7 +10,12 @@ import '../theme/tokens.dart';
 /// drains continuously even though [secondsLeft] only changes once a second.
 /// Each second is announced through a live region.
 class CountdownRing extends StatelessWidget {
-  const CountdownRing({required this.secondsLeft, required this.total, this.size = 260, super.key});
+  const CountdownRing({
+    required this.secondsLeft,
+    required this.total,
+    this.size = 260,
+    super.key,
+  });
 
   final int secondsLeft;
   final int total;
@@ -32,19 +37,24 @@ class CountdownRing extends StatelessWidget {
           tween: Tween(end: fraction),
           duration: reduced ? Duration.zero : const Duration(milliseconds: 950),
           curve: Curves.linear,
-          builder: (context, value, child) => CustomPaint(
-            painter: _RingPainter(value),
-            child: child,
-          ),
+          builder: (context, value, child) =>
+              CustomPaint(painter: _RingPainter(value), child: child),
           child: Center(
-            child: Text(
-              '$secondsLeft',
-              key: const ValueKey('countdown-number'),
-              style: t.displayLarge?.copyWith(
-                fontSize: size * 0.42,
-                height: 1,
-                color: ShaktiColors.textHi,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            child: SizedBox(
+              width: size * 0.65,
+              height: size * 0.65,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$secondsLeft',
+                  key: const ValueKey('countdown-number'),
+                  style: t.displayLarge?.copyWith(
+                    fontSize: size * 0.42,
+                    height: 1,
+                    color: ShaktiColors.textHi,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
               ),
             ),
           ),

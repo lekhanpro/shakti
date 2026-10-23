@@ -20,54 +20,80 @@ class ContactsScreen extends ConsumerWidget {
     final contacts = ref.watch(liveContactsProvider);
     final list = contacts.value ?? const <EmergencyContact>[];
     final canAdd = list.length < maxContacts;
+    final activeCount = list.where((contact) => contact.isActive).length;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Trusted contacts')),
-      floatingActionButton: canAdd && list.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: () => showContactSheet(context, ref, existing: list),
-              backgroundColor: ShaktiColors.actionDeep,
-              foregroundColor: ShaktiColors.textHi,
-              icon: const Icon(Icons.person_add_alt_1_rounded),
-              label: const Text('Add contact'),
-            )
-          : null,
-      body: switch (contacts) {
-        AsyncValue(:final error?) when list.isEmpty => EmptyState(
+      body: ShaktiBackdrop(
+        child: switch (contacts) {
+          AsyncValue(hasError: true) when list.isEmpty => EmptyState(
             icon: Icons.error_outline_rounded,
             title: 'Contacts could not load',
-            message: '$error',
+            message: 'Try loading the contacts saved on this phone again.',
+            action: OutlinedButton.icon(
+              onPressed: () => ref.invalidate(liveContactsProvider),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Try again'),
+            ),
           ),
-        AsyncValue(isLoading: true) when list.isEmpty => const Center(child: CircularProgressIndicator()),
-        _ when list.isEmpty => EmptyState(
+          AsyncValue(isLoading: true) when list.isEmpty => const Center(
+            child: CircularProgressIndicator(),
+          ),
+          _ when list.isEmpty => EmptyState(
             icon: Icons.group_add_outlined,
             title: 'No one will get your SOS yet',
-            message: 'Add up to $maxContacts people. They get an SMS with your location when you raise an SOS, even offline.',
+            message:
+                'Choose up to $maxContacts people you trust. SOS messages can use carrier SMS without internet; cellular service and SMS permission are still needed.',
             action: FilledButton.icon(
               onPressed: () => showContactSheet(context, ref, existing: list),
               icon: const Icon(Icons.person_add_alt_1_rounded),
               label: const Text('Add a trusted contact'),
             ),
           ),
-        _ => ListView(
-            padding: ShaktiSpace.screen.copyWith(bottom: 120),
+          _ => ListView(
+            padding: ShaktiSpace.screen.copyWith(bottom: ShaktiSpace.xl),
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: ShaktiSpace.xs, bottom: ShaktiSpace.md),
-                child: Text(
-                  canAdd
-                      ? 'SOS messages go to every active contact. ${list.length} of $maxContacts used.'
-                      : 'All $maxContacts slots used. Remove someone to add another.',
-                  style: Theme.of(context).textTheme.bodyMedium,
+              const ShaktiPageHeader(
+                title: 'Your circle',
+                subtitle: 'The people you choose to reach first.',
+              ),
+              GlassSurface(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$activeCount active ${activeCount == 1 ? 'contact' : 'contacts'}',
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(color: ShaktiColors.lilac),
+                    ),
+                    const SizedBox(height: ShaktiSpace.xs),
+                    Text(
+                      canAdd
+                          ? 'SOS messages go to every active contact. ${list.length} of $maxContacts used.'
+                          : 'All $maxContacts slots used. Remove someone to add another.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
               ),
+              if (canAdd) ...[
+                const SizedBox(height: ShaktiSpace.md),
+                FilledButton.icon(
+                  onPressed: () =>
+                      showContactSheet(context, ref, existing: list),
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
+                  label: const Text('Add contact'),
+                ),
+              ],
+              const SectionHeader('Trusted contacts'),
               for (final c in list) ...[
                 _ContactTile(contact: c, all: list),
                 const SizedBox(height: ShaktiSpace.xs),
               ],
             ],
           ),
-      },
+        },
+      ),
     );
   }
 }
@@ -84,10 +110,15 @@ class _ContactTile extends ConsumerWidget {
     await repo.delete(contact.id);
     messenger
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(
-        content: Text('${contact.name} removed'),
-        action: SnackBarAction(label: 'Undo', onPressed: () => repo.upsert(contact)),
-      ));
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${contact.name} removed'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => repo.upsert(contact),
+          ),
+        ),
+      );
   }
 
   @override
@@ -106,48 +137,93 @@ class _ContactTile extends ConsumerWidget {
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
-          children: [Icon(Icons.delete_outline_rounded, color: ShaktiColors.sosGlow), SizedBox(width: 6), Text('Remove')],
+          children: [
+            Icon(Icons.delete_outline_rounded, color: ShaktiColors.sosGlow),
+            SizedBox(width: 6),
+            Text('Remove'),
+          ],
         ),
       ),
       onDismissed: (_) => _delete(context, ref),
       child: ShaktiCard(
-        padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.sm, ShaktiSpace.xs, ShaktiSpace.sm),
+        padding: const EdgeInsets.fromLTRB(
+          ShaktiSpace.md,
+          ShaktiSpace.sm,
+          ShaktiSpace.xs,
+          ShaktiSpace.sm,
+        ),
         child: Semantics(
           customSemanticsActions: {
-            const CustomSemanticsAction(label: 'Edit'): () => showContactSheet(context, ref, existing: all, editing: c),
-            const CustomSemanticsAction(label: 'Remove'): () => _delete(context, ref),
+            const CustomSemanticsAction(label: 'Edit'): () =>
+                showContactSheet(context, ref, existing: all, editing: c),
+            const CustomSemanticsAction(label: 'Remove'): () =>
+                _delete(context, ref),
           },
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _PriorityBadge(priority: c.priority, active: c.isActive),
-              const SizedBox(width: ShaktiSpace.sm),
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(ShaktiRadius.sm),
-                  onTap: () => showContactSheet(context, ref, existing: all, editing: c),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: ShaktiSpace.xxs),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(c.name, style: t.titleMedium, overflow: TextOverflow.ellipsis),
-                        const SizedBox(height: 2),
-                        Text('${c.relationship}, ${c.phone}', style: t.bodySmall, overflow: TextOverflow.ellipsis),
-                        if (!c.isActive)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text('Paused. Won\'t get SOS messages', style: t.bodySmall?.copyWith(color: ShaktiColors.warn)),
-                          ),
-                      ],
-                    ),
+              InkWell(
+                borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+                onTap: () =>
+                    showContactSheet(context, ref, existing: all, editing: c),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: ShaktiSize.minTap,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _ContactAvatar(
+                        name: c.name,
+                        priority: c.priority,
+                        active: c.isActive,
+                      ),
+                      const SizedBox(width: ShaktiSpace.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(c.name, style: t.titleMedium),
+                            const SizedBox(height: ShaktiSpace.xxs),
+                            Text(c.relationship, style: t.bodySmall),
+                            Text(c.phone, style: t.bodyMedium),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: ShaktiSpace.xxs),
+                      const Icon(
+                        Icons.edit_outlined,
+                        size: 20,
+                        color: ShaktiColors.textLo,
+                      ),
+                    ],
                   ),
                 ),
               ),
+              const Divider(height: ShaktiSpace.lg),
               Semantics(
                 label: c.isActive ? 'Receives SOS' : 'Paused',
-                child: Switch(
-                  value: c.isActive,
-                  onChanged: (v) => ref.read(contactRepositoryProvider).upsert(c.copyWith(isActive: v)),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        c.isActive
+                            ? 'Receives SOS'
+                            : 'Paused. Won\'t get SOS messages',
+                        style: t.bodySmall?.copyWith(
+                          color: c.isActive
+                              ? ShaktiColors.textMid
+                              : ShaktiColors.warn,
+                        ),
+                      ),
+                    ),
+                    Switch(
+                      value: c.isActive,
+                      onChanged: (v) => ref
+                          .read(contactRepositoryProvider)
+                          .upsert(c.copyWith(isActive: v)),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -158,28 +234,55 @@ class _ContactTile extends ConsumerWidget {
   }
 }
 
-class _PriorityBadge extends StatelessWidget {
-  const _PriorityBadge({required this.priority, required this.active});
+class _ContactAvatar extends StatelessWidget {
+  const _ContactAvatar({
+    required this.name,
+    required this.priority,
+    required this.active,
+  });
 
+  final String name;
   final int priority;
   final bool active;
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? (priority == 1 ? ShaktiColors.safe : ShaktiColors.action) : ShaktiColors.textLo;
+    final color = active ? ShaktiColors.lilac : ShaktiColors.textLo;
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
+    final initials = parts.isEmpty
+        ? '?'
+        : parts
+              .take(2)
+              .map((part) => part.characters.first)
+              .join()
+              .toUpperCase();
     return Semantics(
       label: 'Priority $priority',
       excludeSemantics: true,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 48,
+        height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: color.withValues(alpha: 0.16),
           border: Border.all(color: color.withValues(alpha: 0.6)),
         ),
-        child: Text('$priority', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color)),
+        child: Padding(
+          padding: const EdgeInsets.all(ShaktiSpace.xxs),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              initials,
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: color),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -196,6 +299,7 @@ Future<void> showContactSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    showDragHandle: true,
     builder: (sheetContext) => Padding(
       padding: EdgeInsets.fromLTRB(
         ShaktiSpace.lg,
@@ -210,8 +314,12 @@ Future<void> showContactSheet(
           children: [
             Semantics(
               header: true,
-              child: Text(editing == null ? 'Add a trusted contact' : 'Edit ${editing.name}',
-                  style: Theme.of(sheetContext).textTheme.headlineSmall),
+              child: Text(
+                editing == null
+                    ? 'Add a trusted contact'
+                    : 'Edit ${editing.name}',
+                style: Theme.of(sheetContext).textTheme.headlineSmall,
+              ),
             ),
             const SizedBox(height: ShaktiSpace.lg),
             ContactForm(
@@ -220,7 +328,12 @@ Future<void> showContactSheet(
               submitLabel: editing == null ? 'Add contact' : 'Save changes',
               onSubmit: (d) async {
                 final repo = ref.read(contactRepositoryProvider);
-                final contact = editing?.copyWith(name: d.name, phone: d.phone, relationship: d.relationship) ??
+                final contact =
+                    editing?.copyWith(
+                      name: d.name,
+                      phone: d.phone,
+                      relationship: d.relationship,
+                    ) ??
                     EmergencyContact(
                       id: const Uuid().v4(),
                       name: d.name,
@@ -255,27 +368,50 @@ int _nextPriority(List<EmergencyContact> existing) {
   return maxContacts;
 }
 
-Future<void> _testSms(BuildContext context, WidgetRef ref, EmergencyContact c) async {
+Future<void> _testSms(
+  BuildContext context,
+  WidgetRef ref,
+  EmergencyContact c,
+) async {
   final ok = await showDialog<bool>(
     context: context,
     builder: (d) => AlertDialog(
       title: const Text('Send a test SMS?'),
-      content: Text('${c.name} gets one message saying this is a test from Shakti. Carrier charges may apply.'),
+      content: Text(
+        '${c.name} gets one message saying this is a test from Shakti. Carrier charges may apply.',
+      ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Not now')),
-        FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('Send test')),
+        TextButton(
+          onPressed: () => Navigator.pop(d, false),
+          child: const Text('Not now'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(d, true),
+          child: const Text('Send test'),
+        ),
       ],
     ),
   );
   if (ok != true || !context.mounted) return;
   final settings = await ref.read(settingsRepositoryProvider).load();
-  final from = settings.userName.trim().isEmpty ? 'Your contact' : settings.userName.trim();
+  final from = settings.userName.trim().isEmpty
+      ? 'Your contact'
+      : settings.userName.trim();
   final result = await ref.read(smsServiceProvider).sendToAll(
     [c.phone],
     'Test from Shakti: $from added you as a trusted contact. If they ever send an SOS you will get their location here. No action needed.',
   );
   if (!context.mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(result.when(ok: (n) => n > 0 ? 'Test SMS sent to ${c.name}' : 'The carrier did not accept the SMS', err: (m) => 'Test SMS failed: $m')),
-  ));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        result.when(
+          ok: (n) => n > 0
+              ? 'Test SMS sent to ${c.name}'
+              : 'The carrier did not accept the SMS',
+          err: (m) => 'Test SMS failed: $m',
+        ),
+      ),
+    ),
+  );
 }

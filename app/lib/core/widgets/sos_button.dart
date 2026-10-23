@@ -8,7 +8,12 @@ import '../theme/tokens.dart';
 /// controller, not this widget. With reduced motion the rings are drawn
 /// statically and the press scale is skipped.
 class SosButton extends StatefulWidget {
-  const SosButton({required this.onPressed, this.size = ShaktiSize.sosButton, this.enabled = true, super.key});
+  const SosButton({
+    required this.onPressed,
+    this.size = ShaktiSize.sosButton,
+    this.enabled = true,
+    super.key,
+  });
 
   final VoidCallback onPressed;
   final double size;
@@ -18,8 +23,12 @@ class SosButton extends StatefulWidget {
   State<SosButton> createState() => _SosButtonState();
 }
 
-class _SosButtonState extends State<SosButton> with SingleTickerProviderStateMixin {
-  late final AnimationController _breath = AnimationController(vsync: this, duration: ShaktiMotion.breathe);
+class _SosButtonState extends State<SosButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _breath = AnimationController(
+    vsync: this,
+    duration: ShaktiMotion.breathe,
+  );
   bool _pressed = false;
 
   @override
@@ -58,7 +67,7 @@ class _SosButtonState extends State<SosButton> with SingleTickerProviderStateMix
     final reduced = ShaktiMotion.reduced(context);
     final size = widget.size;
     // The ripple canvas extends beyond the orb so rings have room to grow.
-    final canvas = size * 1.45;
+    final canvas = size * 1.25;
 
     return Semantics(
       button: true,
@@ -129,12 +138,24 @@ class _Orb extends StatelessWidget {
           gradient: const RadialGradient(
             center: Alignment(-0.3, -0.4),
             radius: 1.05,
-            colors: [ShaktiColors.sosGlow, ShaktiColors.sos, ShaktiColors.sosDeep],
+            colors: [
+              ShaktiColors.sosGlow,
+              ShaktiColors.sos,
+              ShaktiColors.sosDeep,
+            ],
             stops: [0, 0.55, 1],
           ),
           boxShadow: [
-            BoxShadow(color: ShaktiColors.sos.withValues(alpha: 0.45), blurRadius: 48, spreadRadius: 4),
-            BoxShadow(color: ShaktiColors.sosDeep.withValues(alpha: 0.6), blurRadius: 12, offset: const Offset(0, 8)),
+            BoxShadow(
+              color: ShaktiColors.sosDeep.withValues(alpha: 0.35),
+              blurRadius: 32,
+              offset: const Offset(0, 12),
+            ),
+            BoxShadow(
+              color: ShaktiColors.sosDeep.withValues(alpha: 0.6),
+              blurRadius: 12,
+              offset: const Offset(0, 8),
+            ),
           ],
         ),
         child: Container(
@@ -142,7 +163,20 @@ class _Orb extends StatelessWidget {
           margin: EdgeInsets.all(size * 0.06),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: ShaktiColors.textHi.withValues(alpha: 0.18), width: 1.5),
+            border: Border.all(
+              color: ShaktiColors.textHi.withValues(alpha: 0.18),
+              width: 1.5,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                ShaktiColors.textHi.withValues(alpha: 0.18),
+                Colors.transparent,
+                ShaktiColors.sosDeep.withValues(alpha: 0.20),
+              ],
+              stops: const [0, 0.4, 1],
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -163,7 +197,9 @@ class _Orb extends StatelessWidget {
               SizedBox(height: size * 0.03),
               Text(
                 'Tap for help',
-                style: t.labelMedium?.copyWith(color: ShaktiColors.textHi.withValues(alpha: 0.85)),
+                style: t.labelMedium?.copyWith(
+                  color: ShaktiColors.textHi.withValues(alpha: 0.85),
+                ),
               ),
             ],
           ),
@@ -174,7 +210,11 @@ class _Orb extends StatelessWidget {
 }
 
 class _RipplePainter extends CustomPainter {
-  _RipplePainter({required this.t, required this.orbRadius, required this.animated});
+  _RipplePainter({
+    required this.t,
+    required this.orbRadius,
+    required this.animated,
+  });
 
   final double t;
   final double orbRadius;
@@ -200,5 +240,6 @@ class _RipplePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RipplePainter old) => old.t != t || old.animated != animated;
+  bool shouldRepaint(_RipplePainter old) =>
+      old.t != t || old.animated != animated;
 }

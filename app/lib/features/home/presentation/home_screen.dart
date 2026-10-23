@@ -25,55 +25,72 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Moves the gate to emergency on countdown / active, back on acknowledge.
     ref.watch(panicGateSyncProvider);
-    final settings = ref.watch(liveSettingsProvider).value ?? const SafetySettings();
+    final settings =
+        ref.watch(liveSettingsProvider).value ?? const SafetySettings();
     final contacts = ref.watch(liveContactsProvider);
-    final active = (contacts.value ?? const <EmergencyContact>[]).where((c) => c.isActive).toList();
+    final active = (contacts.value ?? const <EmergencyContact>[])
+        .where((c) => c.isActive)
+        .toList();
     final contactsLoaded = contacts.hasValue;
     final phase = ref.watch(panicControllerProvider.select((s) => s.phase));
     final t = Theme.of(context).textTheme;
 
     return Scaffold(
-      body: DecoratedBox(
-        // A faint indigo halo behind the SOS area, echoing the brand artwork.
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(center: Alignment(0, -0.35), radius: 0.9, colors: [Color(0x1F4F46E5), Color(0x004F46E5)]),
-        ),
-        child: SafeArea(
-          child: ListView(
-            padding: ShaktiSpace.screen.copyWith(top: ShaktiSpace.sm, bottom: ShaktiSpace.xl),
-            children: [
-              _BrandBar(onSettings: () => context.go(Routes.settings)),
-              const SizedBox(height: ShaktiSpace.lg),
-              Semantics(header: true, child: Text(_greeting(ref.read(clockProvider).now(), settings.userName), style: t.headlineMedium)),
-              const SizedBox(height: ShaktiSpace.xs),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _Status(settings: settings, activeContacts: active.length),
-              ),
-              if (contactsLoaded && active.isEmpty) ...[const SizedBox(height: ShaktiSpace.md), const _NoContactsWarning()],
-              const SizedBox(height: ShaktiSpace.xs),
-              Center(
-                child: SosButton(
-                  key: const ValueKey('sos-button'),
-                  enabled: phase == PanicPhase.idle,
-                  onPressed: () => ref.read(panicControllerProvider.notifier).trigger(TriggerSource.hudTap),
-                ),
-              ),
-              Text(
-                settings.powerTrigger
-                    ? 'Or press the power button 3 times, even when locked.'
-                    : 'Tap once. You get ${settings.countdownSeconds} seconds to cancel.',
-                textAlign: TextAlign.center,
-                style: t.bodyMedium,
-              ),
-              const SizedBox(height: ShaktiSpace.xl),
-              const _QuickActions(),
-              const SizedBox(height: ShaktiSpace.md),
-              _Circle(contacts: active, total: contacts.value?.length ?? 0),
-              const SizedBox(height: ShaktiSpace.md),
-              const _Helplines(),
-            ],
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: ShaktiSpace.screen.copyWith(
+            top: ShaktiSpace.md,
+            bottom: ShaktiSpace.dockClearance,
           ),
+          children: [
+            _BrandBar(onSettings: () => context.go(Routes.settings)),
+            const SizedBox(height: ShaktiSpace.lg),
+            Semantics(
+              header: true,
+              child: Text(
+                _greeting(ref.read(clockProvider).now(), settings.userName),
+                style:
+                    MediaQuery.sizeOf(context).width < 360 &&
+                        MediaQuery.textScalerOf(context).scale(28) > 40
+                    ? t.headlineSmall
+                    : t.headlineLarge,
+              ),
+            ),
+            const SizedBox(height: ShaktiSpace.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _Status(settings: settings, activeContacts: active.length),
+            ),
+            if (contactsLoaded && active.isEmpty) ...[
+              const SizedBox(height: ShaktiSpace.md),
+              const _NoContactsWarning(),
+            ],
+            if (active.isNotEmpty) _CirclePreview(contacts: active),
+            const SizedBox(height: ShaktiSpace.sm),
+            Center(
+              child: SosButton(
+                key: const ValueKey('sos-button'),
+                enabled: phase == PanicPhase.idle,
+                onPressed: () => ref
+                    .read(panicControllerProvider.notifier)
+                    .trigger(TriggerSource.hudTap),
+              ),
+            ),
+            Text(
+              settings.powerTrigger
+                  ? 'Power ×3 is also enabled. Test this gesture on your phone.'
+                  : 'Tap once. You get ${settings.countdownSeconds} seconds to cancel.',
+              textAlign: TextAlign.center,
+              style: t.bodySmall,
+            ),
+            const SizedBox(height: ShaktiSpace.lg),
+            const _QuickActions(),
+            const SizedBox(height: ShaktiSpace.lg),
+            _Circle(contacts: active, total: contacts.value?.length ?? 0),
+            const SizedBox(height: ShaktiSpace.lg),
+            const _Helplines(),
+          ],
         ),
       ),
     );
@@ -105,11 +122,16 @@ class _BrandBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const ShaktiMark(size: 28, color: ShaktiColors.lilac),
+        const ShaktiMark(size: 32, color: ShaktiColors.lilac),
         const SizedBox(width: ShaktiSpace.xs),
         Expanded(
-          child: Text('Shakti', maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+          child: Text(
+            'Shakti',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
+          ),
         ),
         IconButton(
           tooltip: 'Triggers and privacy settings',
@@ -132,12 +154,67 @@ class _Status extends ConsumerWidget {
     final hub = ref.watch(triggerHubProvider);
     final parts = <String>[
       '$activeContacts ${activeContacts == 1 ? 'contact' : 'contacts'}',
-      if (settings.powerTrigger) 'Power ×3 on',
+      if (settings.powerTrigger) 'Power ×3 enabled',
       if (settings.shakeTrigger && hub.shake) 'Shake on',
       if (settings.voiceTrigger && hub.voice) 'Voice on',
     ];
-    if (activeContacts == 0) return StatusPill.warn('Not protected, ${parts.first}');
-    return StatusPill.safe('Protected · ${parts.join(' · ')}');
+    if (activeContacts == 0) {
+      return StatusPill.warn('Not protected, ${parts.first}', wrap: true);
+    }
+    final largeText = MediaQuery.textScalerOf(context).scale(13) > 20;
+    return StatusPill.safe(
+      largeText ? parts.first : parts.join(' · '),
+      wrap: true,
+    );
+  }
+}
+
+/// A real-contact preview remains visible above the emergency control.
+class _CirclePreview extends StatelessWidget {
+  const _CirclePreview({required this.contacts});
+  final List<EmergencyContact> contacts;
+
+  @override
+  Widget build(BuildContext context) {
+    final names = contacts
+        .take(2)
+        .map((c) => c.name.trim().split(' ').first)
+        .join(' · ');
+    final more = contacts.length > 2 ? ' +${contacts.length - 2}' : '';
+    return Semantics(
+      button: true,
+      label: 'Your circle: $names$more. Manage trusted contacts',
+      onTap: () => context.push(Routes.contacts),
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: () => context.push(Routes.contacts),
+        borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: ShaktiSize.minTap),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.people_outline_rounded,
+                size: 20,
+                color: ShaktiColors.lilac,
+              ),
+              const SizedBox(width: ShaktiSpace.xs),
+              Expanded(
+                child: Text(
+                  '$names$more',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: ShaktiColors.textLo,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -155,15 +232,25 @@ class _NoContactsWarning extends StatelessWidget {
       onTap: () => context.push(Routes.contacts),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: ShaktiColors.warn, size: 28),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: ShaktiColors.warn,
+            size: 28,
+          ),
           const SizedBox(width: ShaktiSpace.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Add a trusted contact, or SOS can't send SMS", style: t.titleMedium),
+                Text(
+                  "Add a trusted contact, or SOS can't send SMS",
+                  style: t.titleMedium,
+                ),
                 const SizedBox(height: 2),
-                Text('Takes 20 seconds. Works offline.', style: t.bodySmall?.copyWith(color: ShaktiColors.textMid)),
+                Text(
+                  'Takes 20 seconds. Works offline.',
+                  style: t.bodySmall?.copyWith(color: ShaktiColors.textMid),
+                ),
               ],
             ),
           ),
@@ -182,87 +269,170 @@ class _QuickActions extends ConsumerWidget {
     final fix = await ref.read(locationServiceProvider).currentFix();
     final point = fix.valueOrNull?.point;
     if (point == null) {
-      messenger.showSnackBar(const SnackBar(content: Text('No location yet. Step outside or turn on GPS, then try again')));
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No location yet. Step outside or turn on GPS, then try again',
+          ),
+        ),
+      );
       return;
     }
     try {
-      await SharePlus.instance.share(ShareParams(text: 'My current location: ${point.mapsUrl}', subject: 'My location'));
+      await SharePlus.instance.share(
+        ShareParams(
+          text: 'My current location: ${point.mapsUrl}',
+          subject: 'My location',
+        ),
+      );
     } catch (_) {
-      messenger.showSnackBar(const SnackBar(content: Text('Sharing is not available on this device')));
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Sharing is not available on this device'),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final actions = [
-      (Icons.directions_walk_rounded, 'Walk with me', 'Check-in timer for your walk', () => context.go(Routes.escort)),
-      (Icons.phone_callback_rounded, 'Fake call', 'A believable reason to leave', () => context.push(Routes.fakeCall)),
-      (Icons.share_location_rounded, 'Share location', 'Send where you are right now', () => _share(context, ref)),
-      (Icons.campaign_rounded, 'Siren', 'Loud alarm and flashing light', () => context.push(Routes.siren)),
-    ];
     final t = Theme.of(context).textTheme;
-    return LayoutBuilder(
-      builder: (context, box) {
-        final minWidth = 160 * MediaQuery.textScalerOf(context).scale(14) / 14;
-        final columns = box.maxWidth >= 2 * minWidth + ShaktiSpace.sm ? 2 : 1;
-        final width = (box.maxWidth - ShaktiSpace.sm * (columns - 1)) / columns;
-        return Wrap(
-          spacing: ShaktiSpace.sm,
-          runSpacing: ShaktiSpace.sm,
-          children: [
-            for (final (icon, label, hint, onTap) in actions)
-              SizedBox(
-                width: width,
-                child: Semantics(
-                  button: true,
-                  label: label,
-                  hint: hint,
-                  onTap: onTap,
-                  excludeSemantics: true,
-                  child: Material(
-                    color: ShaktiColors.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(ShaktiRadius.md),
-                      side: BorderSide(color: ShaktiColors.outline.withValues(alpha: 0.7)),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: onTap,
-                      child: Padding(
-                        padding: const EdgeInsets.all(ShaktiSpace.sm),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: ShaktiColors.brand.withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(ShaktiRadius.sm),
-                              ),
-                              child: Icon(icon, color: ShaktiColors.lilac, size: 20),
-                            ),
-                            const SizedBox(width: ShaktiSpace.sm),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+    final actions = [
+      (
+        Icons.phone_callback_outlined,
+        'Fake call',
+        'A believable reason to leave',
+        () => context.push(Routes.fakeCall),
+      ),
+      (
+        Icons.share_location_outlined,
+        'Share location',
+        'Send your current location',
+        () => _share(context, ref),
+      ),
+      (
+        Icons.campaign_outlined,
+        'Siren',
+        'Loud alarm and flashing light',
+        () => context.push(Routes.siren),
+      ),
+    ];
+    return Column(
+      children: [
+        Semantics(
+          button: true,
+          label: 'Walk with me',
+          hint: 'Start a check-in timer for your walk',
+          onTap: () => context.go(Routes.escort),
+          excludeSemantics: true,
+          child: GlassSurface(
+            onTap: () => context.go(Routes.escort),
+            semanticLabel: 'Walk with me. Start a check-in timer for your walk',
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: ShaktiColors.lilac.withValues(alpha: 0.13),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(
+                    Icons.directions_walk_rounded,
+                    color: ShaktiColors.lilac,
+                  ),
+                ),
+                const SizedBox(width: ShaktiSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Walk with me', style: t.titleMedium),
+                      const SizedBox(height: ShaktiSpace.xxs),
+                      Text(
+                        'A check-in timer for the way home',
+                        style: t.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: ShaktiSpace.xs),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 20,
+                  color: ShaktiColors.lilac,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: ShaktiSpace.sm),
+        LayoutBuilder(
+          builder: (context, box) {
+            final columns =
+                box.maxWidth >= 300 &&
+                    MediaQuery.textScalerOf(context).scale(14) <= 18
+                ? 3
+                : 1;
+            final width =
+                (box.maxWidth - (columns - 1) * ShaktiSpace.sm) / columns;
+            return Wrap(
+              spacing: ShaktiSpace.sm,
+              runSpacing: ShaktiSpace.sm,
+              children: [
+                for (final (icon, label, hint, action) in actions)
+                  SizedBox(
+                    width: width,
+                    child: Semantics(
+                      button: true,
+                      label: label,
+                      hint: hint,
+                      onTap: action,
+                      excludeSemantics: true,
+                      child: GlassSurface(
+                        onTap: action,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: ShaktiSpace.sm,
+                          vertical: ShaktiSpace.md,
+                        ),
+                        radius: 20,
+                        child: columns == 1
+                            ? Row(
                                 children: [
-                                  Text(label, style: t.titleSmall),
-                                  const SizedBox(height: 2),
-                                  Text(hint, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                  Icon(icon, color: ShaktiColors.lilac),
+                                  const SizedBox(width: ShaktiSpace.md),
+                                  Expanded(
+                                    child: Text(label, style: t.titleSmall),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: ShaktiColors.textLo,
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Icon(
+                                    icon,
+                                    color: ShaktiColors.lilac,
+                                    size: 25,
+                                  ),
+                                  const SizedBox(height: ShaktiSpace.sm),
+                                  Text(
+                                    label,
+                                    style: t.labelMedium,
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        );
-      },
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -282,15 +452,24 @@ class _Circle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final names = contacts.map((c) => c.name.split(' ').first).take(3).join(', ');
+    final names = contacts
+        .map((c) => c.name.split(' ').first)
+        .take(3)
+        .join(', ');
     final more = contacts.length > 3 ? ' and ${contacts.length - 3} more' : '';
-    final summary = contacts.isEmpty ? (total == 0 ? 'No one added yet' : 'All contacts are paused') : 'SOS goes to $names$more';
+    final summary = contacts.isEmpty
+        ? (total == 0 ? 'No one added yet' : 'All contacts are paused')
+        : 'SOS goes to $names$more';
     return ShaktiCard(
-      semanticLabel: 'Trusted contacts. ${contacts.isEmpty ? 'None active' : '$names$more'}. Manage',
+      semanticLabel:
+          'Trusted contacts. ${contacts.isEmpty ? 'None active' : '$names$more'}. Manage',
       onTap: () => context.push(Routes.contacts),
       child: Row(
         children: [
-          GuardianNetwork(initials: [for (final c in contacts.take(5)) _initial(c.name)], size: 112),
+          GuardianNetwork(
+            initials: [for (final c in contacts.take(5)) _initial(c.name)],
+            size: 112,
+          ),
           const SizedBox(width: ShaktiSpace.md),
           Expanded(
             child: Column(
@@ -298,9 +477,17 @@ class _Circle extends StatelessWidget {
               children: [
                 Text('Your circle', style: t.titleMedium),
                 const SizedBox(height: 2),
-                Text(summary, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  summary,
+                  style: t.bodySmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: ShaktiSpace.sm),
-                Text('$total of 5 added · ${contacts.length} active', style: t.labelMedium?.copyWith(color: ShaktiColors.lilac)),
+                Text(
+                  '$total of 5 added · ${contacts.length} active',
+                  style: t.labelMedium?.copyWith(color: ShaktiColors.lilac),
+                ),
               ],
             ),
           ),
@@ -314,7 +501,12 @@ class _Circle extends StatelessWidget {
 class _Helplines extends StatelessWidget {
   const _Helplines();
 
-  static const _lines = [('112', 'Emergency'), ('181', 'Women helpline'), ('1091', 'Women police'), ('1098', 'Child helpline')];
+  static const _lines = [
+    ('112', 'Emergency'),
+    ('181', 'Women helpline'),
+    ('1091', 'Women police'),
+    ('1098', 'Child helpline'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -323,12 +515,20 @@ class _Helplines extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(ShaktiSpace.xxs, ShaktiSpace.xs, ShaktiSpace.xxs, ShaktiSpace.sm),
+          padding: const EdgeInsets.fromLTRB(
+            ShaktiSpace.xxs,
+            ShaktiSpace.xs,
+            ShaktiSpace.xxs,
+            ShaktiSpace.sm,
+          ),
           child: Wrap(
             spacing: ShaktiSpace.sm,
             crossAxisAlignment: WrapCrossAlignment.end,
             children: [
-              Semantics(header: true, child: Text('Helplines', style: t.titleMedium)),
+              Semantics(
+                header: true,
+                child: Text('Helplines', style: t.titleMedium),
+              ),
               Text('Free, 24 hours, from any phone', style: t.bodySmall),
             ],
           ),

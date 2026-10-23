@@ -36,7 +36,8 @@ class ContactFormState extends State<ContactForm> {
   final _formKey = GlobalKey<FormState>();
   late final _name = TextEditingController(text: widget.initial?.name ?? '');
   late final _phone = TextEditingController(text: widget.initial?.phone ?? '');
-  late String _relationship = widget.initial?.relationship ?? EmergencyContact.relationships.first;
+  late String _relationship =
+      widget.initial?.relationship ?? EmergencyContact.relationships.first;
 
   @override
   void dispose() {
@@ -55,17 +56,27 @@ class ContactFormState extends State<ContactForm> {
   String? _validatePhone(String? v) {
     final s = v?.trim() ?? '';
     if (s.isEmpty) return 'Enter a phone number';
-    if (!PhoneNumber.isValid(s)) return 'Enter a valid mobile number, like 98450 12345';
+    if (!PhoneNumber.isValid(s)) {
+      return 'Enter a valid mobile number, like 98450 12345';
+    }
     final n = PhoneNumber.normalize(s);
-    if (PhoneNumber.helplines.contains(n)) return 'Helplines are built in. Add a person you trust';
-    if (n != widget.initial?.phone && widget.existingPhones.contains(n)) return 'This number is already a trusted contact';
+    if (PhoneNumber.helplines.contains(n)) {
+      return 'Helplines are built in. Add a person you trust';
+    }
+    if (n != widget.initial?.phone && widget.existingPhones.contains(n)) {
+      return 'This number is already a trusted contact';
+    }
     return null;
   }
 
   /// Validates; returns the draft or null.
   ContactDraft? submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return null;
-    final draft = (name: _name.text.trim(), phone: PhoneNumber.normalize(_phone.text), relationship: _relationship);
+    final draft = (
+      name: _name.text.trim(),
+      phone: PhoneNumber.normalize(_phone.text),
+      relationship: _relationship,
+    );
     widget.onSubmit?.call(draft);
     return draft;
   }
@@ -86,7 +97,11 @@ class ContactFormState extends State<ContactForm> {
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.name],
-            decoration: const InputDecoration(labelText: 'Name', prefixIcon: Icon(Icons.person_outline_rounded)),
+            decoration: const InputDecoration(
+              labelText: 'Name',
+              hintText: 'Someone you trust',
+              prefixIcon: Icon(Icons.person_outline_rounded),
+            ),
             validator: validateName,
           ),
           const SizedBox(height: ShaktiSpace.md),
@@ -99,13 +114,18 @@ class ContactFormState extends State<ContactForm> {
             decoration: const InputDecoration(
               labelText: 'Mobile number',
               helperText: 'Indian numbers get +91 added',
+              helperMaxLines: 3,
+              errorMaxLines: 4,
               prefixIcon: Icon(Icons.phone_outlined),
             ),
             validator: _validatePhone,
             onFieldSubmitted: (_) => widget.onSubmit == null ? null : submit(),
           ),
           const SizedBox(height: ShaktiSpace.md),
-          Semantics(header: true, child: Text('Relationship', style: t.labelMedium)),
+          Semantics(
+            header: true,
+            child: Text('Relationship', style: t.labelMedium),
+          ),
           const SizedBox(height: ShaktiSpace.xs),
           Wrap(
             spacing: ShaktiSpace.xs,
@@ -116,17 +136,24 @@ class ContactFormState extends State<ContactForm> {
                   label: Text(r),
                   selected: _relationship == r,
                   onSelected: (_) => setState(() => _relationship = r),
-                  selectedColor: ShaktiColors.action.withValues(alpha: 0.28),
+                  selectedColor: ShaktiColors.lilac.withValues(alpha: 0.18),
+                  checkmarkColor: ShaktiColors.lilac,
+                  side: BorderSide(
+                    color: _relationship == r
+                        ? ShaktiColors.lilac.withValues(alpha: 0.5)
+                        : ShaktiColors.glassEdge,
+                  ),
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                 ),
             ],
           ),
           if (widget.onSubmit != null) ...[
             const SizedBox(height: ShaktiSpace.lg),
-            FilledButton(
+            FilledButton.icon(
               key: const ValueKey('contact-save'),
               onPressed: submit,
-              child: Text(widget.submitLabel ?? 'Save contact'),
+              icon: const Icon(Icons.check_rounded),
+              label: Text(widget.submitLabel ?? 'Save contact'),
             ),
           ],
         ],

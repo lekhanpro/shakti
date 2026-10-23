@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/pin_pad.dart';
 import '../../../core/widgets/shakti_mark.dart';
+import '../../../core/widgets/glass_surface.dart';
 import '../../../domain/entities/entities.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/application/startup.dart';
@@ -29,7 +30,9 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeBiometric(auto: true));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _maybeBiometric(auto: true),
+    );
   }
 
   @override
@@ -41,8 +44,12 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   Future<void> _maybeBiometric({bool auto = false}) async {
     final settings = ref.read(liveSettingsProvider).value;
     if (settings == null || !settings.biometricUnlock) return;
-    final ok = await ref.read(lockControllerProvider.notifier).unlockWithBiometrics();
-    if (!ok && !auto && mounted) setState(() => _error = 'Fingerprint not recognised. Use your PIN');
+    final ok = await ref
+        .read(lockControllerProvider.notifier)
+        .unlockWithBiometrics();
+    if (!ok && !auto && mounted) {
+      setState(() => _error = 'Fingerprint not recognised. Use your PIN');
+    }
   }
 
   void _startLockoutTicker() {
@@ -59,7 +66,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     });
   }
 
-  static String _lockoutText(Duration d) => 'Too many attempts. Try again in ${d.inSeconds + 1} s';
+  static String _lockoutText(Duration d) =>
+      'Too many attempts. Try again in ${d.inSeconds + 1} s';
 
   Future<void> _submit(String pin) async {
     final result = await ref.read(lockControllerProvider.notifier).unlock(pin);
@@ -71,10 +79,16 @@ class _LockScreenState extends ConsumerState<LockScreen> {
         // Both look identical to an onlooker; the router takes over.
         setState(() => _error = null);
       case UnlockResult.wrong:
-        final left = LockController.maxAttempts - ref.read(lockControllerProvider).failedAttempts;
-        setState(() => _error = 'Wrong PIN. $left ${left == 1 ? 'try' : 'tries'} left');
+        final left =
+            LockController.maxAttempts -
+            ref.read(lockControllerProvider).failedAttempts;
+        setState(
+          () => _error = 'Wrong PIN. $left ${left == 1 ? 'try' : 'tries'} left',
+        );
       case UnlockResult.lockedOut:
-        final left = ref.read(lockControllerProvider.notifier).lockoutRemaining ?? LockController.baseLockout;
+        final left =
+            ref.read(lockControllerProvider.notifier).lockoutRemaining ??
+            LockController.baseLockout;
         setState(() => _error = _lockoutText(left));
         _startLockoutTicker();
     }
@@ -86,45 +100,94 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     final t = Theme.of(context).textTheme;
     final settings = ref.watch(liveSettingsProvider).value;
     final lock = ref.watch(lockControllerProvider);
-    final locked = ref.read(lockControllerProvider.notifier).lockoutRemaining != null;
+    final locked =
+        ref.read(lockControllerProvider.notifier).lockoutRemaining != null;
 
     return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, c) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: c.maxHeight),
-              child: Padding(
-                padding: ShaktiSpace.screen,
-                child: Column(
-                  children: [
-                    const SizedBox(height: ShaktiSpace.xl),
-                    const ShaktiMark(size: 56),
-                    const SizedBox(height: ShaktiSpace.md),
-                    Semantics(header: true, child: Text('Enter PIN', style: t.headlineMedium)),
-                    const SizedBox(height: ShaktiSpace.xs),
-                    PinPad(
-                      key: _pad,
-                      onSubmit: _submit,
-                      shuffle: false,
-                      enabled: !lock.busy && !locked,
-                      errorText: _error,
-                    ),
-                    if (settings?.biometricUnlock ?? false)
-                      TextButton.icon(
-                        onPressed: () => _maybeBiometric(),
-                        icon: const Icon(Icons.fingerprint_rounded),
-                        label: const Text('Use fingerprint'),
+      body: ShaktiBackdrop(
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, c) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: c.maxHeight),
+                child: Padding(
+                  padding: ShaktiSpace.screen,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: ShaktiSpace.lg),
+                          const GlassSurface(
+                            radius: 28,
+                            padding: EdgeInsets.all(20),
+                            child: ShaktiMark(
+                              size: 48,
+                              color: ShaktiColors.lilac,
+                            ),
+                          ),
+                          const SizedBox(height: ShaktiSpace.lg),
+                          Semantics(
+                            header: true,
+                            child: Text(
+                              'Welcome back',
+                              style: t.headlineLarge,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: ShaktiSpace.xs),
+                          Text(
+                            'Enter PIN',
+                            style: t.bodyLarge?.copyWith(
+                              color: ShaktiColors.textMid,
+                            ),
+                          ),
+                          const SizedBox(height: ShaktiSpace.md),
+                          PinPad(
+                            key: _pad,
+                            onSubmit: _submit,
+                            shuffle: false,
+                            enabled: !lock.busy && !locked,
+                            errorText: _error,
+                          ),
+                          if (settings?.biometricUnlock ?? false)
+                            TextButton.icon(
+                              onPressed: () => _maybeBiometric(),
+                              icon: const Icon(Icons.fingerprint_rounded),
+                              label: const Text('Use fingerprint'),
+                            ),
+                          const SizedBox(height: ShaktiSpace.lg),
+                          Text(
+                            'Your emergency button is always available here.',
+                            textAlign: TextAlign.center,
+                            style: t.bodySmall?.copyWith(
+                              color: ShaktiColors.textLo,
+                            ),
+                          ),
+                          const SizedBox(height: ShaktiSpace.lg),
+                        ],
                       ),
-                    const SizedBox(height: ShaktiSpace.lg),
-                    _EmergencyButton(
-                      onPressed: () => ref.read(panicControllerProvider.notifier).trigger(TriggerSource.hudTap),
                     ),
-                    const SizedBox(height: ShaktiSpace.lg),
-                  ],
+                  ),
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            ShaktiSpace.lg,
+            ShaktiSpace.sm,
+            ShaktiSpace.lg,
+            ShaktiSpace.md,
+          ),
+          child: _EmergencyButton(
+            onPressed: () => ref
+                .read(panicControllerProvider.notifier)
+                .trigger(TriggerSource.hudTap),
           ),
         ),
       ),
@@ -143,13 +206,18 @@ class _EmergencyButton extends StatelessWidget {
       button: true,
       label: 'Emergency SOS',
       hint: 'Works without your PIN. Starts a countdown you can cancel',
+      onTap: onPressed,
       excludeSemantics: true,
       child: OutlinedButton.icon(
         key: const ValueKey('lock-emergency'),
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: ShaktiColors.sosGlow,
-          side: BorderSide(color: ShaktiColors.sos.withValues(alpha: 0.7), width: 1.5),
+          backgroundColor: ShaktiColors.surface,
+          side: BorderSide(
+            color: ShaktiColors.sos.withValues(alpha: 0.7),
+            width: 1.5,
+          ),
           minimumSize: const Size.fromHeight(56),
         ),
         icon: const Icon(Icons.sos_rounded),

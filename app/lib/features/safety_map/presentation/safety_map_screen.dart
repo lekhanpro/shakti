@@ -14,7 +14,8 @@ import 'haven_style.dart';
 LatLng _ll(GeoPoint p) => LatLng(p.lat, p.lng);
 
 /// CartoDB dark basemap: quieter than stock OSM at night, and markers pop.
-const _tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const _tileUrl =
+    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
 class SafetyMapScreen extends ConsumerStatefulWidget {
   const SafetyMapScreen({this.showTiles = true, super.key});
@@ -44,10 +45,12 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
     final s = ref.read(mapControllerProvider);
     final best = s.bestRoute;
     if (best != null && best.points.length > 1 && _mapReady) {
-      _map.fitCamera(CameraFit.coordinates(
-        coordinates: [for (final p in best.points) _ll(p)],
-        padding: const EdgeInsets.fromLTRB(48, 160, 48, 320),
-      ));
+      _map.fitCamera(
+        CameraFit.coordinates(
+          coordinates: [for (final p in best.points) _ll(p)],
+          padding: const EdgeInsets.fromLTRB(48, 160, 48, 320),
+        ),
+      );
     }
   }
 
@@ -68,9 +71,14 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
             top: 0,
             left: 0,
             right: 0,
-            child: _TopBar(state: s, onToggle: ctrl.toggleFilter, onRetry: ctrl.load),
+            child: _TopBar(
+              state: s,
+              onToggle: ctrl.toggleFilter,
+              onRetry: ctrl.load,
+            ),
           ),
           Positioned.fill(
+            bottom: ShaktiSpace.dockClearance,
             child: _HavenSheet(
               state: s,
               onFocus: _focus,
@@ -130,33 +138,20 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
                 point: _ll(h.point),
                 width: 48,
                 height: 48,
-                child: _HavenPin(haven: h, selected: s.routeTarget == h, onTap: () => _focus(h)),
+                child: _HavenPin(
+                  haven: h,
+                  selected: s.routeTarget == h,
+                  onTap: () => _focus(h),
+                ),
               ),
             if (s.me != null)
-              Marker(point: _ll(s.me!), width: 48, height: 48, child: const _MePin()),
+              Marker(
+                point: _ll(s.me!),
+                width: 48,
+                height: 48,
+                child: const _MePin(),
+              ),
           ],
-        ),
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomLeft,
-          showFlutterMapAttribution: false,
-          attributions: [
-            TextSourceAttribution(
-              'OpenStreetMap contributors',
-              onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright')),
-            ),
-            TextSourceAttribution(
-              'CARTO',
-              onTap: () => launchUrl(Uri.parse('https://carto.com/attributions')),
-            ),
-          ],
-        ),
-        // Always-visible credit line; the rich widget above is collapsible.
-        const Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.only(right: ShaktiSpace.xs, bottom: 112),
-            child: _Credit(),
-          ),
         ),
       ],
     );
@@ -166,17 +161,62 @@ class _SafetyMapScreenState extends ConsumerState<SafetyMapScreen> {
 class _Credit extends StatelessWidget {
   const _Credit();
 
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(
-          color: ShaktiColors.bg.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(ShaktiRadius.sm),
-        ),
+  void _show(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) => SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          child: Text('© OpenStreetMap, © CARTO', style: Theme.of(context).textTheme.labelSmall),
+          padding: const EdgeInsets.all(ShaktiSpace.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Map attributions',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: ShaktiSpace.md),
+              TextButton.icon(
+                onPressed: () => launchUrl(
+                  Uri.parse('https://www.openstreetmap.org/copyright'),
+                ),
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: const Text('© OpenStreetMap contributors'),
+              ),
+              TextButton.icon(
+                onPressed: () =>
+                    launchUrl(Uri.parse('https://carto.com/attributions')),
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: const Text('© CARTO'),
+              ),
+              const SizedBox(height: ShaktiSpace.sm),
+              OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
         ),
-      );
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+    onPressed: () => _show(context),
+    style: TextButton.styleFrom(
+      foregroundColor: ShaktiColors.textMid,
+      backgroundColor: ShaktiColors.bg.withValues(alpha: 0.7),
+      minimumSize: const Size(ShaktiSize.minTap, ShaktiSize.minTap),
+      padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.xs),
+    ),
+    child: Text(
+      '© OpenStreetMap, © CARTO',
+      style: Theme.of(context).textTheme.labelSmall,
+    ),
+  );
 }
 
 class _MePin extends StatelessWidget {
@@ -184,24 +224,34 @@ class _MePin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Your location',
-        child: Center(
-          child: Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              color: ShaktiColors.info,
-              shape: BoxShape.circle,
-              border: Border.all(color: ShaktiColors.textHi, width: 3),
-              boxShadow: [BoxShadow(color: ShaktiColors.info.withValues(alpha: 0.5), blurRadius: 16, spreadRadius: 6)],
+    label: 'Your location',
+    child: Center(
+      child: Container(
+        width: 22,
+        height: 22,
+        decoration: BoxDecoration(
+          color: ShaktiColors.info,
+          shape: BoxShape.circle,
+          border: Border.all(color: ShaktiColors.textHi, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: ShaktiColors.info.withValues(alpha: 0.5),
+              blurRadius: 16,
+              spreadRadius: 6,
             ),
-          ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _HavenPin extends StatelessWidget {
-  const _HavenPin({required this.haven, required this.selected, required this.onTap});
+  const _HavenPin({
+    required this.haven,
+    required this.selected,
+    required this.onTap,
+  });
 
   final SafeHaven haven;
   final bool selected;
@@ -214,10 +264,13 @@ class _HavenPin extends StatelessWidget {
       button: true,
       label: '${haven.category.label}: ${haven.name}',
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Center(
           child: AnimatedContainer(
-            duration: ShaktiMotion.fast,
+            duration: ShaktiMotion.reduced(context)
+                ? Duration.zero
+                : ShaktiMotion.press,
             width: selected ? 40 : 32,
             height: selected ? 40 : 32,
             decoration: BoxDecoration(
@@ -225,7 +278,11 @@ class _HavenPin extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: c, width: selected ? 3 : 2),
             ),
-            child: Icon(haven.category.icon, size: selected ? 22 : 18, color: c),
+            child: Icon(
+              haven.category.icon,
+              size: selected ? 22 : 18,
+              color: c,
+            ),
           ),
         ),
       ),
@@ -234,7 +291,11 @@ class _HavenPin extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.state, required this.onToggle, required this.onRetry});
+  const _TopBar({
+    required this.state,
+    required this.onToggle,
+    required this.onRetry,
+  });
 
   final MapState state;
   final ValueChanged<HavenCategory> onToggle;
@@ -243,63 +304,95 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    final largeText = MediaQuery.textScalerOf(context).scale(16) > 24;
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [ShaktiColors.bg, ShaktiColors.bg.withValues(alpha: 0.85), ShaktiColors.bg.withValues(alpha: 0)],
+          colors: [
+            ShaktiColors.bg,
+            ShaktiColors.bg.withValues(alpha: 0.85),
+            ShaktiColors.bg.withValues(alpha: 0),
+          ],
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, ShaktiSpace.sm, 20, ShaktiSpace.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Semantics(header: true, child: Text('Safe places near you', style: t.headlineSmall)),
-              if (state.fromCache && state.phase != MapPhase.loading) ...[
-                const SizedBox(height: ShaktiSpace.xs),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: ShaktiSpace.xs,
-                  children: [
-                    const StatusPill(
-                      label: 'Offline. Showing saved places',
-                      icon: Icons.cloud_off_rounded,
-                      color: ShaktiColors.warn,
-                    ),
-                    TextButton(onPressed: onRetry, child: const Text('Refresh')),
-                  ],
+          padding: const EdgeInsets.fromLTRB(
+            ShaktiSpace.md,
+            ShaktiSpace.sm,
+            ShaktiSpace.md,
+            ShaktiSpace.lg,
+          ),
+          child: GlassSurface(
+            blur: true,
+            radius: ShaktiRadius.card,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Semantics(
+                  header: true,
+                  label: largeText ? 'Safe places near you' : null,
+                  child: Text(
+                    largeText ? 'Safe places' : 'Safe places near you',
+                    style: largeText ? t.titleLarge : t.headlineSmall,
+                  ),
                 ),
-              ],
-              const SizedBox(height: ShaktiSpace.sm),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final c in HavenCategory.values)
-                      Padding(
-                        padding: const EdgeInsets.only(right: ShaktiSpace.xs),
-                        child: FilterChip(
-                          selected: state.filters.contains(c),
-                          onSelected: (_) => onToggle(c),
-                          showCheckmark: false,
-                          avatar: Icon(c.icon, size: 18, color: c.color),
-                          label: Text(c.filterLabel),
-                          selectedColor: c.color.withValues(alpha: 0.18),
-                          side: BorderSide(
-                            color: state.filters.contains(c) ? c.color.withValues(alpha: 0.7) : ShaktiColors.outline,
-                          ),
-                          materialTapTargetSize: MaterialTapTargetSize.padded,
-                        ),
+                if (!largeText) ...[
+                  const SizedBox(height: ShaktiSpace.xxs),
+                  Text('Find somewhere to pause.', style: t.bodyMedium),
+                ],
+                if (state.fromCache && state.phase != MapPhase.loading) ...[
+                  const SizedBox(height: ShaktiSpace.xs),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: ShaktiSpace.xs,
+                    children: [
+                      const StatusPill(
+                        label: 'Offline. Showing saved places',
+                        icon: Icons.cloud_off_rounded,
+                        color: ShaktiColors.warn,
                       ),
-                  ],
+                      TextButton(
+                        onPressed: onRetry,
+                        child: const Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: ShaktiSpace.sm),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final c in HavenCategory.values)
+                        Padding(
+                          padding: const EdgeInsets.only(right: ShaktiSpace.xs),
+                          child: FilterChip(
+                            selected: state.filters.contains(c),
+                            onSelected: (_) => onToggle(c),
+                            showCheckmark: false,
+                            avatar: Icon(c.icon, size: 18, color: c.color),
+                            label: Text(c.filterLabel),
+                            selectedColor: c.color.withValues(alpha: 0.18),
+                            side: BorderSide(
+                              color: state.filters.contains(c)
+                                  ? c.color.withValues(alpha: 0.7)
+                                  : ShaktiColors.outline,
+                            ),
+                            materialTapTargetSize: MaterialTapTargetSize.padded,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: ShaktiSpace.xs),
+                const Align(alignment: Alignment.centerRight, child: _Credit()),
+              ],
+            ),
           ),
         ),
       ),
@@ -336,36 +429,42 @@ class _HavenSheet extends StatelessWidget {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            DecoratedBox(
-              decoration: const BoxDecoration(
-                color: ShaktiColors.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(ShaktiRadius.lg)),
-                border: Border(top: BorderSide(color: ShaktiColors.outline)),
-              ),
+            GlassSurface(
+              radius: ShaktiRadius.lg,
+              padding: EdgeInsets.zero,
               child: CustomScrollView(
                 controller: scroll,
                 slivers: [
                   const SliverToBoxAdapter(child: _Grabber()),
                   if (state.routeTarget != null)
-                    SliverToBoxAdapter(child: _RouteCard(state: state, onClear: onClearRoute)),
+                    SliverToBoxAdapter(
+                      child: _RouteCard(state: state, onClear: onClearRoute),
+                    ),
                   ..._body(context),
-                  const SliverToBoxAdapter(child: SizedBox(height: ShaktiSpace.xl)),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: ShaktiSpace.xl),
+                  ),
                 ],
               ),
             ),
             Positioned(
-              right: 16,
+              right: ShaktiSpace.md,
               top: -64,
               child: Semantics(
                 button: true,
                 label: 'Recenter map on my location',
-                child: FloatingActionButton.small(
-                  heroTag: 'map-recenter',
-                  onPressed: onRecenter,
-                  backgroundColor: ShaktiColors.surfaceHigh,
-                  foregroundColor: ShaktiColors.textHi,
-                  tooltip: 'Recenter',
-                  child: const Icon(Icons.my_location_rounded),
+                child: Tooltip(
+                  message: 'Recenter',
+                  child: GlassSurface(
+                    onTap: onRecenter,
+                    blur: true,
+                    radius: ShaktiRadius.md,
+                    padding: const EdgeInsets.all(ShaktiSpace.sm),
+                    child: const Icon(
+                      Icons.my_location_rounded,
+                      color: ShaktiColors.lilac,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -383,7 +482,10 @@ class _HavenSheet extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(ShaktiSpace.xl),
             child: Center(
-              child: Semantics(label: 'Finding safe places', child: const CircularProgressIndicator()),
+              child: Semantics(
+                label: 'Finding safe places',
+                child: const CircularProgressIndicator(),
+              ),
             ),
           ),
         ),
@@ -400,11 +502,18 @@ class _HavenSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    const Icon(Icons.location_off_rounded, color: ShaktiColors.warn),
-                    const SizedBox(width: ShaktiSpace.sm),
-                    Expanded(child: Text('Location is off', style: t.titleMedium)),
-                  ]),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_off_rounded,
+                        color: ShaktiColors.warn,
+                      ),
+                      const SizedBox(width: ShaktiSpace.sm),
+                      Expanded(
+                        child: Text('Location is off', style: t.titleMedium),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: ShaktiSpace.xs),
                   Text(
                     'Allow location so Shakti can sort places by distance and plan a walking route.',
@@ -422,12 +531,19 @@ class _HavenSheet extends StatelessWidget {
           ),
         ),
       SliverPadding(
-        padding: const EdgeInsets.fromLTRB(20, ShaktiSpace.sm, 20, ShaktiSpace.xs),
+        padding: const EdgeInsets.fromLTRB(
+          ShaktiSpace.lg,
+          ShaktiSpace.sm,
+          ShaktiSpace.lg,
+          ShaktiSpace.xs,
+        ),
         sliver: SliverToBoxAdapter(
           child: Semantics(
             header: true,
             child: Text(
-              visible.isEmpty ? 'Nearest safe places' : '${visible.length} nearest safe places',
+              visible.isEmpty
+                  ? 'Nearest safe places'
+                  : '${visible.length} nearest safe places',
               style: t.titleMedium,
             ),
           ),
@@ -437,11 +553,18 @@ class _HavenSheet extends StatelessWidget {
         SliverToBoxAdapter(
           child: EmptyState(
             icon: Icons.travel_explore_rounded,
-            title: state.havens.isEmpty ? 'No safe places found yet' : 'Nothing matches these filters',
+            title: state.havens.isEmpty
+                ? 'No safe places found yet'
+                : 'Nothing matches these filters',
             message: state.havens.isEmpty
                 ? 'Connect to the internet once and Shakti will save nearby police, hospitals and pharmacies for offline use.'
                 : 'Turn a filter back on to see more places.',
-            action: state.havens.isEmpty ? OutlinedButton(onPressed: onRetry, child: const Text('Try again')) : null,
+            action: state.havens.isEmpty
+                ? OutlinedButton(
+                    onPressed: onRetry,
+                    child: const Text('Try again'),
+                  )
+                : null,
           ),
         )
       else
@@ -467,16 +590,16 @@ class _Grabber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: ShaktiSpace.sm),
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: ShaktiColors.outline,
-            borderRadius: BorderRadius.circular(ShaktiRadius.pill),
-          ),
-        ),
-      );
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: ShaktiSpace.sm),
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: ShaktiColors.outline,
+        borderRadius: BorderRadius.circular(ShaktiRadius.pill),
+      ),
+    ),
+  );
 }
 
 class _RouteCard extends StatelessWidget {
@@ -492,13 +615,23 @@ class _RouteCard extends StatelessWidget {
     final best = state.bestRoute;
     Widget body;
     if (state.routeLoading) {
-      body = Row(children: [
-        const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-        const SizedBox(width: ShaktiSpace.sm),
-        Expanded(child: Text('Comparing walking routes…', style: t.bodyMedium)),
-      ]);
+      body = Row(
+        children: [
+          const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          const SizedBox(width: ShaktiSpace.sm),
+          Expanded(
+            child: Text('Comparing walking routes…', style: t.bodyMedium),
+          ),
+        ],
+      );
     } else if (state.routeError != null) {
-      body = Text(state.routeError!, style: t.bodyMedium?.copyWith(color: ShaktiColors.warn));
+      body = Text(
+        state.routeError!,
+        style: t.bodyMedium?.copyWith(color: ShaktiColors.warn),
+      );
     } else if (best != null) {
       final mins = (best.durationS / 60).ceil();
       final n = state.safePlacesOnRoute;
@@ -521,7 +654,12 @@ class _RouteCard extends StatelessWidget {
       body = const SizedBox.shrink();
     }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, ShaktiSpace.sm),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.lg,
+        0,
+        ShaktiSpace.lg,
+        ShaktiSpace.sm,
+      ),
       child: ShaktiCard(
         borderColor: ShaktiColors.safe.withValues(alpha: 0.5),
         child: Row(
@@ -529,7 +667,10 @@ class _RouteCard extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.only(top: 2),
-              child: Icon(Icons.directions_walk_rounded, color: ShaktiColors.safe),
+              child: Icon(
+                Icons.directions_walk_rounded,
+                color: ShaktiColors.safe,
+              ),
             ),
             const SizedBox(width: ShaktiSpace.sm),
             Expanded(
@@ -555,7 +696,12 @@ class _RouteCard extends StatelessWidget {
 }
 
 class _HavenTile extends StatelessWidget {
-  const _HavenTile({required this.haven, required this.distanceM, required this.onFocus, required this.onWalk});
+  const _HavenTile({
+    required this.haven,
+    required this.distanceM,
+    required this.onFocus,
+    required this.onWalk,
+  });
 
   final SafeHaven haven;
   final double? distanceM;
@@ -574,7 +720,12 @@ class _HavenTile extends StatelessWidget {
     return ShaktiCard(
       onTap: onFocus,
       semanticLabel: 'Show ${haven.name} on the map',
-      padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.sm, ShaktiSpace.sm, ShaktiSpace.sm),
+      padding: const EdgeInsets.fromLTRB(
+        ShaktiSpace.md,
+        ShaktiSpace.sm,
+        ShaktiSpace.sm,
+        ShaktiSpace.sm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -584,7 +735,10 @@ class _HavenTile extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: c.withValues(alpha: 0.14), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: c.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+                ),
                 child: Icon(haven.category.icon, color: c, size: 22),
               ),
               const SizedBox(width: ShaktiSpace.sm),
@@ -596,7 +750,12 @@ class _HavenTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(meta, style: t.bodySmall),
                     if (haven.address != null && haven.address!.isNotEmpty)
-                      Text(haven.address!, style: t.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(
+                        haven.address!,
+                        style: t.bodySmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                   ],
                 ),
               ),
@@ -609,7 +768,9 @@ class _HavenTile extends StatelessWidget {
             children: [
               if (haven.phone != null && haven.phone!.isNotEmpty)
                 TextButton.icon(
-                  onPressed: () => launchUrl(Uri(scheme: 'tel', path: haven.phone!.replaceAll(' ', ''))),
+                  onPressed: () => launchUrl(
+                    Uri(scheme: 'tel', path: haven.phone!.replaceAll(' ', '')),
+                  ),
                   icon: const Icon(Icons.call_rounded, size: 20),
                   label: const Text('Call'),
                 ),

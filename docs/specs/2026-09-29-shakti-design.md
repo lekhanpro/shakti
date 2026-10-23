@@ -126,11 +126,15 @@ Sync: the `sync_queue` rows (op, table, payload, attempts) drain on connectivity
 
 ## 9. UI/UX design system
 
+Updated 22 October 2026 for the owner's approved dark liquid-glass redesign.
+Root `DESIGN.md` and `.impeccable/design.json` record the current Android system;
+the website retains its separate design record.
+
 - Tone: calm, confident, and dark-first. It will be used at night and under stress.
-- Palette tokens: a Rose 600 `#E11D48` primary (SOS only, never decorative). Indigo `#4F46E5` for actions. Emerald `#10B981` for safe states. Amber `#F59E0B` for the countdown. Surfaces run Slate 950/900/800. Text on surfaces meets 4.5:1 contrast.
-- Type: Poppins for headings and Nunito for body text, bundled offline (no runtime font fetch).
-- Scale: a 4-pt grid, 20 dp card radius, and a minimum tap target of 48 dp (the SOS button is 220 dp).
-- Motion: 150/300 ms ease-out. The SOS breathes over 1.6 s. Everything respects `MediaQuery.disableAnimations`.
+- Palette tokens: Rose `#E11D48` for SOS, indigo `#4F46E5` identity and lilac `#B6AAFF` primary controls. Emerald `#10B981` for safe states and amber `#F59E0B` for caution/countdown. Graphite ground `#080B15`, reflective surfaces `#151A2B`/`#20263D`, and legible bright text.
+- Type: Manrope headings and Inter body/controls, bundled offline with OFL licenses (no runtime font fetch).
+- Scale: a 4-pt grid, 24 dp grouped surfaces, 24 dp page inset, and a minimum tap target of 48 dp (the SOS button is 220 dp).
+- Motion: 140 ms press feedback, 240 ms navigation, 300 ms state changes with ease-out. The SOS breathes over 1.6 s. Everything respects `MediaQuery.disableAnimations`; high-contrast/accessibility settings use opaque glass fallbacks.
 - Accessibility: Semantics on every control, text scaling up to 200% without clipping, no information conveyed by colour alone (always an icon or label too), and haptics that mirror visual state.
 - Stress-mode UX: during the countdown and an active incident, the screen strips down to one primary action and large type, and shows a live channel checklist.
 - Stealth theme: the decoy UI uses a neutral grey "Notes" look.

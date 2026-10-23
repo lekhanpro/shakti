@@ -5,7 +5,11 @@ import '../theme/tokens.dart';
 /// Drag the thumb to the right to cancel. A plain "Cancel" button sits under
 /// the track for screen-reader, switch and tremor users who cannot drag.
 class SwipeToCancel extends StatefulWidget {
-  const SwipeToCancel({required this.onCancel, this.label = 'Swipe to cancel', super.key});
+  const SwipeToCancel({
+    required this.onCancel,
+    this.label = 'Swipe to cancel',
+    super.key,
+  });
 
   final VoidCallback onCancel;
   final String label;
@@ -39,7 +43,10 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
       children: [
         LayoutBuilder(
           builder: (context, c) {
-            final travel = (c.maxWidth - _thumb - 12).clamp(1.0, double.infinity);
+            final travel = (c.maxWidth - _thumb - 12).clamp(
+              1.0,
+              double.infinity,
+            );
             final progress = (_dx / travel).clamp(0.0, 1.0);
             return Semantics(
               // The track is draggable only; the button below is the
@@ -50,31 +57,52 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
                 decoration: BoxDecoration(
                   color: ShaktiColors.textHi.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(ShaktiRadius.pill),
-                  border: Border.all(color: ShaktiColors.textHi.withValues(alpha: 0.22)),
+                  border: Border.all(
+                    color: ShaktiColors.textHi.withValues(alpha: 0.22),
+                  ),
                 ),
                 child: Stack(
                   alignment: Alignment.centerLeft,
                   children: [
-                    Center(
-                      child: Opacity(
-                        opacity: 1 - progress,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(widget.label, style: t.titleMedium?.copyWith(color: ShaktiColors.textHi)),
-                            const SizedBox(width: ShaktiSpace.xs),
-                            const Icon(Icons.keyboard_double_arrow_right_rounded, color: ShaktiColors.textHi),
-                          ],
+                    Positioned.fill(
+                      left: _thumb + 18,
+                      right: 16,
+                      child: Center(
+                        child: Opacity(
+                          opacity: 1 - progress,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.label,
+                                  style: t.titleMedium?.copyWith(
+                                    color: ShaktiColors.textHi,
+                                  ),
+                                ),
+                                const SizedBox(width: ShaktiSpace.xs),
+                                const Icon(
+                                  Icons.keyboard_double_arrow_right_rounded,
+                                  color: ShaktiColors.textHi,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     AnimatedPositioned(
-                      duration: _dx == 0 && !reduced ? ShaktiMotion.base : Duration.zero,
+                      duration: _dx == 0 && !reduced
+                          ? ShaktiMotion.base
+                          : Duration.zero,
                       curve: ShaktiMotion.curve,
                       left: 6 + _dx.clamp(0.0, travel),
                       child: GestureDetector(
                         key: const ValueKey('swipe-thumb'),
-                        onHorizontalDragUpdate: (d) => setState(() => _dx = (_dx + d.delta.dx).clamp(0.0, travel)),
+                        onHorizontalDragUpdate: (d) => setState(
+                          () => _dx = (_dx + d.delta.dx).clamp(0.0, travel),
+                        ),
                         onHorizontalDragEnd: (_) {
                           if (_dx / travel >= _threshold) {
                             setState(() => _dx = travel);
@@ -86,8 +114,15 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
                         child: Container(
                           width: _thumb,
                           height: _thumb,
-                          decoration: const BoxDecoration(color: ShaktiColors.textHi, shape: BoxShape.circle),
-                          child: const Icon(Icons.close_rounded, color: ShaktiColors.sosDeep, size: 30),
+                          decoration: const BoxDecoration(
+                            color: ShaktiColors.textHi,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close_rounded,
+                            color: ShaktiColors.sosDeep,
+                            size: 30,
+                          ),
                         ),
                       ),
                     ),
@@ -106,7 +141,10 @@ class _SwipeToCancelState extends State<SwipeToCancel> {
           child: TextButton(
             key: const ValueKey('cancel-button'),
             onPressed: _fire,
-            style: TextButton.styleFrom(foregroundColor: ShaktiColors.textHi, minimumSize: const Size.fromHeight(ShaktiSize.minTap)),
+            style: TextButton.styleFrom(
+              foregroundColor: ShaktiColors.textHi,
+              minimumSize: const Size.fromHeight(ShaktiSize.minTap),
+            ),
             child: const Text('Cancel'),
           ),
         ),

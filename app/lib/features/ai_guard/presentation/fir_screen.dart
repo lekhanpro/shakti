@@ -44,9 +44,13 @@ class _FirScreenState extends ConsumerState<FirScreen> {
   void initState() {
     super.initState();
     _incidentId = widget.incidentId;
-    ref.read(settingsRepositoryProvider).load().then((s) {
-      if (mounted && _name.text.isEmpty) _name.text = s.userName;
-    }).catchError((_) {});
+    ref
+        .read(settingsRepositoryProvider)
+        .load()
+        .then((s) {
+          if (mounted && _name.text.isEmpty) _name.text = s.userName;
+        })
+        .catchError((_) {});
   }
 
   @override
@@ -58,12 +62,12 @@ class _FirScreenState extends ConsumerState<FirScreen> {
   }
 
   Incident _manualIncident() => Incident(
-        id: 'manual',
-        source: TriggerSource.hudTap,
-        status: IncidentStatus.resolved,
-        createdAt: ref.read(clockProvider).now(),
-        shareToken: '',
-      );
+    id: 'manual',
+    source: TriggerSource.hudTap,
+    status: IncidentStatus.resolved,
+    createdAt: ref.read(clockProvider).now(),
+    shareToken: '',
+  );
 
   Future<FirInput> _input(List<Incident> incidents) async {
     final match = incidents.where((i) => i.id == _incidentId);
@@ -94,7 +98,10 @@ class _FirScreenState extends ConsumerState<FirScreen> {
     String? note;
     if (ai) {
       final res = await ref.read(aiServiceProvider).draftFir(input).catchError((Object e) => Err<String>('$e'));
-      text = res.when(ok: (v) => v, err: (_) => FirTemplate.render(input, now: ref.read(clockProvider).now()));
+      text = res.when(
+        ok: (v) => v,
+        err: (_) => FirTemplate.render(input, now: ref.read(clockProvider).now()),
+      );
       if (!res.isOk) note = 'AI drafting is unavailable, so the offline template was used.';
     } else {
       text = FirTemplate.render(input, now: ref.read(clockProvider).now());
@@ -120,7 +127,8 @@ class _FirScreenState extends ConsumerState<FirScreen> {
       await Printing.sharePdf(bytes: bytes, filename: 'shakti-fir-draft.pdf');
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not create the PDF. Try again.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Could not create the PDF. Try again.')));
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -135,111 +143,132 @@ class _FirScreenState extends ConsumerState<FirScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Draft an FIR')),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, ShaktiSpace.xxl),
-          children: [
-            _Disclaimer(),
-            const SectionHeader('Incident'),
-            incidents.when(
-              loading: () => const LinearProgressIndicator(),
-              error: (_, _) => Text('Could not load incidents. You can still write one manually.', style: t.bodyMedium),
-              data: (items) => DropdownButtonFormField<String?>(
-                initialValue: items.any((i) => i.id == _incidentId) ? _incidentId : null,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Link to a recorded incident'),
-                items: [
-                  const DropdownMenuItem<String?>(value: null, child: Text('No incident, write manually')),
-                  for (final i in items)
-                    DropdownMenuItem<String?>(
-                      value: i.id,
-                      child: Text(
-                        '${_stamp(i.createdAt)}, ${i.source.label}${i.address != null ? ', ${i.address}' : ''}',
-                        overflow: TextOverflow.ellipsis,
+      body: ShaktiBackdrop(
+        child: Form(
+          key: _form,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, 0, ShaktiSpace.lg, ShaktiSpace.xxl),
+            children: [
+              const ShaktiPageHeader(
+                title: 'Build your statement',
+                subtitle: 'Your words, clearly recorded. Review before sharing.',
+              ),
+              _Disclaimer(),
+              const SectionHeader('Incident'),
+              incidents.when(
+                loading: () => const LinearProgressIndicator(),
+                error: (_, _) =>
+                    Text('Could not load incidents. You can still write one manually.', style: t.bodyMedium),
+                data: (items) => DropdownButtonFormField<String?>(
+                  initialValue: items.any((i) => i.id == _incidentId) ? _incidentId : null,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Link to a recorded incident'),
+                  items: [
+                    const DropdownMenuItem<String?>(value: null, child: Text('No incident, write manually')),
+                    for (final i in items)
+                      DropdownMenuItem<String?>(
+                        value: i.id,
+                        child: Text(
+                          '${_stamp(i.createdAt)}, ${i.source.label}${i.address != null ? ', ${i.address}' : ''}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _incidentId = v),
+                ),
+              ),
+              const SectionHeader('Your statement'),
+              GlassSurface(
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _name,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(labelText: 'Your full name'),
+                      validator: (v) =>
+                          (v ?? '').trim().isEmpty ? 'Enter your name as it should appear on the FIR' : null,
+                    ),
+                    const SizedBox(height: ShaktiSpace.sm),
+                    TextFormField(
+                      controller: _narrative,
+                      minLines: 4,
+                      maxLines: 10,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(
+                        labelText: 'What happened',
+                        alignLabelWithHint: true,
+                        helperText: 'Where, when, and what was said or done, in your own words.',
+                        helperMaxLines: 4,
+                      ),
+                      validator: (v) =>
+                          (v ?? '').trim().length < 10 ? 'Describe what happened in a sentence or two' : null,
+                    ),
+                    const SizedBox(height: ShaktiSpace.sm),
+                    TextFormField(
+                      controller: _accused,
+                      minLines: 2,
+                      maxLines: 5,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(
+                        labelText: 'Accused description (optional)',
+                        alignLabelWithHint: true,
+                        helperText: 'Height, clothes, vehicle number, anything you remember.',
+                        helperMaxLines: 4,
                       ),
                     ),
-                ],
-                onChanged: (v) => setState(() => _incidentId = v),
-              ),
-            ),
-            const SectionHeader('Your statement'),
-            TextFormField(
-              controller: _name,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Your full name'),
-              validator: (v) => (v ?? '').trim().isEmpty ? 'Enter your name as it should appear on the FIR' : null,
-            ),
-            const SizedBox(height: ShaktiSpace.sm),
-            TextFormField(
-              controller: _narrative,
-              minLines: 4,
-              maxLines: 10,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'What happened',
-                alignLabelWithHint: true,
-                helperText: 'Where, when, and what was said or done, in your own words.',
-                helperMaxLines: 2,
-              ),
-              validator: (v) => (v ?? '').trim().length < 10 ? 'Describe what happened in a sentence or two' : null,
-            ),
-            const SizedBox(height: ShaktiSpace.sm),
-            TextFormField(
-              controller: _accused,
-              minLines: 2,
-              maxLines: 5,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Accused description (optional)',
-                alignLabelWithHint: true,
-                helperText: 'Height, clothes, vehicle number, anything you remember.',
-                helperMaxLines: 2,
-              ),
-            ),
-            const SizedBox(height: ShaktiSpace.lg),
-            Wrap(
-              spacing: ShaktiSpace.sm,
-              runSpacing: ShaktiSpace.sm,
-              children: [
-                FilledButton.icon(
-                  onPressed: _drafting ? null : () => _generate(list, ai: true),
-                  icon: _drafting
-                      ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.auto_awesome_rounded),
-                  label: const Text('Draft with AI'),
+                  ],
                 ),
-                OutlinedButton.icon(
-                  onPressed: _drafting ? null : () => _generate(list, ai: false),
-                  icon: const Icon(Icons.article_outlined),
-                  label: const Text('Use offline template'),
+              ),
+              const SizedBox(height: ShaktiSpace.lg),
+              Wrap(
+                spacing: ShaktiSpace.sm,
+                runSpacing: ShaktiSpace.sm,
+                children: [
+                  FilledButton.icon(
+                    onPressed: _drafting ? null : () => _generate(list, ai: true),
+                    icon: _drafting
+                        ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.auto_awesome_rounded),
+                    label: const Text('Draft with AI'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _drafting ? null : () => _generate(list, ai: false),
+                    icon: const Icon(Icons.article_outlined),
+                    label: const Text('Use offline template'),
+                  ),
+                ],
+              ),
+              if (_note != null) ...[
+                const SizedBox(height: ShaktiSpace.sm),
+                Semantics(
+                  liveRegion: true,
+                  child: GlassSurface(
+                    borderColor: ShaktiColors.warn.withValues(alpha: 0.5),
+                    child: Text(_note!, style: t.bodyMedium),
+                  ),
                 ),
               ],
-            ),
-            if (_note != null) ...[
-              const SizedBox(height: ShaktiSpace.sm),
-              StatusPill.warn(_note!),
+              if (_draft.text.isNotEmpty) ...[
+                const SectionHeader('Draft (you can edit it)'),
+                TextField(
+                  key: const ValueKey('fir-draft'),
+                  controller: _draft,
+                  minLines: 10,
+                  maxLines: null,
+                  style: t.bodyMedium?.copyWith(color: ShaktiColors.textHi, height: 1.55),
+                  decoration: const InputDecoration(labelText: 'FIR draft', alignLabelWithHint: true),
+                ),
+                const SizedBox(height: ShaktiSpace.md),
+                FilledButton.icon(
+                  onPressed: _exporting ? null : () => _export(list),
+                  icon: _exporting
+                      ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.picture_as_pdf_rounded),
+                  label: const Text('Export PDF'),
+                ),
+              ],
             ],
-            if (_draft.text.isNotEmpty) ...[
-              const SectionHeader('Draft (you can edit it)'),
-              TextField(
-                key: const ValueKey('fir-draft'),
-                controller: _draft,
-                minLines: 10,
-                maxLines: null,
-                style: t.bodyMedium?.copyWith(color: ShaktiColors.textHi, height: 1.55),
-                decoration: const InputDecoration(labelText: 'FIR draft', alignLabelWithHint: true),
-              ),
-              const SizedBox(height: ShaktiSpace.md),
-              FilledButton.icon(
-                onPressed: _exporting ? null : () => _export(list),
-                icon: _exporting
-                    ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.picture_as_pdf_rounded),
-                label: const Text('Export PDF'),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -250,18 +279,13 @@ class _Disclaimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.only(top: ShaktiSpace.xs),
-      padding: const EdgeInsets.all(ShaktiSpace.md),
-      decoration: BoxDecoration(
-        color: ShaktiColors.info.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(ShaktiRadius.md),
-        border: Border.all(color: ShaktiColors.info.withValues(alpha: 0.4)),
-      ),
+    return GlassSurface(
+      borderColor: ShaktiColors.lilac.withValues(alpha: 0.35),
+      color: ShaktiColors.ambient,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.gavel_rounded, color: ShaktiColors.info),
+          const Icon(Icons.gavel_rounded, color: ShaktiColors.lilac),
           const SizedBox(width: ShaktiSpace.sm),
           Expanded(
             child: Text(

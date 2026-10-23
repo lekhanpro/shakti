@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/widgets.dart';
 import '../../../domain/entities/entities.dart';
 import '../../panic/application/panic_controller.dart';
 import '../application/ai_controller.dart';
@@ -50,7 +51,7 @@ class _AiGuardScreenState extends ConsumerState<AiGuardScreen> {
       if (ShaktiMotion.reduced(context)) {
         _scroll.jumpTo(to);
       } else {
-        _scroll.animateTo(to, duration: ShaktiMotion.base, curve: ShaktiMotion.curve);
+        _scroll.animateTo(to, duration: ShaktiMotion.navigation, curve: ShaktiMotion.curve);
       }
     });
   }
@@ -96,17 +97,31 @@ class _AiGuardScreenState extends ConsumerState<AiGuardScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (s.showCrisis) _CrisisBanner(onDismiss: ctrl.dismissCrisis),
-          Expanded(
-            child: !s.loaded
-                ? const Center(child: CircularProgressIndicator())
-                : s.messages.isEmpty && !s.typing
+      body: ShaktiBackdrop(
+        child: LayoutBuilder(
+          builder: (context, box) => Column(
+            children: [
+              if (s.showCrisis)
+                Flexible(
+                  flex: 0,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: box.maxHeight * 0.38),
+                    child: SingleChildScrollView(child: _CrisisBanner(onDismiss: ctrl.dismissCrisis)),
+                  ),
+                ),
+              Expanded(
+                child: !s.loaded
+                    ? const Center(child: CircularProgressIndicator())
+                    : s.messages.isEmpty && !s.typing
                     ? _EmptyChat(onPick: _send)
                     : ListView(
                         controller: _scroll,
-                        padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.sm, ShaktiSpace.md, ShaktiSpace.md),
+                        padding: const EdgeInsets.fromLTRB(
+                          ShaktiSpace.lg,
+                          ShaktiSpace.md,
+                          ShaktiSpace.lg,
+                          ShaktiSpace.md,
+                        ),
                         children: [
                           for (final m in s.messages)
                             if (m.role != ChatRole.system) _Bubble(message: m),
@@ -115,9 +130,11 @@ class _AiGuardScreenState extends ConsumerState<AiGuardScreen> {
                           if (s.error != null) _ErrorCard(message: s.error!, onRetry: ctrl.retry),
                         ],
                       ),
+              ),
+              _Composer(controller: _input, busy: s.typing, onSend: _send),
+            ],
           ),
-          _Composer(controller: _input, busy: s.typing, onSend: _send),
-        ],
+        ),
       ),
     );
   }
@@ -149,9 +166,7 @@ class _CrisisBanner extends ConsumerWidget {
               children: [
                 const Icon(Icons.emergency_rounded, color: ShaktiColors.textHi),
                 const SizedBox(width: ShaktiSpace.xs),
-                Expanded(
-                  child: Text('If you are in danger, get help now', style: t.titleMedium),
-                ),
+                Expanded(child: Text('If you are in danger, get help now', style: t.titleMedium)),
                 IconButton(
                   onPressed: onDismiss,
                   tooltip: 'Hide help banner',
@@ -165,7 +180,10 @@ class _CrisisBanner extends ConsumerWidget {
               runSpacing: ShaktiSpace.xs,
               children: [
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: ShaktiColors.textHi, foregroundColor: ShaktiColors.sosDeep),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: ShaktiColors.textHi,
+                    foregroundColor: ShaktiColors.sosDeep,
+                  ),
                   onPressed: () => _dial('112'),
                   icon: const Icon(Icons.call_rounded),
                   label: const Text('Call 112'),
@@ -239,12 +257,22 @@ class _EmptyChat extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, ShaktiSpace.xl, 20, ShaktiSpace.lg),
+      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.md, ShaktiSpace.lg, ShaktiSpace.lg),
       children: [
-        const Icon(Icons.auto_awesome_rounded, color: ShaktiColors.action, size: 36),
-        const SizedBox(height: ShaktiSpace.md),
-        Text('Ask Guardian anything about staying safe', style: t.headlineSmall),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: GlassSurface(
+            radius: ShaktiRadius.card,
+            padding: const EdgeInsets.all(ShaktiSpace.md),
+            color: ShaktiColors.ambient,
+            child: const Icon(Icons.auto_awesome_rounded, color: ShaktiColors.lilac, size: 32),
+          ),
+        ),
+        const SizedBox(height: ShaktiSpace.lg),
+        Text('A calmer next step.', style: t.headlineLarge),
         const SizedBox(height: ShaktiSpace.xs),
+        Text('Ask Guardian anything about staying safe', style: t.titleMedium),
+        const SizedBox(height: ShaktiSpace.sm),
         Text(
           'Short, practical answers about your rights, routes and what to do right now. Not a replacement for 112.',
           style: t.bodyMedium,
@@ -253,13 +281,19 @@ class _EmptyChat extends StatelessWidget {
         for (final q in guardianSuggestions)
           Padding(
             padding: const EdgeInsets.only(bottom: ShaktiSpace.xs),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ActionChip(
-                avatar: const Icon(Icons.north_east_rounded, size: 16),
-                label: Text(q),
-                onPressed: () => onPick(q),
-                materialTapTargetSize: MaterialTapTargetSize.padded,
+            child: GlassSurface(
+              onTap: () => onPick(q),
+              semanticLabel: q,
+              padding: const EdgeInsets.all(ShaktiSpace.md),
+              radius: ShaktiRadius.md,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(q, style: t.bodyMedium?.copyWith(color: ShaktiColors.textHi)),
+                  ),
+                  const SizedBox(width: ShaktiSpace.sm),
+                  const Icon(Icons.north_east_rounded, size: 20, color: ShaktiColors.lilac),
+                ],
               ),
             ),
           ),
@@ -280,17 +314,18 @@ class _Bubble extends StatelessWidget {
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.82),
+        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.86),
         child: Container(
           margin: const EdgeInsets.only(bottom: ShaktiSpace.sm),
           padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.md, vertical: ShaktiSpace.sm),
           decoration: BoxDecoration(
-            color: mine ? ShaktiColors.actionDeep : ShaktiColors.surfaceHigh,
+            color: mine ? ShaktiColors.ambient : ShaktiColors.surface,
+            border: Border.all(color: mine ? ShaktiColors.lilac.withValues(alpha: 0.4) : ShaktiColors.glassEdge),
             borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(ShaktiRadius.md),
-              topRight: const Radius.circular(ShaktiRadius.md),
-              bottomLeft: Radius.circular(mine ? ShaktiRadius.md : 4),
-              bottomRight: Radius.circular(mine ? 4 : ShaktiRadius.md),
+              topLeft: const Radius.circular(ShaktiRadius.card),
+              topRight: const Radius.circular(ShaktiRadius.card),
+              bottomLeft: Radius.circular(mine ? ShaktiRadius.card : ShaktiRadius.sm),
+              bottomRight: Radius.circular(mine ? ShaktiRadius.sm : ShaktiRadius.card),
             ),
           ),
           child: Semantics(
@@ -323,12 +358,15 @@ class _Typing extends StatelessWidget {
             color: ShaktiColors.surfaceHigh,
             borderRadius: BorderRadius.circular(ShaktiRadius.md),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (!ShaktiMotion.reduced(context))
-              const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-            if (!ShaktiMotion.reduced(context)) const SizedBox(width: ShaktiSpace.xs),
-            Text('Guardian is typing…', style: t.bodyMedium),
-          ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!ShaktiMotion.reduced(context))
+                const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+              if (!ShaktiMotion.reduced(context)) const SizedBox(width: ShaktiSpace.xs),
+              Text('Guardian is typing…', style: t.bodyMedium),
+            ],
+          ),
         ),
       ),
     );
@@ -355,14 +393,20 @@ class _ErrorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            const Icon(Icons.cloud_off_rounded, color: ShaktiColors.warn),
-            const SizedBox(width: ShaktiSpace.xs),
-            Expanded(child: Text(message, style: t.titleSmall)),
-          ]),
+          Row(
+            children: [
+              const Icon(Icons.cloud_off_rounded, color: ShaktiColors.warn),
+              const SizedBox(width: ShaktiSpace.xs),
+              Expanded(child: Text(message, style: t.titleSmall)),
+            ],
+          ),
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: const Text('Try again')),
+            child: TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Try again'),
+            ),
           ),
           const Divider(),
           const SizedBox(height: ShaktiSpace.xs),
@@ -398,44 +442,53 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: ShaktiColors.surface,
-        border: Border(top: BorderSide(color: ShaktiColors.outline)),
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        ShaktiSpace.md,
+        ShaktiSpace.xs,
+        ShaktiSpace.md,
+        keyboardOpen ? ShaktiSpace.sm : ShaktiSpace.dockClearance,
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.xs, ShaktiSpace.xs, ShaktiSpace.xs),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: TextField(
-                  key: const ValueKey('chat-input'),
-                  controller: controller,
-                  minLines: 1,
-                  maxLines: 5,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(hintText: 'Message Guardian', labelText: null),
+      child: GlassSurface(
+        radius: ShaktiRadius.card,
+        padding: const EdgeInsets.all(ShaktiSpace.xs),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: TextField(
+                key: const ValueKey('chat-input'),
+                controller: controller,
+                minLines: 1,
+                maxLines: 4,
+                keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  hintText: 'Message Guardian',
+                  labelText: null,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
                 ),
               ),
-              const SizedBox(width: ShaktiSpace.xs),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: IconButton.filled(
-                  onPressed: busy ? null : () => onSend(null),
-                  tooltip: 'Send message',
-                  style: IconButton.styleFrom(
-                    backgroundColor: ShaktiColors.actionDeep,
-                    minimumSize: const Size(52, 52),
-                  ),
-                  icon: const Icon(Icons.arrow_upward_rounded),
+            ),
+            const SizedBox(width: ShaktiSpace.xs),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: IconButton.filled(
+                onPressed: busy ? null : () => onSend(null),
+                tooltip: 'Send message',
+                style: IconButton.styleFrom(
+                  backgroundColor: ShaktiColors.lilac,
+                  foregroundColor: ShaktiColors.bg,
+                  minimumSize: const Size(52, 52),
                 ),
+                icon: const Icon(Icons.arrow_upward_rounded),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

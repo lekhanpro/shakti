@@ -29,22 +29,23 @@ class EscortScreen extends ConsumerWidget {
     final s = ref.watch(escortControllerProvider);
     ref.listen(escortControllerProvider.select((v) => v.warned), (prev, next) {
       if (next && prev == false && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('2 minutes left. Check in or add time, or your contacts get an SOS.'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('2 minutes left. Check in or add time, or your contacts get an SOS.')),
+        );
       }
     });
     return Scaffold(
-      appBar: AppBar(title: const Text('Walk with me')),
-      body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: ShaktiMotion.reduced(context) ? Duration.zero : ShaktiMotion.base,
-          child: switch (s.status) {
-            EscortStatus.running => const _RunningView(key: ValueKey('running')),
-            EscortStatus.checkedIn => _DoneView(key: const ValueKey('done'), state: s),
-            EscortStatus.expired => const _ExpiredView(key: ValueKey('expired')),
-            EscortStatus.idle => const _SetupView(key: ValueKey('setup')),
-          },
+      body: ShaktiBackdrop(
+        child: SafeArea(
+          child: AnimatedSwitcher(
+            duration: ShaktiMotion.reduced(context) ? Duration.zero : ShaktiMotion.navigation,
+            child: switch (s.status) {
+              EscortStatus.running => const _RunningView(key: ValueKey('running')),
+              EscortStatus.checkedIn => _DoneView(key: const ValueKey('done'), state: s),
+              EscortStatus.expired => const _ExpiredView(key: ValueKey('expired')),
+              EscortStatus.idle => const _SetupView(key: ValueKey('setup')),
+            },
+          ),
         ),
       ),
     );
@@ -74,11 +75,24 @@ class _SetupViewState extends ConsumerState<_SetupView> {
     final t = Theme.of(context).textTheme;
     final places = ref.watch(_safePlacesProvider);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, ShaktiSpace.xs, 20, ShaktiSpace.xl),
+      padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xs, ShaktiSpace.lg, ShaktiSpace.dockClearance),
       children: [
-        Text(
-          'Set how long your walk should take. If you do not check in with your PIN by then, Shakti sends an SOS for you.',
-          style: t.bodyLarge?.copyWith(color: ShaktiColors.textMid),
+        const ShaktiPageHeader(title: 'Walk with me', subtitle: 'A little company. All the way home.'),
+        GlassSurface(
+          color: ShaktiColors.ambient,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.directions_walk_rounded, color: ShaktiColors.lilac),
+              const SizedBox(width: ShaktiSpace.sm),
+              Expanded(
+                child: Text(
+                  'Choose your time. If you do not check in with your PIN before it ends, Shakti sends an SOS for you.',
+                  style: t.bodyMedium?.copyWith(color: ShaktiColors.textMid),
+                ),
+              ),
+            ],
+          ),
         ),
         const SectionHeader('How long'),
         Wrap(
@@ -153,11 +167,10 @@ class _SetupViewState extends ConsumerState<_SetupView> {
                   ],
                 ),
         ),
-        const SizedBox(height: ShaktiSpace.xl),
+        const SizedBox(height: ShaktiSpace.lg),
         FilledButton.icon(
-          onPressed: () => ref
-              .read(escortControllerProvider.notifier)
-              .start(Duration(minutes: _minutes), destination: _dest),
+          onPressed: () =>
+              ref.read(escortControllerProvider.notifier).start(Duration(minutes: _minutes), destination: _dest),
           icon: const Icon(Icons.directions_walk_rounded),
           label: Text('Start $_minutes min walk'),
         ),
@@ -197,14 +210,15 @@ class _RunningView extends ConsumerWidget {
     final s = ref.watch(escortControllerProvider);
     final t = Theme.of(context).textTheme;
     final ctrl = ref.read(escortControllerProvider.notifier);
-    final color = s.warned ? ShaktiColors.warn : ShaktiColors.safe;
+    final color = s.warned ? ShaktiColors.warn : ShaktiColors.lilac;
 
     return LayoutBuilder(
       builder: (context, box) {
-        final ring = math.min(280.0, box.maxWidth - 64);
+        final ring = math.min(264.0, box.maxWidth - ShaktiSpace.xxl);
         return ListView(
-          padding: const EdgeInsets.fromLTRB(20, ShaktiSpace.md, 20, ShaktiSpace.xl),
+          padding: const EdgeInsets.fromLTRB(ShaktiSpace.lg, ShaktiSpace.xs, ShaktiSpace.lg, ShaktiSpace.dockClearance),
           children: [
+            const ShaktiPageHeader(title: 'Walk with me', subtitle: 'Your walk, at your pace.'),
             if (s.arrivedAt != null && !s.arrivalHandled) ...[
               _ArrivalCard(place: s.arrivedAt!),
               const SizedBox(height: ShaktiSpace.md),
@@ -232,7 +246,10 @@ class _RunningView extends ConsumerWidget {
                                   color: ShaktiColors.textHi,
                                 ),
                               ),
-                              Text(s.warned ? 'Check in now' : 'until SOS', style: t.labelMedium?.copyWith(color: color)),
+                              Text(
+                                s.warned ? 'Check in now' : 'until SOS',
+                                style: t.labelMedium?.copyWith(color: color),
+                              ),
                             ],
                           ),
                         ),
@@ -243,10 +260,27 @@ class _RunningView extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: ShaktiSpace.md),
-            Center(
-              child: s.destination != null
-                  ? StatusPill(label: 'Walking to ${s.destination!.name}', icon: Icons.place_rounded, color: color)
-                  : StatusPill(label: 'Walk in progress', icon: Icons.directions_walk_rounded, color: color),
+            GlassSurface(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(s.destination != null ? Icons.place_rounded : Icons.directions_walk_rounded, color: color),
+                  const SizedBox(width: ShaktiSpace.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.destination != null ? 'Walking to ${s.destination!.name}' : 'Walk in progress',
+                          style: t.titleMedium,
+                        ),
+                        const SizedBox(height: ShaktiSpace.xxs),
+                        Text('Check in before the timer ends to prevent an SOS.', style: t.bodyMedium),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: ShaktiSpace.xl),
             FilledButton.icon(
@@ -299,11 +333,13 @@ class _ArrivalCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              const Icon(Icons.where_to_vote_rounded, color: ShaktiColors.safe),
-              const SizedBox(width: ShaktiSpace.sm),
-              Expanded(child: Text('Arrived at ${place.name}', style: t.titleLarge)),
-            ]),
+            Row(
+              children: [
+                const Icon(Icons.where_to_vote_rounded, color: ShaktiColors.safe),
+                const SizedBox(width: ShaktiSpace.sm),
+                Expanded(child: Text('Arrived at ${place.name}', style: t.titleLarge)),
+              ],
+            ),
             const SizedBox(height: ShaktiSpace.xs),
             Text('End the walk and text your contacts "I reached ${place.name} safely"?', style: t.bodyMedium),
             const SizedBox(height: ShaktiSpace.sm),
@@ -313,17 +349,16 @@ class _ArrivalCard extends ConsumerWidget {
               children: [
                 FilledButton(
                   style: FilledButton.styleFrom(backgroundColor: ShaktiColors.safeDeep),
-                  onPressed: () => showPinCheckSheet(context,
+                  onPressed: () => showPinCheckSheet(
+                    context,
                     title: 'Confirm safe arrival',
                     message: 'Enter your PIN to end the walk and notify contacts.',
                     submitLabel: 'Check in',
-                    verify: (pin) => ctrl.answerArrival(checkIn: true, pin: pin)),
+                    verify: (pin) => ctrl.answerArrival(checkIn: true, pin: pin),
+                  ),
                   child: const Text('Check in and tell them'),
                 ),
-                TextButton(
-                  onPressed: () => ctrl.answerArrival(checkIn: false),
-                  child: const Text('Not yet'),
-                ),
+                TextButton(onPressed: () => ctrl.answerArrival(checkIn: false), child: const Text('Not yet')),
               ],
             ),
           ],
@@ -342,7 +377,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const stroke = 14.0;
+    const stroke = 8.0;
     final rect = Offset.zero & size;
     final r = rect.deflate(stroke / 2);
     canvas.drawArc(
@@ -384,15 +419,18 @@ class _DoneView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final place = state.arrivedAt?.name;
-    return EmptyState(
-      icon: Icons.verified_user_rounded,
-      title: place != null ? 'You reached $place' : 'Walk ended safely',
-      message: state.notifiedContacts > 0
-          ? 'Told ${state.notifiedContacts} contact${state.notifiedContacts == 1 ? '' : 's'} you are safe.'
-          : 'The timer is off. No one was alerted.',
-      action: FilledButton(
-        onPressed: ref.read(escortControllerProvider.notifier).reset,
-        child: const Text('Plan another walk'),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: ShaktiSpace.dockClearance),
+      child: EmptyState(
+        icon: Icons.verified_user_rounded,
+        title: place != null ? 'You reached $place' : 'Walk ended safely',
+        message: state.notifiedContacts > 0
+            ? 'Told ${state.notifiedContacts} contact${state.notifiedContacts == 1 ? '' : 's'} you are safe.'
+            : 'The timer is off. No one was alerted.',
+        action: FilledButton(
+          onPressed: ref.read(escortControllerProvider.notifier).reset,
+          child: const Text('Plan another walk'),
+        ),
       ),
     );
   }
@@ -402,13 +440,16 @@ class _ExpiredView extends ConsumerWidget {
   const _ExpiredView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => EmptyState(
-        icon: Icons.emergency_share_rounded,
-        title: 'Time ran out',
-        message: 'Shakti raised an SOS and is alerting your contacts.',
-        action: OutlinedButton(
-          onPressed: ref.read(escortControllerProvider.notifier).reset,
-          child: const Text('Back to Walk with me'),
-        ),
-      );
+  Widget build(BuildContext context, WidgetRef ref) => Padding(
+    padding: const EdgeInsets.only(bottom: ShaktiSpace.dockClearance),
+    child: EmptyState(
+      icon: Icons.emergency_share_rounded,
+      title: 'Time ran out',
+      message: 'Shakti raised an SOS and is alerting your contacts.',
+      action: OutlinedButton(
+        onPressed: ref.read(escortControllerProvider.notifier).reset,
+        child: const Text('Back to Walk with me'),
+      ),
+    ),
+  );
 }

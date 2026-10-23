@@ -29,10 +29,26 @@ class _DecoyNotesScreenState extends ConsumerState<DecoyNotesScreen> {
   late final List<_Note> _notes = () {
     final now = DateTime.now();
     return [
-      _Note('Groceries', 'Milk 1L\nTomatoes\nCoriander\nAtta 5kg\nCurd\nBananas', now.subtract(const Duration(hours: 2))),
-      _Note('Class timings', 'Mon  9:00  DBMS\nMon 11:15  Maths lab\nTue 10:00  Networks\nWed  2:00  Project review\nFri  9:00  OS', now.subtract(const Duration(days: 1))),
-      _Note('Birthday gift ideas', 'Kurti from the Jayanagar shop\nPlant pot\nPhoto frame', now.subtract(const Duration(days: 4))),
-      _Note('Recharge', 'Plan ends on 12th. 299 pack.', now.subtract(const Duration(days: 9))),
+      _Note(
+        'Groceries',
+        'Milk 1L\nTomatoes\nCoriander\nAtta 5kg\nCurd\nBananas',
+        now.subtract(const Duration(hours: 2)),
+      ),
+      _Note(
+        'Class timings',
+        'Mon  9:00  DBMS\nMon 11:15  Maths lab\nTue 10:00  Networks\nWed  2:00  Project review\nFri  9:00  OS',
+        now.subtract(const Duration(days: 1)),
+      ),
+      _Note(
+        'Birthday gift ideas',
+        'Kurti from the Jayanagar shop\nPlant pot\nPhoto frame',
+        now.subtract(const Duration(days: 4)),
+      ),
+      _Note(
+        'Recharge',
+        'Plan ends on 12th. 299 pack.',
+        now.subtract(const Duration(days: 9)),
+      ),
     ];
   }();
 
@@ -44,7 +60,10 @@ class _DecoyNotesScreenState extends ConsumerState<DecoyNotesScreen> {
 
   void _startHold() {
     _hold?.cancel();
-    _hold = Timer(_exitHold, () => ref.read(appGateProvider.notifier).set(AppGate.locked));
+    _hold = Timer(
+      _exitHold,
+      () => ref.read(appGateProvider.notifier).set(AppGate.locked),
+    );
   }
 
   void _endHold() {
@@ -57,18 +76,33 @@ class _DecoyNotesScreenState extends ConsumerState<DecoyNotesScreen> {
     if (now.difference(d).inHours < 24 && now.day == d.day) {
       return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
     }
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${d.day} ${months[d.month - 1]}';
   }
 
   Future<void> _open([_Note? note]) async {
-    final saved = await Navigator.of(context).push<_Note>(
-      MaterialPageRoute(builder: (_) => _NoteEditor(note: note)),
-    );
-    if (saved == null) return;
+    final saved = await Navigator.of(
+      context,
+    ).push<_Note>(MaterialPageRoute(builder: (_) => _NoteEditor(note: note)));
+    if (!mounted || saved == null) return;
     setState(() {
       if (note == null) {
-        if (saved.title.trim().isNotEmpty || saved.body.trim().isNotEmpty) _notes.insert(0, saved);
+        if (saved.title.trim().isNotEmpty || saved.body.trim().isNotEmpty) {
+          _notes.insert(0, saved);
+        }
       } else {
         _notes
           ..remove(note)
@@ -100,45 +134,62 @@ class _DecoyNotesScreenState extends ConsumerState<DecoyNotesScreen> {
             ),
           ),
           actions: [
-            IconButton(onPressed: () {}, tooltip: 'Search', icon: const Icon(Icons.search_rounded)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: ShaktiSpace.md),
+              child: Center(
+                child: Text(
+                  '${_notes.length}',
+                  semanticsLabel: '${_notes.length} notes',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: _open,
           tooltip: 'New note',
-          backgroundColor: ShaktiColors.stealthInk,
-          foregroundColor: ShaktiColors.stealthBg,
+          backgroundColor: ShaktiColors.lightSurface,
+          foregroundColor: ShaktiColors.stealthInk,
           child: const Icon(Icons.edit_outlined),
         ),
         body: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(ShaktiSpace.md, ShaktiSpace.xs, ShaktiSpace.md, 96),
+          padding: const EdgeInsets.fromLTRB(
+            ShaktiSpace.md,
+            ShaktiSpace.md,
+            ShaktiSpace.md,
+            96,
+          ),
           itemCount: _notes.length,
-          separatorBuilder: (_, _) => const SizedBox(height: ShaktiSpace.xs),
+          separatorBuilder: (_, _) => const SizedBox(height: ShaktiSpace.sm),
           itemBuilder: (context, i) {
             final n = _notes[i];
             return Material(
               color: ShaktiColors.lightSurface,
-              borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+              borderRadius: BorderRadius.circular(ShaktiRadius.md),
               child: InkWell(
-                borderRadius: BorderRadius.circular(ShaktiRadius.sm),
+                borderRadius: BorderRadius.circular(ShaktiRadius.md),
                 onTap: () => _open(n),
                 child: Padding(
                   padding: const EdgeInsets.all(ShaktiSpace.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(n.title.isEmpty ? 'Untitled' : n.title,
-                                style: theme.textTheme.titleMedium, overflow: TextOverflow.ellipsis),
-                          ),
-                          Text(_when(n.edited), style: theme.textTheme.bodySmall),
-                        ],
+                      Text(
+                        n.title.isEmpty ? 'Untitled' : n.title,
+                        style: theme.textTheme.titleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: ShaktiSpace.xxs),
-                      Text(n.body.replaceAll('\n', ', '),
-                          maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyMedium),
+                      Text(
+                        n.body.replaceAll('\n', ', '),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: ShaktiSpace.sm),
+                      Text(_when(n.edited), style: theme.textTheme.bodySmall),
                     ],
                   ),
                 ),
@@ -153,7 +204,11 @@ class _DecoyNotesScreenState extends ConsumerState<DecoyNotesScreen> {
 
 ThemeData _stealthTheme(ThemeData base) {
   const ink = ShaktiColors.stealthInk;
-  final text = base.textTheme.apply(bodyColor: ink, displayColor: ink, fontFamily: ShaktiFonts.body);
+  final text = base.textTheme.apply(
+    bodyColor: ink,
+    displayColor: ink,
+    fontFamily: ShaktiFonts.body,
+  );
   return base.copyWith(
     brightness: Brightness.light,
     scaffoldBackgroundColor: ShaktiColors.stealthBg,
@@ -166,16 +221,26 @@ ThemeData _stealthTheme(ThemeData base) {
       onSurfaceVariant: ShaktiColors.lightTextMid,
     ),
     textTheme: text.copyWith(
-      titleLarge: text.titleLarge?.copyWith(fontFamily: ShaktiFonts.body, fontWeight: FontWeight.w700),
+      titleLarge: text.titleLarge?.copyWith(
+        fontFamily: ShaktiFonts.body,
+        fontWeight: FontWeight.w700,
+      ),
       bodySmall: text.bodySmall?.copyWith(color: ShaktiColors.lightTextLo),
       bodyMedium: text.bodyMedium?.copyWith(color: ShaktiColors.lightTextMid),
     ),
     appBarTheme: base.appBarTheme.copyWith(
       backgroundColor: ShaktiColors.stealthBg,
       foregroundColor: ink,
-      titleTextStyle: text.titleLarge?.copyWith(fontFamily: ShaktiFonts.body, fontWeight: FontWeight.w700, fontSize: 22),
+      titleTextStyle: text.titleLarge?.copyWith(
+        fontFamily: ShaktiFonts.body,
+        fontWeight: FontWeight.w700,
+        fontSize: 22,
+      ),
     ),
-    inputDecorationTheme: const InputDecorationTheme(border: InputBorder.none, filled: false),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: InputBorder.none,
+      filled: false,
+    ),
   );
 }
 
@@ -233,7 +298,9 @@ class _NoteEditorState extends State<_NoteEditor> {
               children: [
                 TextField(
                   controller: _title,
-                  style: theme.textTheme.headlineSmall?.copyWith(fontFamily: ShaktiFonts.body),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontFamily: ShaktiFonts.body,
+                  ),
                   decoration: const InputDecoration(hintText: 'Title'),
                 ),
                 Expanded(
