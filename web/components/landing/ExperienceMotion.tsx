@@ -56,5 +56,9 @@ export function ExperienceMotion() {
     };
   }, []);
 
-  return <><div ref={progressRef} className="s-scroll-progress" aria-hidden="true" /><button className="s-motion-toggle" type="button" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}{paused ? 'Resume page motion' : 'Pause page motion'}</button></>;
+  // Icon-only: the label is the accessible name, so the control stays a small
+  // circle instead of a wide pill sitting over the page's own content. The name
+  // stays fixed and aria-pressed carries the state; a name that flipped to
+  // "Resume" would announce "Resume page motion, pressed" while paused.
+  return <><div ref={progressRef} className="s-scroll-progress" aria-hidden="true" /><button className="s-motion-toggle" type="button" aria-pressed={paused} aria-label="Pause page motion" onClick={() => setPaused((value) => !value)}>{paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}</button></>;
 }

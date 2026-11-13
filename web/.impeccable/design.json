@@ -1,45 +1,96 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T00:00:00Z",
-  "title": "Design System: Shakti / Pulse Motion",
+  "generatedAt": "2026-10-31T00:00:00Z",
+  "title": "Design System: Shakti / Signal Globe",
   "extensions": {
     "colorMeta": {
-      "black": { "role": "neutral", "displayName": "Motion Black", "canonical": "#0c0c0e", "tonalRamp": ["#0c0c0e", "#141419", "#1c1c23", "#30303b", "#51515f", "#81818e", "#c5c1b9", "#f3f0e8"] },
-      "bone": { "role": "neutral", "displayName": "Bone Field", "canonical": "#f3f0e8", "tonalRamp": ["#1e1d1a", "#3b3934", "#5e5a51", "#858076", "#aaa49a", "#c5c1b9", "#e0dcd4", "#f3f0e8"] },
-      "violet": { "role": "primary", "displayName": "Electric Violet", "canonical": "#635bff", "tonalRamp": ["#17144d", "#272178", "#3a32ae", "#4d44d5", "#635bff", "#817aff", "#a49dff", "#e9e7ff"] },
-      "acid": { "role": "secondary", "displayName": "Acid Lime", "canonical": "#d8ff45", "tonalRamp": ["#1e2900", "#3c5100", "#5d7800", "#83a600", "#a8d11b", "#d8ff45", "#e5ff7d", "#f5ffc4"] },
-      "coral": { "role": "destructive", "displayName": "Emergency Coral", "canonical": "#ff5a4f", "tonalRamp": ["#4c100c", "#7c211b", "#a93229", "#d34339", "#ff5a4f", "#ff8379", "#ffaaa1", "#ffd1c9"] }
+      "night": { "role": "neutral", "displayName": "Night Field", "canonical": "#070b14", "tonalRamp": ["#070b14", "#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#f1f5f9"] },
+      "ink": { "role": "neutral", "displayName": "Page Ink", "canonical": "#f1f5f9", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#f1f5f9"] },
+      "brand": { "role": "primary", "displayName": "Signal Indigo", "canonical": "#a5b4fc", "tonalRamp": ["#1e1b4b", "#312e81", "#3730a3", "#4338ca", "#4f46e5", "#6366f1", "#a5b4fc", "#e0e7ff"] },
+      "signal": { "role": "secondary", "displayName": "Reached Emerald", "canonical": "#6ee7b7", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#6ee7b7", "#d1fae5"] },
+      "warn": { "role": "warning", "displayName": "Queued Amber", "canonical": "#fcd34d", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fcd34d", "#fef3c7"] },
+      "urgent": { "role": "destructive", "displayName": "Emergency Rose", "canonical": "#fb7185", "tonalRamp": ["#4c0519", "#881337", "#9f1239", "#be123c", "#e11d48", "#f43f5e", "#fb7185", "#ffe4e6"] },
+      "globe-land": { "role": "accent", "displayName": "Globe Land", "canonical": "#e7ecf3", "tonalRamp": ["#1e293b", "#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e7ecf3", "#ffffff"] }
     },
     "typographyMeta": {
-      "display": { "displayName": "Bricolage Grotesque", "purpose": "Oversized kinetic chapter headlines." },
-      "body": { "displayName": "Instrument Sans", "purpose": "Calm explanatory copy inside high-energy compositions." }
+      "display": { "displayName": "Bricolage Grotesque", "purpose": "Headlines, self-hosted latin subset. Capped at 4.5rem so the hero holds two lines." },
+      "body": { "displayName": "Instrument Sans", "purpose": "Reading copy and controls at a 66ch measure." },
+      "label": { "displayName": "Platform mono", "purpose": "Stage numbers and measurement only, never texture." },
+      "wordmark": { "displayName": "Bricolage Grotesque", "purpose": "The arrival overlay only, capped at 6rem. The one step above the page ramp, and the surface's ceiling." }
     },
     "motion": [
-      { "name": "ease-out-soft", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Entrance, exit, and tactile control motion." },
-      { "name": "chapter-cut", "value": "color field + scale + clip", "purpose": "Moves between visual acts without repeating card UI." },
-      { "name": "network-loop", "value": "3.4s ease-in-out", "purpose": "Carries a signal through the hero and guardian network." },
-      { "name": "reduced-motion", "value": "static ordered content", "purpose": "Removes loops and pinning while preserving the story." }
+      { "name": "ease-out-soft", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Every transition on the page, at 150ms or 300ms." },
+      { "name": "globe-ease", "value": "1 - exp(-delta * 7)", "purpose": "Exponential ease as the globe turns to face a chosen guardian." },
+      { "name": "globe-drift", "value": "2.4 deg/sec", "purpose": "Idle rotation, slow enough to read and interruptible by drag." },
+      { "name": "reduced-motion", "value": "framing without travel", "purpose": "Selection still reframes the globe; drift, packets and transitions stop." }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
+      { "name": "sm", "value": "599px" },
+      { "name": "md", "value": "899px" },
       { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1280px" }
+      { "name": "xl", "value": "1180px" }
     ]
   },
   "components": [
-    { "name": "Acid Action", "kind": "button", "refersTo": "button-acid", "description": "Primary motion-world action.", "html": "<button class=\"ds-acid\">TRY THE TRIGGER</button>", "css": ".ds-acid { display:inline-flex; min-height:52px; align-items:center; gap:9px; border:0; border-radius:999px; padding:0 22px; background:#d8ff45; color:#0c0c0e; font:700 14px/1.2 'Instrument Sans',sans-serif; transition:transform .18s cubic-bezier(.22,1,.36,1),background .18s cubic-bezier(.22,1,.36,1); } .ds-acid:hover { background:#e6ff7b; transform:translateY(-2px); } .ds-acid:focus-visible { outline:3px solid #a49dff; outline-offset:3px; }" },
-    { "name": "Outline Action", "kind": "button", "refersTo": "button-outline", "description": "Quiet action across black chapters.", "html": "<button class=\"ds-outline\">OPEN THE DEMO TRACKER</button>", "css": ".ds-outline { display:inline-flex; min-height:52px; align-items:center; gap:9px; border:1px solid #f3f0e833; border-radius:999px; padding:0 22px; background:transparent; color:#f3f0e8; font:700 14px/1.2 'Instrument Sans',sans-serif; } .ds-outline:hover { border-color:#d8ff45; color:#d8ff45; } .ds-outline:focus-visible { outline:3px solid #a49dff; outline-offset:3px; }" },
-    { "name": "Earth Signal Globe", "kind": "custom", "refersTo": "earth-field", "description": "Three.js Earth scene with real surface texture, atmosphere, cloud cover, city lights, orbit rings, and guardian arcs.", "html": "<div class=\"ds-earth\"><strong>SHAKTI</strong><span>GLOBAL SIGNAL / 01</span></div>", "css": ".ds-earth { min-height:240px; display:grid; place-items:center; border:1px solid #f3f0e833; background:radial-gradient(circle at 52% 50%,#635bff24,transparent 50%),#07142f; color:#f3f0e8; } .ds-earth strong { font:800 24px/.9 'Bricolage Grotesque',sans-serif; } .ds-earth span { margin-top:8px; color:#d8ff45; font:600 10px/1.3 ui-monospace,monospace; letter-spacing:.1em; text-transform:uppercase; }" }
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink on near-black. One per section at most.",
+      "html": "<button class=\"ds-primary\">See what happens</button>",
+      "css": ".ds-primary { display:inline-flex; min-height:48px; align-items:center; gap:10px; border:1px solid transparent; border-radius:999px; padding:0 1.4rem; background:#f1f5f9; color:#0b1220; font:600 15px/1.2 'Instrument Sans',sans-serif; transition:background-color 150ms cubic-bezier(.22,1,.36,1); } .ds-primary:hover { background:#fff; } .ds-primary:focus-visible { outline:3px solid #a5b4fc; outline-offset:3px; }"
+    },
+    {
+      "name": "Outline Action",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "A hairline, for the secondary path.",
+      "html": "<button class=\"ds-outline\">Try the guardian demo</button>",
+      "css": ".ds-outline { display:inline-flex; min-height:48px; align-items:center; gap:10px; border:1px solid rgb(226 232 240 / .16); border-radius:999px; padding:0 1.4rem; background:transparent; color:#f1f5f9; font:600 15px/1.2 'Instrument Sans',sans-serif; } .ds-outline:hover { border-color:#94a3b8; background:rgb(226 232 240 / .035); } .ds-outline:focus-visible { outline:3px solid #a5b4fc; outline-offset:3px; }"
+    },
+    {
+      "name": "Guardian Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle for one guardian. aria-pressed carries the state, not colour alone.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">Cousin<span class=\"sr-only\"> in Dubai</span></button>",
+      "css": ".ds-chip { display:inline-flex; min-height:44px; align-items:center; gap:7px; border:1px solid rgb(226 232 240 / .16); border-radius:999px; padding:0 .9rem; background:transparent; color:#cbd5e1; font:600 15px/1.2 'Instrument Sans',sans-serif; transition:border-color 150ms cubic-bezier(.22,1,.36,1),color 150ms cubic-bezier(.22,1,.36,1); } .ds-chip:hover { border-color:#94a3b8; color:#f1f5f9; } .ds-chip[aria-pressed=\"true\"] { border-color:#6ee7b7; background:rgb(110 231 183 / .1); color:#f1f5f9; }"
+    },
+    {
+      "name": "Signal Globe",
+      "kind": "custom",
+      "refersTo": "globe",
+      "description": "Dot-matrix Earth from 1.6 KB of packed bits. Orthographic camera, so DOM markers sit exactly on the rendered sphere. Arcs stay lit when the tracker link drops, because carrier SMS is independent.",
+      "html": "<div class=\"ds-globe\"><span class=\"ds-globe-limb\"></span><b>Bengaluru</b></div>",
+      "css": ".ds-globe { position:relative; width:100%; max-width:31rem; aspect-ratio:1; margin-inline:auto; background:#070b14; cursor:grab; } .ds-globe-limb { position:absolute; inset:9.68%; border:1px solid rgb(226 232 240 / .09); border-radius:50%; } .ds-globe b { position:absolute; top:46%; left:52%; color:#f1f5f9; font:600 11px/1.3 'Instrument Sans',sans-serif; } .ds-globe b::before { content:''; position:absolute; left:-14px; top:50%; width:8px; height:8px; margin-top:-4px; border:2px solid #f1f5f9; border-radius:50%; }"
+    }
   ],
   "narrative": {
-    "northStar": "Pulse Motion",
-    "overview": "This is a motion-graphic experience before it is a conventional marketing page. It borrows the discipline of motion design studies: oversized type, hard cuts between color fields, visible timing markers, offset layers, negative space, and objects that move with a reason. The opening is a black field with a luminous signal object; the story then moves through bone, violet, acid-lime, black, and coral chapters.",
-    "keyCharacteristics": ["Black and bone base contrast.", "Electric violet product signal.", "Acid-lime ready/confirmed states.", "Coral reserved for urgent help.", "Full-viewport chapters instead of repeated cards."],
-    "rules": [
-      { "name": "The Chapter Color Rule", "body": "A color owns a scene. Violet belongs to the trigger, acid-lime belongs to connection, bone belongs to editorial clarity, and coral belongs to urgent help.", "section": "colors" }
+    "northStar": "One quiet field, one object that moves",
+    "overview": "This page is read at night, often by someone who is uneasy. Everything on it is either a fact or a demonstration of a fact. The art direction is one near-black field, structure drawn in hairlines, and a single object that earns its weight: a dot-matrix globe showing one press in Bengaluru reaching five guardians. The globe is the argument, not the ornament: dropping its simulated internet connection leaves every arc lit and stops only the travelling tracker dot, because carrier SMS does not depend on an internet request.",
+    "keyCharacteristics": [
+      "One dark ground. No second surface colour, no filled cards, no glass.",
+      "Structure is hairlines and space: three rule weights do all the dividing.",
+      "Bricolage Grotesque headings, Instrument Sans reading, mono only for sequence.",
+      "One signature object, built from data already in the repository.",
+      "Emerald means reached and safe; rose is emergency only; indigo marks the product."
     ],
-    "dos": ["Do make the first viewport memorable through scale, object, and timing.", "Do use real product interactions inside the composed art direction.", "Do keep content readable without canvas, WebGL, or motion."],
-    "donts": ["Don't use a generic dark dashboard as the visual language.", "Don't turn every feature into an identical rounded card.", "Don't let the motion hide the action, the helplines, or the fact that a demo is scripted."]
+    "rules": [
+      { "name": "The Single Field Rule", "body": "One ground colour carries the whole page. A section is separated by a rule and space, never by a second background.", "section": "colors" },
+      { "name": "The Emergency Reserve Rule", "body": "Rose appears only where someone could place a real call or where an alert is actually firing. Any other use spends the one colour the page cannot afford to make ambiguous.", "section": "colors" },
+      { "name": "The Hairline Rule", "body": "If something needs separating, draw a 1px rule. A border above 1px, a filled card, or a shadow where a rule would do is the page reaching for weight it has not earned.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do let the globe explain something; every state it shows is a real product behaviour.",
+      "Do keep one ground colour and divide with rules and space.",
+      "Do reserve rose for emergency meaning and emerald for reached-and-safe.",
+      "Do verify at 1440x900 and 390x844, with reduced motion, with WebGL disabled, and by keyboard."
+    ],
+    "donts": [
+      "Don't put an eyebrow or kicker above a heading. The heading carries itself.",
+      "Don't add a second surface colour, a filled card, or a shadow where a hairline works.",
+      "Don't let decoration imply a capability: no live location, no delivery confirmation.",
+      "Don't reintroduce a photographic globe texture; the dot matrix is 1.6 KB and needs no request."
+    ]
   }
 }

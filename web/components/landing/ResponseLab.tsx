@@ -37,7 +37,12 @@ export function ResponseLab() {
   return (
     <div className="s-lab">
       <div className="s-lab-toolbar">
-        <span className="s-micro">INTERACTIVE WALKTHROUGH</span>
+        <div className="s-lab-toolbar-info" aria-hidden="true">
+          <span className="s-lab-toolbar-badge">
+            <span className="s-lab-toolbar-dot" />
+            Response Architecture
+          </span>
+        </div>
         <button type="button" className="s-connectivity" aria-pressed={online} onClick={() => setOnline((value) => !value)}>
           {online ? <Wifi size={15} aria-hidden="true" /> : <WifiOff size={15} aria-hidden="true" />}
           Internet {online ? 'connected' : 'disconnected'}
@@ -45,9 +50,15 @@ export function ResponseLab() {
       </div>
       <div className="s-lab-body">
         <div className="s-lab-phone" data-stage={step} aria-hidden="true">
+          <div className="s-phone-reflection" />
           <div className="s-phone-island" />
           <span className="s-phone-name">shakti</span>
-          <div className="s-phone-radar"><span /><span /><span /><strong>{step === 1 ? '05' : step === 4 ? '✓' : 'SOS'}</strong></div>
+          <div className="s-phone-radar">
+            <span />
+            <span />
+            <span />
+            <strong>{step === 1 ? '05' : step === 4 ? <Check size={26} aria-hidden="true" /> : 'SOS'}</strong>
+          </div>
           <b>{['Ready for your walk', 'Time to cancel', 'Reaching your people', 'Keeping them updated', 'Marked safe'][step]}</b>
           <small>{online ? 'Cloud connection available' : 'Local channels remain available'}</small>
           <div className="s-phone-trail"><i /><i /><i /><i /><i /></div>

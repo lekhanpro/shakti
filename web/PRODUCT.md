@@ -25,7 +25,7 @@ The landing page is read on mobile and desktop, often at night or under stressfu
 ## Capabilities and Constraints
 
 - Next.js 16.3.7, React 19.3, Tailwind 4, Motion, Three.js, and the existing dark-only Shakti token system.
-- The landing page keeps the existing trigger demo, guardian mesh, safety map illustration, AI/FIR scripted demo, helplines, FAQ, privacy content, and verified built/in-development status.
+- The landing page keeps the trigger demo, the five-stage SOS walkthrough, the safety map illustration, the AI/FIR scripted demo, helplines, FAQ, privacy content, the full trigger and feature inventory, and verified built/in-development status.
 - Verified facts come from the Shakti code and claim ledger. Phone-service integrations are present in source; physical-device delivery, permissions, sensor reliability, and battery validation remain separate evidence requirements.
 - The existing `/track/[token]` route remains intact.
 - The site must remain keyboard accessible, preserve visible focus, respect reduced motion, and keep all critical copy available without WebGL.
@@ -36,7 +36,7 @@ The name is Shakti. Indigo is the brand color, emerald communicates safe states,
 
 ## Evidence on Hand
 
-Fact-checked landing content is in `components/landing/content.ts`. Existing interactive demonstrations are in `components/landing/PressDemo.tsx`, `GuardianMesh.tsx`, `SafetyRadar.tsx`, and `AiDemo.tsx`. The immersive story scene is in `components/story/ScrollStory.tsx` and `components/story/cityScene.ts`.
+Fact-checked landing content is in `components/landing/content.ts`. Interactive demonstrations are in `components/landing/ResponseLab.tsx`, `PressDemo.tsx`, `SafetyRadar.tsx`, and `AiDemo.tsx`. The hero globe is `components/landing/SignalGlobe.tsx` with its geometry in `lib/globe.ts` and its land mask in `lib/globe-land.ts`, baked from a local texture by `scripts/bake-globe-land.py`.
 
 ## Product Principles
 

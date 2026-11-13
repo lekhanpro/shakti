@@ -49,7 +49,14 @@ export function Header({ downloadHref, hasDownload = false }: { downloadHref: st
       <nav ref={navRef} className="s-wrap s-nav" aria-label="Primary">
         <a href="#main" className="s-brand"><LogoMark /><span>shakti</span><small>personal safety network</small></a>
         <div className="s-nav-links">{NAV_LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</div>
-        <div className="s-nav-actions"><a href={downloadHref} className="s-nav-cta">{hasDownload ? 'Get the app' : 'Explore alpha'}<ArrowUpRight size={15} aria-hidden="true" /></a><button ref={toggleRef} type="button" className="s-menu-toggle" aria-expanded={open} aria-controls="s-mobile-nav" aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen((value) => !value)}>{open ? <X size={20} /> : <Menu size={20} />}</button></div>
+        <div className="s-nav-actions">
+          <span className="s-nav-status-badge" aria-hidden="true">
+            <span className="s-nav-status-dot" />
+            <span>Mesh Ready</span>
+          </span>
+          <a href={downloadHref} className="s-nav-cta">{hasDownload ? 'Get the app' : 'Live Demo'}<ArrowUpRight size={15} aria-hidden="true" /></a>
+          <button ref={toggleRef} type="button" className="s-menu-toggle" aria-expanded={open} aria-controls="s-mobile-nav" aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen((value) => !value)}>{open ? <X size={20} /> : <Menu size={20} />}</button>
+        </div>
         <div id="s-mobile-nav" className="s-mobile-nav" hidden={!open}>{NAV_LINKS.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}</div>
       </nav>
     </header>

@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Shakti: Your people. Within reach. Personal Safety Network.';
+export const alt = 'Shakti: Your people. One signal away. Personal Safety Network.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -15,7 +15,8 @@ export default function OpenGraphImage() {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '72px 84px',
-          background: 'linear-gradient(160deg, #0B1220 0%, #070B14 62%)',
+          // --color-deep to --color-night, the page's own ground.
+          background: 'linear-gradient(160deg, #0F172A 0%, #070B14 62%)',
           color: '#F1F5F9',
           fontFamily: 'sans-serif',
         }}
@@ -44,8 +45,9 @@ export default function OpenGraphImage() {
           <div style={{ fontSize: '76px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em' }}>
             Your people.
           </div>
-          <div style={{ fontSize: '76px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em' }}>
-            Within reach.
+          {/* Second line in --ink-3, mirroring the page's own heading emphasis. */}
+          <div style={{ fontSize: '76px', fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.03em', color: '#94A3B8' }}>
+            One signal away.
           </div>
           <div style={{ marginTop: '28px', fontSize: '30px', color: '#CBD5E1' }}>
             Personal Safety Network

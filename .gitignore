@@ -37,8 +37,13 @@ media/remotion-promo/video/out/
 .playwright-mcp/
 .playwright-cli/
 **/.claude/
+.agents/
 web/tsconfig.tsbuildinfo
 app/test/_preview/
 
-# Generated design-review screenshots
+# Generated design-review screenshots, incumbent captures, and spent
+# decision-round sketches. All are reproducible from qa/review.py or the
+# design round that produced them.
 web/.impeccable/review/
+web/.impeccable/before/
+web/.impeccable/mocks/

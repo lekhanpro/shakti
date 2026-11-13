@@ -30,7 +30,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Shakti: Your people. Within reach.',
+    default: 'Shakti: Your people. One signal away.',
     template: '%s | Shakti',
   },
   description:
@@ -40,20 +40,21 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Shakti',
     locale: 'en_IN',
-    title: 'Shakti: Your people. Within reach.',
+    title: 'Shakti: Your people. One signal away.',
     description:
       'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shakti: Your people. Within reach.',
+    title: 'Shakti: Your people. One signal away.',
     description:
       'Local-first SOS, trusted-contact alerts, and a browser-based guardian tracker.',
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#101218',
+  // Matches --color-night, so the browser chrome is the page's own ground.
+  themeColor: '#070b14',
   colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
